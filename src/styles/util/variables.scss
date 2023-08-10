@@ -1,0 +1,19 @@
+@mixin generate-vars($variable-name, $variable-value) {
+  --#{$variable-name}: #{$variable-value};
+}
+
+@function generate-vars-map($module) {
+  $vars-map: ();
+
+  @each $name, $value in $module {
+    $vars-map: map-merge($vars-map, (unquote($name): $value));
+  }
+
+  @return $vars-map;
+}
+
+@mixin get-variables-from-module($module) {
+  @each $name, $value in generate-vars-map($module) {
+    @include generate-vars($name, $value);
+  }
+}

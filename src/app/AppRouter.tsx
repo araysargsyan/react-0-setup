@@ -3,11 +3,11 @@ import {PathRouteProps, Route, Routes, Link} from 'react-router-dom';
 
 const Main = lazy( () => new Promise(resolve => {
     //@ts-ignore
-    setTimeout(() => resolve(import("./Main")), 1500)
+    setTimeout(() => resolve(import("pages/Main")), 1500)
 }));
 const About = lazy( () => new Promise(resolve => {
     //@ts-ignore
-    setTimeout(() => resolve(import("./About")), 1500)
+    setTimeout(() => resolve(import("pages/About")), 1500)
 }));
 
 export const routesConfig: Array<PathRouteProps & { Element: ComponentType; path: string }> = [

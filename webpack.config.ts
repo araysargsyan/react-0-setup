@@ -9,6 +9,7 @@ export default (env: IBuildEnv) => {
         entry: resolve(__dirname, 'src', 'index.tsx'),
         build: resolve(__dirname, 'dist'),
         html: resolve(__dirname, 'public', 'index.html'),
+        src: resolve(__dirname, 'src'),
     }
 
     const options: Omit<IBuildOptions, 'isDev'> = {

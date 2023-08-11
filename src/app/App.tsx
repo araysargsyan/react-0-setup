@@ -1,9 +1,8 @@
-import React from 'react';
 import './styles/index.scss';
-import AppRouter from "./pages/AppRouter";
-import Counter from "./components/Counter";
-import {useTheme} from "./theme/useTheme";
-import classNames from "./helpers/classNames/classNames";
+import AppRouter from "./AppRouter";
+import {useTheme} from "./providers/theme";
+import Counter from "components/Counter";
+import classNames from "helpers/classNames";
 
 function App() {
     const {theme, toggleTheme} = useTheme()

@@ -18,7 +18,7 @@ export default function ({paths, mode, port, isDev, styleMode}: IBuildOptions): 
         module: {
             rules: buildLoaders(isDev, styleMode),
         },
-        resolve: buildResolvers(),
+        resolve: buildResolvers(paths.src),
         devtool: isDev ? 'inline-source-map' : undefined,
         devServer: isDev ? buildDevServer(port) : undefined
     };

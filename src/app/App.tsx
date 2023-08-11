@@ -1,16 +1,15 @@
 import './styles/index.scss';
-import AppRouter from "./AppRouter";
 import {useTheme} from "./providers/theme";
-import Counter from "components/Counter";
 import classNames from "helpers/classNames";
+import AppRouter from "app/router";
+import Navbar from "components/Navbar"
 
 function App() {
-    const {theme, toggleTheme} = useTheme()
+    const {theme} = useTheme()
 
     return (
         <div className={classNames('app', [theme])}>
-            <div onClick={toggleTheme}>Toggle theme</div>
-            <Counter />
+            <Navbar />
             <AppRouter/>
         </div>
     );

@@ -3,8 +3,22 @@ import type {RuleSetRule} from "webpack";
 import {TStyleMode} from "./types/config";
 
 export default function (isDev: boolean, styleMode: TStyleMode): RuleSetRule[] {
-    const pattern = styleMode || 's[ac]ss'
 
+    const svgLoader = {
+        test: /\.svg$/,
+        use: ['@svgr/webpack']
+    }
+
+    const fileLoader = {
+        test: /\.(png|jpe?g|gif|woff2|woff)$/i,
+        use: [
+            {
+                loader: 'file-loader',
+            },
+        ],
+    }
+
+    const pattern = styleMode || 's[ac]ss';
     const cssLoader = {
         test: new RegExp(`\.${pattern}$`, 'i'),
         use: [
@@ -22,7 +36,6 @@ export default function (isDev: boolean, styleMode: TStyleMode): RuleSetRule[] {
         ]
     }
 
-
     //! if ot using typescript - need babel-loader
     const typescriptLoader = {
         test: /\.tsx?$/,
@@ -32,6 +45,8 @@ export default function (isDev: boolean, styleMode: TStyleMode): RuleSetRule[] {
 
     return [
         typescriptLoader,
-        cssLoader
+        cssLoader,
+        fileLoader,
+        svgLoader
     ]
 }

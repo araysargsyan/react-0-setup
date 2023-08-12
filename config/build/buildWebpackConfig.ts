@@ -14,7 +14,7 @@ export default function ({paths, mode, port, isDev, styleMode}: IBuildOptions): 
             path: paths.build,
             clean: true
         },
-        plugins: buildPlugins(paths.html),
+        plugins: buildPlugins(paths.html, isDev),
         module: {
             rules: buildLoaders(isDev, styleMode),
         },

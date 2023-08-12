@@ -2,7 +2,6 @@ import {FC} from 'react';
 import cls from './Navbar.module.scss';
 import classNames from "helpers/classNames";
 import AppLink, {EAppLinkTheme} from "shared/ui/AppLink";
-import ThemeSwitcher from "components/ThemeSwitcher";
 
 interface INavbarProps {
     className?: string;
@@ -10,7 +9,6 @@ interface INavbarProps {
 const Navbar: FC<INavbarProps> = ({className}) => {
     return (
         <div className={classNames(cls.navbar, [className])}>
-            <ThemeSwitcher />
             <div className={classNames(cls.links)}>
                 <AppLink
                     to='/'

@@ -1,6 +1,6 @@
 import {ComponentType} from "react";
 import {PathRouteProps} from "react-router-dom";
-import lazyImport from "app/router/lib/lazyImport";
+import lazyImport from "../router/lib/lazyImport";
 
 export const routesConfig: Array<PathRouteProps & { Element: ComponentType; path: string }> = [
     {

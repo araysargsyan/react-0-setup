@@ -4,12 +4,10 @@ type LazyImportReturnType = { default: ComponentType };
 type LazyImportComponent = () => Promise<LazyImportReturnType>;
 
 export default function lazyImport(component: LazyImportComponent): LazyExoticComponent<ComponentType> {
-    const isDev = true;
-
     const LazyComponent = lazy(async () => {
         let importedComponent: LazyImportReturnType;
 
-        if (isDev) {
+        if (__IS_DEV__) {
             importedComponent = await new Promise((resolve) => {
                 setTimeout(async () => resolve(await component()), 800);
             });

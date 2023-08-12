@@ -1,11 +1,13 @@
-import {IBuildOptions} from "./types/config";
-import {Configuration} from "webpack";
-import buildPlugins from "./buildPlugins";
-import buildLoaders from "./buildLoaders";
-import buildResolvers from "./buildResolvers";
-import buildDevServer from "./buildDevServer";
+import  { type Configuration } from 'webpack';
 
-export default function ({paths, mode, port, isDev, styleMode}: IBuildOptions): Configuration {
+import  { type IBuildOptions } from './types/config';
+import buildPlugins from './buildPlugins';
+import buildLoaders from './buildLoaders';
+import buildResolvers from './buildResolvers';
+import buildDevServer from './buildDevServer';
+ 
+ 
+export default function({ paths, mode, port, isDev, styleMode }: IBuildOptions): Configuration {
     return {
         mode,
         entry: paths.entry,
@@ -13,7 +15,7 @@ export default function ({paths, mode, port, isDev, styleMode}: IBuildOptions): 
             filename: '[name][contenthash].js',
             path: paths.build,
             clean: true
-        },
+        }, 
         plugins: buildPlugins(paths.html, isDev),
         module: {
             rules: buildLoaders(isDev, styleMode),

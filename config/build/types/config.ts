@@ -5,8 +5,8 @@ export interface IBuildPaths {
     src: string;
 }
 
-type TBuildMode = 'development' | 'production'
-export type TStyleMode = 'scss' | 'sass'
+type TBuildMode = 'development' | 'production';
+export type TStyleMode = 'scss' | 'sass';
 
 export interface IBuildOptions {
     styleMode?: TStyleMode;

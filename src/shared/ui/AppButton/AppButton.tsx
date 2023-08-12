@@ -1,7 +1,9 @@
-import {ButtonHTMLAttributes, FC, PropsWithChildren} from 'react';
-import cls from './AppButton.module.scss';
-import classNames from "helpers/classNames";
+import { ButtonHTMLAttributes, FC, PropsWithChildren } from 'react';
+import classNames from 'helpers/classNames';
 
+import cls from './AppButton.module.scss';
+
+ 
 export enum EAppButtonTheme {
     CLEAR = 'clear'
 }
@@ -18,12 +20,12 @@ const AppButton: FC<PropsWithChildren<IAppButtonProps>> = ({
 }) => {
     return (
         <button
-            className={classNames(cls["app-button"], [className, cls[theme]])}
-            {...otherProps}
+            className={ classNames(cls['app-button'], [ className, cls[theme] ]) }
+            { ...otherProps }
         >
-            {children}
+            { children }
         </button>
     );
-}
+};
 
 export default AppButton;

@@ -1,1 +1,2 @@
-export {default, EAppLinkTheme} from './AppLink'
+export { default, EAppLinkTheme } from './AppLink';
+ 

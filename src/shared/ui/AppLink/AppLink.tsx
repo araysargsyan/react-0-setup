@@ -1,8 +1,10 @@
-import {FC, PropsWithChildren} from 'react';
-import cls from './AppLink.module.scss';
-import classNames from "helpers/classNames";
-import {Link, LinkProps} from "react-router-dom";
+import { FC, PropsWithChildren } from 'react';
+import classNames from 'helpers/classNames';
+import { Link, LinkProps } from 'react-router-dom';
 
+import cls from './AppLink.module.scss';
+
+ 
 export enum EAppLinkTheme {
     PRYMARY = 'prymary',
     SECONDARY = 'secondary'
@@ -21,13 +23,13 @@ const AppLink: FC<PropsWithChildren<IAppLinkProps>> = ({
 }) => {
     return (
         <Link
-            className={classNames(cls["app-link"], [className, cls[theme]])}
-            to={to}
-            {...otherProps}
+            className={ classNames(cls['app-link'], [ className, cls[theme] ]) }
+            to={ to }
+            { ...otherProps }
         >
-            {children}
+            { children }
         </Link>
     );
-}
+};
 
 export default AppLink;

@@ -14,6 +14,7 @@ function App() {
     return (
         <div className={ classNames('app', [ theme ]) }>
             <Suspense fallback={ 'App loading' }>
+                <h1>{ 'ad' }</h1>
                 <Navbar />
                 <div className="content-page">
                     <Sidebar />

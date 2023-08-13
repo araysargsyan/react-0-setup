@@ -1,19 +1,22 @@
+@use 'sass:map';
+@use 'sass:string';
+
 @mixin generate-vars($variable-name, $variable-value) {
-  --#{$variable-name}: #{$variable-value};
+    --#{$variable-name}: #{$variable-value};
 }
 
 @function generate-vars-map($module) {
-  $vars-map: ();
+    $vars-map: ();
 
-  @each $name, $value in $module {
-    $vars-map: map-merge($vars-map, (unquote($name): $value));
-  }
+    @each $name, $value in $module {
+        $vars-map: map.merge($vars-map, (string.unquote($name): $value));
+    }
 
-  @return $vars-map;
+    @return $vars-map;
 }
 
 @mixin get-variables-from-module($module) {
-  @each $name, $value in generate-vars-map($module) {
-    @include generate-vars($name, $value);
-  }
+    @each $name, $value in generate-vars-map($module) {
+        @include generate-vars($name, $value);
+    }
 }

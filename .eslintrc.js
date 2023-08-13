@@ -6,10 +6,12 @@ module.exports = {
     env: {
         browser: true,
         es2021: true,
+        jest: true
     },
     extends: [
         'plugin:react/recommended',
-        'plugin:@typescript-eslint/recommended'
+        'plugin:@typescript-eslint/recommended',
+        'plugin:i18next/recommended',
     ],
     parser: '@typescript-eslint/parser',
     parserOptions: {
@@ -22,7 +24,8 @@ module.exports = {
     plugins: [
         'react',
         '@typescript-eslint',
-        'import'
+        'import',
+        'i18next',
     ],
     rules: {
         'semi': 'error',
@@ -66,7 +69,7 @@ module.exports = {
         //     argsIgnorePattern: '^_$',
         //     //varsIgnorePattern: '^_$'
         // } ],
-        //react
+        //! react
         'react/jsx-curly-spacing': [
             'error',
             {
@@ -114,7 +117,7 @@ module.exports = {
                 'beforeClosing': 'never'
             }
         ],
-        //@typescript-eslint
+        //! @typescript-eslint
         '@typescript-eslint/explicit-module-boundary-types': 'off',
         '@typescript-eslint/ban-ts-comment': 'warn',
         '@typescript-eslint/no-explicit-any': 'off',
@@ -129,7 +132,7 @@ module.exports = {
         '@typescript-eslint/ban-types': 'error',
         '@typescript-eslint/semi': 'error',
         '@typescript-eslint/member-delimiter-style': 'error',
-        //import
+        //! import
         'import/order': [
             'error',
             {
@@ -143,7 +146,12 @@ module.exports = {
         ],
         'import/consistent-type-specifier-style':  [ 'error', 'prefer-inline' ],
         'import/no-duplicates': [ 'error', { 'prefer-inline': true } ],
-        'import/newline-after-import': [ 'error', { 'count': 2, 'considerComments': false } ]
+        'import/newline-after-import': [ 'error', { 'count': 2, 'considerComments': false } ],
+        //! i18next
+        'i18next/no-literal-string': [ 'warn', {
+            validateTemplate: true, //Indicate whether to validate template strings or not. Default false
+            markupOnly: false //If markupOnly option turn on, only JSX text and strings used as JSX attributes will be validated.
+        } ],
     },
     globals: {
         __IS_DEV__: true,

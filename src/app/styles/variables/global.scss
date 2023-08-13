@@ -2,17 +2,17 @@
 @use 'themes/dark';
 @use 'themes/normal';
 @use 'sass:meta';
-
 @import "../util/variables";
 
 :root {
-  @include get-variables-from-module(meta.module-variables("root"))
+    @include get-variables-from-module(meta.module-variables("root"))
 }
 
-//themes
+// themes
 .app.dark {
-  @include get-variables-from-module(meta.module-variables("dark"))
+    @include get-variables-from-module(meta.module-variables("dark"))
 }
+
 .app.light {
-  @include get-variables-from-module(meta.module-variables("normal"))
+    @include get-variables-from-module(meta.module-variables("normal"))
 }

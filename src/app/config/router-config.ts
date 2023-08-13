@@ -13,6 +13,10 @@ export const routesConfig: Array<PathRouteProps & { Element: ComponentType; path
         path: '/about',
         Element: lazyImport(() => import('pages/About'))
     },
+    {
+        path: '*',
+        Element: lazyImport(() => import('pages/NotFound'))
+    },
 ];
 
  

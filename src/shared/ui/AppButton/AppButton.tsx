@@ -3,7 +3,7 @@ import classNames from 'helpers/classNames';
 
 import cls from './AppButton.module.scss';
 
- 
+
 export enum EAppButtonTheme {
     CLEAR = 'clear'
 }
@@ -15,12 +15,12 @@ interface IAppButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const AppButton: FC<PropsWithChildren<IAppButtonProps>> = ({
     className,
     children,
-    theme = EAppButtonTheme.CLEAR,
+    theme,
     ...otherProps
 }) => {
     return (
         <button
-            className={ classNames(cls['app-button'], [ className, cls[theme] ]) }
+            className={ classNames(cls['app-button'], [ className, cls[theme] ], { [cls[theme]]: theme }) }
             { ...otherProps }
         >
             { children }

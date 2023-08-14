@@ -12,12 +12,17 @@
     //"noImplicitThis": false
     "baseUrl": ".",
     "paths": {
-      "*": ["./src/*"]
+      "*": ["./src/*"],
+      "@config-jest/*": ["./config/jest/*"]
     }
   },
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"
     }
-  }
+  },
+  "include": [
+    "src",
+    "./config/jest/setupTests.ts"
+  ]
 }

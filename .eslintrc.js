@@ -160,5 +160,13 @@ module.exports = {
         'react': {
             version: dependencies.react,
         }
-    }
+    },
+    overrides: [
+        {
+            files: [ '**/*.test.{ts,tsx}?' ],
+            rules: {
+                'i18next/no-literal-string': 'off'
+            },
+        },
+    ],
 };

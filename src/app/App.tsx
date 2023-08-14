@@ -4,7 +4,7 @@ import AppRouter from 'app/router';
 import Navbar from 'components/Navbar';
 import Sidebar from 'components/SideBar';
 import './styles/index.scss';
- 
+
 import { useTheme } from './providers/theme';
 
 

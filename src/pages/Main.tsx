@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import BugButton from 'app/dubag/ui/BugButton';
 
  
 function Main() {
@@ -8,6 +9,7 @@ function Main() {
     return (
         <div>
             { t('Main page') }
+            <BugButton />
         </div>
     );
 }

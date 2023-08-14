@@ -6,6 +6,7 @@ import {
     ProgressPlugin
 } from 'webpack';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
 
 export default function(template: string, isDev: boolean): WebpackPluginInstance[] {
@@ -21,6 +22,9 @@ export default function(template: string, isDev: boolean): WebpackPluginInstance
         new DefinePlugin({
             __IS_DEV__: JSON.stringify(isDev)
         }),
-        new HotModuleReplacementPlugin()
+        new HotModuleReplacementPlugin(),
+        new BundleAnalyzerPlugin({
+            openAnalyzer: false
+        })
     ]; 
 }

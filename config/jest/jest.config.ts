@@ -4,9 +4,11 @@
  */
 
 import { type Config } from 'jest';
+import { resolve } from 'path';
 
 
 const config: Config = {
+    setupFilesAfterEnv: [ '<rootDir>config/jest/setupTests.ts' ],
     // All imported modules in your tests should be mocked automatically
     // automock: false,
 
@@ -125,6 +127,9 @@ const config: Config = {
 
     // The root directory that Jest should scan for tests and modules within
     rootDir: '../../',
+    modulePaths: [
+        '<rootDir>src'
+    ],
 
     // A list of paths to directories that Jest should use to search for files in
     // roots: [
@@ -147,7 +152,7 @@ const config: Config = {
     // snapshotSerializers: [],
 
     // The test environment that will be used for testing
-    //testEnvironment: 'jsdom',
+    testEnvironment: 'jsdom',
 
     // Options that will be passed to the testEnvironment
     // testEnvironmentOptions: {},
@@ -158,8 +163,6 @@ const config: Config = {
     // The glob patterns Jest uses to detect test files
     testMatch: [
         '<rootDir>src/**/*(*.)@(spec|test).[tj]s?(x)',
-        // '**/__tests__/**/*.[jt]s?(x)',
-        // '**/?(*.)+(spec|test).[tj]s?(x)'
     ],
 
     // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
@@ -178,6 +181,16 @@ const config: Config = {
 
     // A map from regular expressions to paths to transformers
     // transform: undefined,
+    // transform: { //?
+    //     //'^.+\\.tsx?$': 'ts-jest',
+    //     '^.+\\.(t|j)sx?$': 'ts-jest',
+    // },
+
+    moduleNameMapper: {
+        '^@config-jest/(.*)$': '<rootDir>/config/jest/$1',
+        '\\.s?css$': 'identity-obj-proxy',
+        '\\.svg': resolve(__dirname, 'ui/jestEmptyComponent.tsx'),
+    },
 
     // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
     // transformIgnorePatterns: [

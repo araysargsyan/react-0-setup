@@ -6,6 +6,13 @@ export default function(port: number): DevServerConfiguration {
         port,
         open: true,
         historyApiFallback: true,
-        hot: true
+        hot: true,
+        client: {
+            overlay: {
+                errors: false,
+                warnings: false,
+                runtimeErrors: false
+            },
+        }
     };
 }

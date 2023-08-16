@@ -163,10 +163,10 @@ module.exports = {
     },
     overrides: [
         {
-            files: [ '**/*.test.{ts,tsx}?' ],
+            files: [ '**/*.test.{ts,tsx}' ],
             rules: {
                 'i18next/no-literal-string': 'off'
             },
-        },
+        }
     ],
 };

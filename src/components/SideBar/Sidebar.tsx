@@ -23,7 +23,7 @@ const Sidebar: FC<ISidebarProps> = ({ className }) => {
                 data-testid="sidebar-toggle"
                 onClick={ onToggle }
             >
-                toggle
+                { 'toggle' }
             </button>
             <div className={ cls.switchers }>
                 <ThemeSwitcher />

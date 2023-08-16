@@ -187,7 +187,7 @@ const config: Config = {
     // },
 
     moduleNameMapper: {
-        '^@config-jest/(.*)$': '<rootDir>/config/jest/$1',
+        '^@config/jest/(.*)$': '<rootDir>/config/jest/$1',
         '\\.s?css$': 'identity-obj-proxy',
         '\\.svg': resolve(__dirname, 'ui/jestEmptyComponent.tsx'),
     },

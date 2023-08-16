@@ -17,6 +17,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@storybook/react": "^7.3.0",
     "@svgr/webpack": "^8.0.1",
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/react": "^14.0.0",
@@ -27,7 +28,6 @@
     "@types/react-router-dom": "^5.3.3",
     "@types/webpack": "^5.28.1",
     "@types/webpack-bundle-analyzer": "^4.6.0",
-    "@types/webpack-dev-server": "^4.7.2",
     "@typescript-eslint/eslint-plugin": "^6.3.0",
     "css-loader": "^6.8.1",
     "eslint": "^8.47.0",

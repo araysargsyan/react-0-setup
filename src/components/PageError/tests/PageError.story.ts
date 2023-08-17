@@ -1,19 +1,19 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { ETheme } from 'app/providers/theme';
 
-import Navbar from '../Navbar';
+import PageError from '../PageError';
 
 
-const meta: Meta<typeof Navbar> = {
-    title: 'components/Navbar',
-    component: Navbar,
+const meta: Meta<typeof PageError> = {
+    title: 'components/PageError',
+    component: PageError,
 };
 
 export default meta;
-type Story = StoryObj<typeof Navbar>;
+type Story = StoryObj<typeof PageError>;
 
 export const Light: Story = {};
+
 export const Dark: Story = {
     storyName: `$${ETheme.DARK}`
 };
-

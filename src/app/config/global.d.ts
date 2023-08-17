@@ -11,7 +11,7 @@ declare module '*.jpeg';
 declare module '*.jpg';
  
 declare module '*.svg' {
-    import { FC, SVGProps } from 'react';
+    import { type FC, type SVGProps } from 'react';
 
 
     const SVG: FC<SVGProps<SVGSVGElement>>;

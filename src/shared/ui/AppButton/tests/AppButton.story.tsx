@@ -1,12 +1,11 @@
 import { type Meta, type StoryObj } from '@storybook/react';
-import ThemeDecorator from '@config/storybook/lib/decorators/ThemeDecorator';
 import { ETheme } from 'app/providers/theme';
 
 import AppButton, { EAppButtonTheme } from '../AppButton';
 
 
 const meta: Meta<typeof AppButton> = {
-    title: 'shared/AppButton',
+    title: 'shared-ui/AppButton',
     component: AppButton,
 };
 
@@ -32,5 +31,5 @@ export const Outline: Story = {
         children: 'Outline',
         theme: EAppButtonTheme.OUTLINE
     },
-    decorators: [ ThemeDecorator(ETheme.DARK) ]
+    storyName: `$${ETheme.DARK}`
 };

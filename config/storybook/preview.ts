@@ -2,7 +2,7 @@ import { type Preview } from '@storybook/react';
 
 import ThemeDecorator from './lib/decorators/ThemeDecorator';
 import RouterDecorator from './lib/decorators/RouterDecorator';
-import '../../src/app/styles/index.scss';
+import 'app/styles/index.scss';
 
 
 const preview: Preview = {

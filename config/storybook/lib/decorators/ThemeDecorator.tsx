@@ -1,6 +1,6 @@
 import { StoryContext, StoryFn } from '@storybook/react';
+import { ETheme } from 'app/providers/theme';
 
-import { ETheme } from '../../../../src/app/providers/theme';
 
 
 export default function ThemeDecorator(defaultTheme = ETheme.LIGHT) {

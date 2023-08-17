@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { render } from '@testing-library/react';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';

@@ -7,11 +7,11 @@ import lazyImport from '../router/lib/lazyImport';
 export const routesConfig: Array<PathRouteProps & { Element: ComponentType; path: string }> = [
     {
         path: '/',
-        Element: lazyImport(() => import('pages/Main/Main'))
+        Element: lazyImport(() => import('pages/Main'))
     },
     {
         path: '/about',
-        Element: lazyImport(() => import('pages/About/About'))
+        Element: lazyImport(() => import('pages/About'))
     },
     {
         path: '*',

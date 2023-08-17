@@ -23,6 +23,7 @@
   },
   "include": [
     "./src",
+    "./config/storybook",
     "./config/jest/setupTests.ts"
   ]
 }

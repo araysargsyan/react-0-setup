@@ -14,8 +14,8 @@ export default (env: IBuildEnv) => {
     };
 
     const options: Omit<IBuildOptions, 'isDev'> = {
-        port: env.port || 3000,
-        mode: env.mode || 'development',
+        port: Number(env.PORT) || 3000,
+        mode: env.MODE || 'development',
         styleMode: 'scss',
         paths,
     };

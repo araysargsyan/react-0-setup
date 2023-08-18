@@ -1,11 +1,11 @@
 import { Suspense } from 'react';
 import classNames from 'helpers/classNames';
 import AppRouter from 'app/router';
-import Navbar from 'components/Navbar';
 import Sidebar from 'components/SideBar';
-import './styles/index.scss';
+import Navbar from 'components/Navbar';
 
 import { useTheme } from './providers/theme';
+import './styles/index.scss';
 
 
 function App() {

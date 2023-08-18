@@ -7,10 +7,14 @@ import {
 } from 'webpack';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
+// import Dotenv from 'dotenv-webpack';
 
 
 export default function(template: string, isDev: boolean): WebpackPluginInstance[] {
     return [
+        // new Dotenv({
+        //     path: resolve(__dirname, '../../.env')
+        // }),
         new HTMLWebpackPlugin({
             template,
         }),
@@ -20,11 +24,11 @@ export default function(template: string, isDev: boolean): WebpackPluginInstance
             chunkFilename: 'css/[name][contenthash:8].css'
         }),
         new DefinePlugin({
-            __IS_DEV__: JSON.stringify(isDev)
+            __IS_DEV__: JSON.stringify(isDev),
         }),
         new HotModuleReplacementPlugin(),
         new BundleAnalyzerPlugin({
             openAnalyzer: false
-        })
-    ]; 
+        }),
+    ];
 }

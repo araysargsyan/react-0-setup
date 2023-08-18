@@ -17,6 +17,6 @@ export interface IBuildOptions {
 }
 
 export interface IBuildEnv {
-    mode: TBuildMode;
-    port: number;
+    MODE: TBuildMode;
+    PORT: number;
 }

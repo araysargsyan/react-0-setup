@@ -15,19 +15,30 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+
       - name: Staring Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
+
       - name: Install dependencies
         run: npm install
+
+      - name: Save dependencies as an artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: dependencies
+          path: node_modules
 
   chromatic-deployment:
     runs-on: ubuntu-latest
     needs: ['install-deps']
     steps:
-#        with:
-#          fetch-depth: 0
+      - name: Restore dependencies from artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: dependencies
+
       - name: Publish to Chromatic
         uses: chromaui/action@v1
         with:
@@ -39,8 +50,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ 'install-deps' ]
     steps:
+      - name: Restore dependencies from artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: dependencies
+
       - name: linting typescript
         run: npm run lint:ts
+
       - name: linting css
         run: npm run lint:scss
 
@@ -48,5 +65,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ 'install-deps' ]
     steps:
+      - name: Restore dependencies from artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: dependencies
+
       - name: unit testing
         run: npm run unit

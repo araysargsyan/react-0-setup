@@ -21,15 +21,15 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: Install dependencies
+        run: npm install
+
       - name: Cache dependencies
         uses: actions/cache@v2
         with:
           path: |
             **/node_modules
           key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-
-      - name: Install dependencies
-        run: npm install
 
   chromatic-deployment:
     needs: ['install-deps']
@@ -76,8 +76,15 @@ jobs:
     needs: [ 'install-deps' ]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            **/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+
+#      - name: Checkout repository
+#        uses: actions/checkout@v2
 
       - name: unit testing
         run: npm run unit

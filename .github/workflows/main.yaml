@@ -13,8 +13,8 @@ jobs:
       matrix:
         node-version: [ 18.x ]
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+#      - name: Checkout repository
+#        uses: actions/checkout@v2
 
       - name: Staring Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
@@ -52,7 +52,7 @@ jobs:
           buildScriptName: build-storybook
           workingDir: /config/storybook
 
-  lint:
+  lints:
     needs: [ 'install-deps' ]
     runs-on: ubuntu-latest
     steps:
@@ -76,15 +76,15 @@ jobs:
     needs: [ 'install-deps' ]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Cache dependencies
         uses: actions/cache@v2
         with:
           path: |
             **/node_modules
           key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-
-#      - name: Checkout repository
-#        uses: actions/checkout@v2
 
       - name: unit testing
         run: npm run unit

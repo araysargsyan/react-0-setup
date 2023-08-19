@@ -13,8 +13,8 @@ jobs:
       matrix:
         node-version: [ 18.x ]
     steps:
-#      - name: Checkout repository
-#        uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
       - name: Staring Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1

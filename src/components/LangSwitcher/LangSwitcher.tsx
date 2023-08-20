@@ -24,7 +24,7 @@ const LangSwitcher: FC<LangSwitcherProps> = ({ className, short }) => {
             theme={ EAppButtonTheme.CLEAR }
             onClick={ toggle }
         >
-            { t(short ? 'Language' : 'Lang') }
+            { t(short ? 'Lang' : 'Language') }
         </AppButton>
     );
 };

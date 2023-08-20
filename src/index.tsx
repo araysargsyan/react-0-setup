@@ -4,6 +4,7 @@ import ThemeProvider from 'app/providers/theme';
 import ErrorBoundary from 'app/providers/ErrorBoundary';
 import App from 'app/App';
 import 'app/config/i18n';
+import 'app/styles/index.scss';
 
 
 const root = createRoot(document.getElementById('root') as HTMLElement);

@@ -11,7 +11,8 @@ export default function(isDev: boolean, pattern: string = 's[ac]ss') {
                 options: {
                     modules: {
                         auto: new RegExp(`\.module\.${pattern}$`, 'i'),
-                        localIdentName: isDev ? '[local]-[hash:base64:8]__[name]__[path]' : '[local]-[hash:base64:8]',
+                        //localIdentName: isDev ? '[local]-[hash:base64:8]__[name]__[path]' : '[local]-[hash:base64:8]',
+                        localIdentName: '[local]-[hash:base64:8]',
                     },
                 }
             },

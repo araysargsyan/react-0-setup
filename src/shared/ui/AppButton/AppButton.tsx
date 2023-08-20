@@ -6,6 +6,7 @@ import cls from './AppButton.module.scss';
 
 export enum EAppButtonTheme {
     CLEAR = 'clear',
+    CLEAR_INVERTED = 'clear-inverted',
     OUTLINE = 'outline',
     BACKGROUND = 'background',
     BACKGROUND_INVERTED = 'background-inverted',

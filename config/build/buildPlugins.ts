@@ -11,7 +11,7 @@ import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
 
 export default function(template: string, isDev: boolean): WebpackPluginInstance[] {
-    return [
+    const plugins: WebpackPluginInstance[] = [
         // new Dotenv({
         //     path: resolve(__dirname, '../../.env')
         // }),
@@ -26,9 +26,16 @@ export default function(template: string, isDev: boolean): WebpackPluginInstance
         new DefinePlugin({
             __IS_DEV__: JSON.stringify(isDev),
         }),
-        new HotModuleReplacementPlugin(),
-        new BundleAnalyzerPlugin({
-            openAnalyzer: false
-        }),
     ];
+
+    if (isDev) {
+        plugins.push(...[
+            new HotModuleReplacementPlugin(),
+            new BundleAnalyzerPlugin({
+                openAnalyzer: false
+            })
+        ]);
+    }
+
+    return plugins;
 }

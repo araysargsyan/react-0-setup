@@ -5,7 +5,6 @@ import Sidebar from 'components/SideBar';
 import Navbar from 'components/Navbar';
 
 import { useTheme } from './providers/theme';
-import './styles/index.scss';
 
 
 function App() {

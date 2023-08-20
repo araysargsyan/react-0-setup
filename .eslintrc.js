@@ -23,6 +23,7 @@ module.exports = {
     },
     plugins: [
         'react',
+        'react-hooks',
         '@typescript-eslint',
         'import',
         'i18next',
@@ -152,6 +153,9 @@ module.exports = {
             validateTemplate: true, //Indicate whether to validate template strings or not. Default false
             markupOnly: false //If markupOnly option turn on, only JSX text and strings used as JSX attributes will be validated.
         } ],
+        //! react-hooks
+        'react-hooks/rules-of-hooks': 'error', // Checks rules of Hooks
+        'react-hooks/exhaustive-deps': 'error', // Checks effect dependencies
     },
     globals: {
         __IS_DEV__: true,

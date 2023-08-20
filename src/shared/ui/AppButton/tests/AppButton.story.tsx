@@ -26,6 +26,13 @@ export const Clear: Story = {
     }
 };
 
+export const ClearInverted: Story = {
+    args: {
+        children: 'CLEAR_INVERTED',
+        theme: EAppButtonTheme.CLEAR_INVERTED
+    }
+};
+
 export const Outline: Story = {
     args: {
         children: 'Outline',
@@ -33,7 +40,7 @@ export const Outline: Story = {
     },
 };
 
-export const OutlineDark = {
+export const OutlineDark: Story = {
     args: {
         children: 'OutlineDark',
         theme: EAppButtonTheme.OUTLINE,
@@ -41,7 +48,7 @@ export const OutlineDark = {
     storyName: `$${ETheme.DARK}`
 };
 
-export const OutlineSizeL = {
+export const OutlineSizeL: Story = {
     args: {
         children: 'OutlineSizeL',
         theme: EAppButtonTheme.OUTLINE,
@@ -49,7 +56,7 @@ export const OutlineSizeL = {
     }
 };
 
-export const OutlineSizeXl = {
+export const OutlineSizeXl: Story = {
     args: {
         children: 'OutlineSizeXl',
         theme: EAppButtonTheme.OUTLINE,
@@ -57,21 +64,21 @@ export const OutlineSizeXl = {
     }
 };
 
-export const BackgroundTheme = {
+export const BackgroundTheme: Story = {
     args: {
         children: 'BackgroundTheme',
         theme: EAppButtonTheme.BACKGROUND,
     },
 };
 
-export const BackgroundInverted = {
+export const BackgroundInverted: Story = {
     args: {
         children: 'BackgroundInverted',
         theme: EAppButtonTheme.BACKGROUND_INVERTED,
     },
 };
 
-export const Square = {
+export const Square: Story = {
     args: {
         children: '>',
         theme: EAppButtonTheme.BACKGROUND_INVERTED,
@@ -79,7 +86,7 @@ export const Square = {
     },
 };
 
-export const SquareSizeL = {
+export const SquareSizeL: Story = {
     args: {
         children: '>',
         theme: EAppButtonTheme.BACKGROUND_INVERTED,
@@ -88,7 +95,7 @@ export const SquareSizeL = {
     },
 };
 
-export const SquareSizeXl = {
+export const SquareSizeXl: Story = {
     args: {
         children: '>',
         theme: EAppButtonTheme.BACKGROUND_INVERTED,

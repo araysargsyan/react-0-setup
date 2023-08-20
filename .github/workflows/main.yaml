@@ -90,4 +90,4 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
 
       - name: unit testing
-        run: npm run unit
+        run: npm run test:unit

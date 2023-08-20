@@ -12,11 +12,12 @@
     "lint:ts:fix": "eslint \"**/*.{ts,tsx}\" --fix",
     "lint:scss": "stylelint \"**/*.scss\"",
     "lint:scss:fix": "stylelint \"**/*.scss\" --fix",
-    "unit": "jest -c config/jest/jest.config.ts",
+    "test:unit": "jest -c config/jest/jest.config.ts",
     "storybook": "storybook dev -p 6006 -c ./config/storybook",
-    "build-storybook": "storybook build -c ./config/storybook",
-    "unit:ui": "cross-env npx chromatic --project-token=$CHROMATIC_PROJECT_TOKEN --force-rebuild",
-    "unit:ui:accept": "cross-env npx chromatic --project-token=$CHROMATIC_PROJECT_TOKEN --auto-accept-changes"
+    "storybook:build": "storybook build -c ./config/storybook",
+    "test:unit:ui": "cross-env npx chromatic --project-token=$CHROMATIC_PROJECT_TOKEN --force-rebuild",
+    "test:unit:ui:accept": "cross-env npx chromatic --project-token=$CHROMATIC_PROJECT_TOKEN --auto-accept-changes",
+    "prepare": "husky install"
   },
   "keywords": [],
   "author": "",
@@ -65,7 +66,8 @@
     "webpack": "^5.88.1",
     "webpack-bundle-analyzer": "^4.9.0",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^4.15.1"
+    "webpack-dev-server": "^4.15.1",
+    "husky": "^8.0.0"
   },
   "dependencies": {
     "cross-env": "^7.0.3",

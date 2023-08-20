@@ -8,9 +8,10 @@ import cls from './LangSwitcher.module.scss';
  
 interface LangSwitcherProps {
     className?: string;
+    short?: boolean;
 }
 
-const LangSwitcher: FC<LangSwitcherProps> = ({ className }) => {
+const LangSwitcher: FC<LangSwitcherProps> = ({ className, short }) => {
     const { t, i18n } = useTranslation();
 
     const toggle = async () => {
@@ -23,7 +24,7 @@ const LangSwitcher: FC<LangSwitcherProps> = ({ className }) => {
             theme={ EAppButtonTheme.CLEAR }
             onClick={ toggle }
         >
-            { t('Language') }
+            { t(short ? 'Language' : 'Lang') }
         </AppButton>
     );
 };

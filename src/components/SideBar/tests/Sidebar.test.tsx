@@ -1,16 +1,17 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
+import { renderWithRouter } from '@config/jest/ui/renderWithRouter';
 
 import Sidebar from '../Sidebar';
 
 
 describe('Sidebar', () => {
     test('Render', () => {
-        render(<Sidebar />);
+        renderWithRouter(<Sidebar />);
         expect(screen.getByTestId('sidebar')).toBeInTheDocument();
     });
 
     test('test toggle', () => {
-        render(<Sidebar />);
+        renderWithRouter(<Sidebar />);
         const toggleBtn = screen.getByTestId('sidebar-toggle');
         expect(screen.getByTestId('sidebar')).toBeInTheDocument();
         fireEvent.click(toggleBtn);

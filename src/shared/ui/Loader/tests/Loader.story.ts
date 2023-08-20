@@ -12,9 +12,6 @@ const meta: Meta<typeof Loader> = {
 export default meta;
 type Story = StoryObj<typeof Loader>;
 
-
-export const Primary: Story = {};
-
 export const Light: Story = {};
 
 export const Dark: Story = {

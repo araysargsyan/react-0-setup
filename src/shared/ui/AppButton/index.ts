@@ -1,2 +1,2 @@
-export { default, EAppButtonTheme } from './AppButton';
+export { default, EAppButtonTheme, EAppButtonSize } from './AppButton';
  

@@ -4,17 +4,23 @@ import { PathRouteProps } from 'react-router-dom';
 import lazyImport from '../router/lib/lazyImport';
 
 
-export const routesConfig: Array<PathRouteProps & { Element: ComponentType; path: string }> = [
+export enum ERoutes {
+    MAIN = '/',
+    ABOUT = '/about',
+    NOT_FOUND = '*',
+}
+
+export const routesConfig: Array<PathRouteProps & { Element: ComponentType; path: ERoutes }> = [
     {
-        path: '/',
+        path: ERoutes.MAIN,
         Element: lazyImport(() => import('pages/Main'))
     },
     {
-        path: '/about',
+        path: ERoutes.ABOUT,
         Element: lazyImport(() => import('pages/About'))
     },
     {
-        path: '*',
+        path: ERoutes.NOT_FOUND,
         Element: lazyImport(() => import('pages/NotFound'))
     },
 ];

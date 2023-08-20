@@ -13,6 +13,7 @@ export function useTheme(): UseThemeResult {
 
     useEffect(() => {
         document.body.className = theme;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const toggleTheme = () => {

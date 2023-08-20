@@ -4,8 +4,6 @@ import AppRouter from 'app/router';
 import Sidebar from 'components/SideBar';
 import Navbar from 'components/Navbar';
 
-import { useTheme } from './providers/theme';
-
 
 function App() {
     return (

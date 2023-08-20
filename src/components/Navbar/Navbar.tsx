@@ -31,7 +31,7 @@ const Navbar: FC<INavbarProps> = ({ className }) => {
                 isOpen={ isAuthModal }
                 onClose={ onToggleModal }
             >
-                Modal content
+                { t('Modal content') }
             </Modal>
         </div>
     );

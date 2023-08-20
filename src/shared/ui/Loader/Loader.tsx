@@ -1,5 +1,5 @@
 import { type FC } from 'react';
-import classNames from 'helpers/classNames';
+import _c from 'shared/helpers/classNames';
 
 import cls from './Loader.module.scss';
 
@@ -10,7 +10,7 @@ interface ILoaderProps {
 const Loader: FC<ILoaderProps> = ({ className }) => {
 
     return (
-        <div className={ classNames(cls['loader'], [ className ]) }>
+        <div className={ _c(cls['loader'], [ className ]) }>
 
         </div>
     );

@@ -6,10 +6,13 @@
 
 :root {
     @include get-variables-from-module(meta.module-variables("root"));
-    @include get-variables-from-module(meta.module-variables("normal"));
 }
 
 // themes
-.app.dark {
+.app-dark-theme {
     @include get-variables-from-module(meta.module-variables("dark"));
+}
+
+.app-light-theme {
+    @include get-variables-from-module(meta.module-variables("normal"));
 }

@@ -1,5 +1,5 @@
 import { ButtonHTMLAttributes, FC, PropsWithChildren } from 'react';
-import classNames from 'helpers/classNames';
+import _c from 'shared/helpers/classNames';
 
 import cls from './AppButton.module.scss';
 
@@ -34,7 +34,7 @@ const AppButton: FC<PropsWithChildren<IAppButtonProps>> = ({
 }) => {
     return (
         <button
-            className={ classNames(
+            className={ _c(
                 cls['app-button'],
                 [ className, cls[theme], cls[size] ],
                 { [cls.square]: square }) }

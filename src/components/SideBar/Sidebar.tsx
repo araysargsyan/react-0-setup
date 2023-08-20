@@ -1,5 +1,5 @@
 import { type FC, useState } from 'react';
-import classNames from 'helpers/classNames';
+import _c from 'shared/helpers/classNames';
 import ThemeSwitcher from 'components/ThemeSwitcher';
 import LangSwitcher from 'components/LangSwitcher';
 import AppButton, { EAppButtonSize, EAppButtonTheme } from 'shared/ui/AppButton';
@@ -24,7 +24,7 @@ const Sidebar: FC<ISidebarProps> = ({ className }) => {
     return (
         <div
             data-testid="sidebar"
-            className={ classNames(cls['sidebar'], [ className ], { [cls.collapsed]: collapsed }) }
+            className={ _c(cls['sidebar'], [ className ], { [cls.collapsed]: collapsed }) }
         >
             <AppButton
                 data-testid="sidebar-toggle"

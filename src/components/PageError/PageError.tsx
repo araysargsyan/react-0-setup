@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import classNames from 'helpers/classNames';
+import _c from 'shared/helpers/classNames';
 import AppButton, { EAppButtonTheme } from 'shared/ui/AppButton';
 import { useNavigate } from 'react-router-dom';
 
@@ -15,7 +15,7 @@ const PageError = ({ className }: PageErrorProps) => {
     const navigate = useNavigate();
 
     return (
-        <div className={ classNames(cls['page-error'], [ className ]) }>
+        <div className={ _c(cls['page-error'], [ className ]) }>
             <p>{ t('Произошла непредвиденная ошибка') }</p>
             <AppButton
                 onClick={ () => navigate(0) }

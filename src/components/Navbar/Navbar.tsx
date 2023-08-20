@@ -1,5 +1,5 @@
 import { type FC, useCallback, useState } from 'react';
-import classNames from 'helpers/classNames';
+import _c from 'shared/helpers/classNames';
 import Modal from 'shared/ui/Modal';
 import { useTranslation } from 'react-i18next';
 import AppButton, { EAppButtonTheme } from 'shared/ui/AppButton';
@@ -19,9 +19,9 @@ const Navbar: FC<INavbarProps> = ({ className }) => {
     }, []);
 
     return (
-        <div className={ classNames(cls.navbar, [ className ]) }>
+        <div className={ _c(cls.navbar, [ className ]) }>
             <AppButton
-                className={ classNames(cls.links) }
+                className={ _c(cls.links) }
                 theme={ EAppButtonTheme.CLEAR_INVERTED }
                 onClick={ onToggleModal }
             >

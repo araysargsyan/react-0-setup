@@ -1,5 +1,5 @@
 import { FC, PropsWithChildren } from 'react';
-import classNames from 'helpers/classNames';
+import _c from 'shared/helpers/classNames';
 import { Link, LinkProps } from 'react-router-dom';
 
 import cls from './AppLink.module.scss';
@@ -23,7 +23,7 @@ const AppLink: FC<PropsWithChildren<IAppLinkProps>> = ({
 }) => {
     return (
         <Link
-            className={ classNames(cls['app-link'], [ className, cls[theme] ]) }
+            className={ _c(cls['app-link'], [ className, cls[theme] ]) }
             to={ to }
             { ...otherProps }
         >

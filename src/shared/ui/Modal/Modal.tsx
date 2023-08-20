@@ -7,9 +7,9 @@ import {
     useRef,
     useCallback
 } from 'react';
-import classNames from 'helpers/classNames';
+import _c from 'shared/helpers/classNames';
 import { useTheme } from 'app/providers/theme';
-import { Portal } from 'shared/ui/Portal/Portal';
+import Portal from 'shared/ui/Portal';
 
 import cls from './Modal.module.scss';
 
@@ -67,11 +67,9 @@ const Modal: FC<PropsWithChildren<IModalProps>> = ({
         [cls['is-closing']]: isClosing,
     };
 
-    console.log(theme, cls[theme], classNames(cls['modal'], [ className, cls[theme] ], mods), 555);
-
     return (
         <Portal>
-            <div className={ classNames(cls['modal'], [ className, cls[theme] ], mods) }>
+            <div className={ _c(cls['modal'], [ className ], mods) }>
                 <div
                     className={ cls.overlay }
                     onClick={ closeHandler }

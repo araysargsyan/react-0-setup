@@ -5,11 +5,11 @@
 @import "../util/variables";
 
 :root {
-    @include get-variables-from-module(meta.module-variables("root")),
-    @include get-variables-from-module(meta.module-variables("normal"))
+    @include get-variables-from-module(meta.module-variables("root"));
+    @include get-variables-from-module(meta.module-variables("normal"));
 }
 
 // themes
 .app.dark {
-    @include get-variables-from-module(meta.module-variables("dark"))
+    @include get-variables-from-module(meta.module-variables("dark"));
 }

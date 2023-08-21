@@ -26,4 +26,4 @@ export const counterActions = {
 export default {
     name: counterSlice.name,
     reducer: counterSlice.reducer
-} = counterSlice;
+};

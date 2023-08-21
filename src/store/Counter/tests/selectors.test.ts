@@ -1,5 +1,5 @@
 import { DeepPartial } from '@reduxjs/toolkit';
-import { IStateSchema } from 'app/store';
+import { IStateSchema } from 'store';
 
 import { getCounter, getCounterValue } from '..';
 

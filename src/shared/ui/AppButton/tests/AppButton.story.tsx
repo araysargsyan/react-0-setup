@@ -103,3 +103,11 @@ export const SquareSizeXl: Story = {
         size: EAppButtonSize.XL,
     },
 };
+
+export const Disabled = {
+    args: {
+        children: '>',
+        theme: EAppButtonTheme.OUTLINE,
+        disabled: true,
+    }
+};

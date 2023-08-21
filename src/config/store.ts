@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { initialReducers, IStateSchema } from 'app/store';
+import { initialReducers, IStateSchema } from 'store';
 
 
 export function createStore(initialState?: IStateSchema) {
@@ -9,3 +9,7 @@ export function createStore(initialState?: IStateSchema) {
         preloadedState: initialState,
     });
 }
+
+
+type TStore = ReturnType<typeof createStore>;
+export type TAppDispatch = TStore['dispatch'];

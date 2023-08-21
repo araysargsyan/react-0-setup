@@ -1,6 +1,6 @@
 import { type FC, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { routesConfig } from 'app/config/router-config';
+import { routesConfig } from 'config/router';
 import PageLoader from 'components/PageLoader';
 
 

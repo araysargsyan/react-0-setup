@@ -1,7 +1,7 @@
 import { MemoryRouter } from 'react-router-dom';
 import { render } from '@testing-library/react';
 import { type ReactNode } from 'react';
-import { ERoutes } from 'app/config/router-config';
+import { ERoutes } from 'config/router';
 
 
 export interface componentRenderOptions {

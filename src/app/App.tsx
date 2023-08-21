@@ -1,20 +1,26 @@
-import { Suspense } from 'react';
+import { useEffect } from 'react';
 import _c from 'shared/helpers/classNames';
 import AppRouter from 'app/router';
 import Sidebar from 'components/SideBar';
 import Navbar from 'components/Navbar';
+import { useDispatch } from 'react-redux';
+import { userActions } from 'store/User';
 
 
 function App() {
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        dispatch(userActions.initAuthData());
+    }, [ dispatch ]);
+    
     return (
         <div className={ _c('app') }>
-            <Suspense fallback={ 'App loading' }>
-                <Navbar />
-                <div className="content-page">
-                    <Sidebar />
-                    <AppRouter />
-                </div>
-            </Suspense>
+            <Navbar />
+            <div className="content-page">
+                <Sidebar />
+                <AppRouter />
+            </div>
         </div>
     );
 }

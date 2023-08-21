@@ -1,6 +1,5 @@
 import { StoryContext, StoryFn } from '@storybook/react';
-import { ETheme } from 'app/providers/theme';
-
+import ThemeProvider, { ETheme } from 'app/providers/theme';
 
 
 export default function ThemeDecorator(defaultTheme = ETheme.LIGHT) {
@@ -18,9 +17,11 @@ export default function ThemeDecorator(defaultTheme = ETheme.LIGHT) {
         });
 
         return (
-            <div className={ `app ${theme}` }>
-                <Story />
-            </div>
+            <ThemeProvider initialTheme={ theme }>
+                <div className={ `app ${theme}` }>
+                    <Story />
+                </div>
+            </ThemeProvider>
         );
     };
 }

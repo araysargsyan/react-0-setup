@@ -23,12 +23,14 @@ interface IAppButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     theme?: EAppButtonTheme;
     square?: boolean;
     size?: EAppButtonSize;
+    disabled?: boolean;
 }
 const AppButton: FC<PropsWithChildren<IAppButtonProps>> = ({
     className,
     children,
-    theme = EAppButtonTheme.CLEAR,
     square,
+    disabled,
+    theme = EAppButtonTheme.CLEAR,
     size = EAppButtonSize.M,
     ...otherProps
 }) => {
@@ -37,7 +39,11 @@ const AppButton: FC<PropsWithChildren<IAppButtonProps>> = ({
             className={ _c(
                 cls['app-button'],
                 [ className, cls[theme], cls[size] ],
-                { [cls.square]: square }) }
+                {
+                    [cls.square]: square,
+                    [cls.disabled]: disabled
+                }) }
+            disabled={ disabled }
             { ...otherProps }
         >
             { children }

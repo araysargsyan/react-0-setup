@@ -1,8 +1,10 @@
 import { type FC, useCallback, useState } from 'react';
 import _c from 'shared/helpers/classNames';
-import Modal from 'shared/ui/Modal';
 import { useTranslation } from 'react-i18next';
 import AppButton, { EAppButtonTheme } from 'shared/ui/AppButton';
+import LoginModal from 'features/AuthByUsername';
+import { useDispatch, useSelector } from 'react-redux';
+import { getUserAuthData, userActions } from 'store/User';
 
 import cls from './Navbar.module.scss';
 
@@ -12,27 +14,49 @@ interface INavbarProps {
 }
 const Navbar: FC<INavbarProps> = ({ className }) => {
     const { t } = useTranslation();
-    const [ isAuthModal, setIsAuthModal ] =  useState(false);
+    const [ isAuthModal, setIsAuthModal ] = useState(false);
+    const authData = useSelector(getUserAuthData);
+    const dispatch = useDispatch();
 
-    const onToggleModal = useCallback(()=>{
-        setIsAuthModal(prev => !prev);
+    const onCloseModal = useCallback(() => {
+        setIsAuthModal(false);
     }, []);
+
+    const onShowModal = useCallback(() => {
+        setIsAuthModal(true);
+    }, []);
+
+    const onLogout = useCallback(() => {
+        dispatch(userActions.logout());
+    }, [ dispatch ]);
+
+    if (authData) {
+        return (
+            <div className={ _c(cls.navbar,  [ className ]) }>
+                <AppButton
+                    theme={ EAppButtonTheme.CLEAR_INVERTED }
+                    className={ cls.links }
+                    onClick={ onLogout }
+                >
+                    { t('Выйти') }
+                </AppButton>
+            </div>
+        );
+    }
 
     return (
         <div className={ _c(cls.navbar, [ className ]) }>
             <AppButton
                 className={ _c(cls.links) }
                 theme={ EAppButtonTheme.CLEAR_INVERTED }
-                onClick={ onToggleModal }
+                onClick={ onShowModal }
             >
                 { t('Sign in') }
             </AppButton>
-            <Modal
+            <LoginModal
                 isOpen={ isAuthModal }
-                onClose={ onToggleModal }
-            >
-                { t('Modal content') }
-            </Modal>
+                onClose={ onCloseModal }
+            />
         </div>
     );
 };

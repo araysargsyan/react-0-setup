@@ -5,11 +5,10 @@ import {
     memo,
     useEffect,
     useRef,
-    useState,
 } from 'react';
 import _c from 'shared/helpers/classNames';
 
-import cls from './Input.module.scss';
+import cls from './AppInput.module.scss';
 
 
 type HTMLInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>;
@@ -30,34 +29,37 @@ const AppInput: FC<IInputProps> = ({
     autofocus,
     ...otherProps
 }) => {
-
     const ref = useRef<HTMLInputElement>(null);
-    const [ isFocused, setIsFocused ] = useState(false);
-    const [ caretPosition, setCaretPosition ] = useState(0);
+    //const [ isFocused, setIsFocused ] = useState(false);
+    //const [ caretPosition, setCaretPosition ] = useState(0);
+
+    useEffect(() => {
+        console.log('AppInput', value);
+    });
 
     useEffect(() => {
         if (autofocus) {
-            setIsFocused(true);
+            // setIsFocused(true);
             ref.current?.focus();
         }
     }, [ autofocus ]);
 
     const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
         onChange?.(e.target.value);
-        setCaretPosition(e.target.value.length);
+        //setCaretPosition(e.target.value.length);
     };
 
-    const onBlur = () => {
-        setIsFocused(false);
-    };
+    // const onBlur = () => {
+    //     setIsFocused(false);
+    // };
+    //
+    // const onFocus = () => {
+    //     setIsFocused(true);
+    // };
 
-    const onFocus = () => {
-        setIsFocused(true);
-    };
-
-    const onSelect = (e: any) => {
-        setCaretPosition(e?.target?.selectionStart || 0);
-    };
+    // const onSelect = (e: any) => {
+    //     setCaretPosition(e?.target?.selectionStart || 0);
+    // };
 
     return (
         <div className={ _c(cls['app-input'], [ className ]) }>
@@ -73,17 +75,17 @@ const AppInput: FC<IInputProps> = ({
                     value={ value }
                     onChange={ onChangeHandler }
                     className={ cls.input }
-                    onFocus={ onFocus }
-                    onBlur={ onBlur }
-                    onSelect={ onSelect }
+                    // onFocus={ onFocus }
+                    // onBlur={ onBlur }
+                    //onSelect={ onSelect }
                     { ...otherProps }
                 />
-                { isFocused && (
-                    <span
-                        className={ cls.caret }
-                        style={{ left: `${caretPosition * 9}px` }}
-                    />
-                ) }
+                { /*{ isFocused && (*/ }
+                { /*    <span*/ }
+                { /*        className={ cls.caret }*/ }
+                { /*        style={{ left: `${caretPosition * 9}px` }}*/ }
+                { /*    />*/ }
+                { /*) }*/ }
             </div>
         </div>
     );

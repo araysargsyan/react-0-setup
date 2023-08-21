@@ -1,6 +1,6 @@
 import  { type StorybookConfig } from '@storybook/react-webpack5';
 import { join, resolve } from 'path';
-import { RuleSetRule } from 'webpack';
+import { DefinePlugin, RuleSetRule } from 'webpack';
 
 import buildWebpackRules from './lib/buildWebpackRules';
 
@@ -30,6 +30,10 @@ const config: StorybookConfig = {
             '@config': join(rootPath, 'config')
         };
         config.resolve.extensions.push('.ts', '.tsx');
+
+        config.plugins.push(new DefinePlugin({
+            __IS_DEV__: true
+        }));
 
         return config;
     },

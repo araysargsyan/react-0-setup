@@ -1,7 +1,6 @@
 import { ComponentType } from 'react';
 import { PathRouteProps } from 'react-router-dom';
-
-import lazyImport from '../router/lib/lazyImport';
+import { lazyImport } from 'app/router';
 
 
 export enum ERoutes {

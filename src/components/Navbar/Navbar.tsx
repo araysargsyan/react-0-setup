@@ -1,4 +1,6 @@
-import { type FC, useCallback, useState } from 'react';
+import {
+    type FC, useCallback, useState 
+} from 'react';
 import _c from 'shared/helpers/classNames';
 import { useTranslation } from 'react-i18next';
 import AppButton, { EAppButtonTheme } from 'shared/ui/AppButton';

@@ -1,4 +1,4 @@
-import { StoryContext, StoryFn } from '@storybook/react';
+import  { type StoryContext, type StoryFn } from '@storybook/react';
 import ThemeProvider, { ETheme } from 'app/providers/theme';
 
 

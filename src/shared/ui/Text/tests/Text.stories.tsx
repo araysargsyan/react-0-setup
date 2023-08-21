@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from '@storybook/react';
+import  { type Meta, type StoryObj } from '@storybook/react';
 import { ETheme } from 'app/providers/theme';
 
 import AppText, { ETextTheme } from '..';
@@ -27,17 +27,9 @@ export const Error: Story = {
     }
 };
 
-export const onlyTitle: Story = {
-    args: {
-        title: 'Title lorem ipsun',
-    }
-};
+export const onlyTitle: Story = { args: { title: 'Title lorem ipsun', } };
 
-export const onlyText: Story = {
-    args: {
-        text: 'Description Description Description Description',
-    }
-};
+export const onlyText: Story = { args: { text: 'Description Description Description Description', } };
 
 export const PrimaryDark: Story = {
     args: {
@@ -48,15 +40,11 @@ export const PrimaryDark: Story = {
 };
 
 export const onlyTitleDark: Story = {
-    args: {
-        title: 'Title lorem ipsun',
-    },
+    args: { title: 'Title lorem ipsun', },
     storyName: `$${ETheme.DARK}`
 };
 
 export const onlyTextDark: Story = {
-    args: {
-        text: 'Description Description Description Description',
-    },
+    args: { text: 'Description Description Description Description', },
     storyName: `$${ETheme.DARK}`
 };

@@ -1,4 +1,6 @@
-import { Meta, StoryFn, StoryObj } from '@storybook/react';
+import  {
+    type Meta, type StoryFn, type StoryObj 
+} from '@storybook/react';
 import { ETheme } from 'app/providers/theme';
 
 import Sidebar from '../Sidebar';
@@ -19,9 +21,5 @@ const meta: Meta<typeof Sidebar> = {
 export default meta;
 type Story = StoryObj<typeof Sidebar>;
 
-export const Light: Story = {
-
-};
-export const Dark: Story = {
-    storyName: `$${ETheme.DARK}`
-};
+export const Light: Story = {};
+export const Dark: Story = { storyName: `$${ETheme.DARK}` };

@@ -1,6 +1,6 @@
-import { StoryFn } from '@storybook/react';
-import { DeepPartial } from '@reduxjs/toolkit';
-import { IStateSchema } from 'store';
+import  { type StoryFn } from '@storybook/react';
+import  { type DeepPartial } from '@reduxjs/toolkit';
+import  { type IStateSchema } from 'store';
 import StoreProvider from 'app/providers/StoreProvider';
 
 

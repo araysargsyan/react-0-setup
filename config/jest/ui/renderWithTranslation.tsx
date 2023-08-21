@@ -13,9 +13,7 @@ export default function renderWithTranslation(component: ReactNode) {
             fallbackLng: 'en',
             debug: false,
 
-            interpolation: {
-                escapeValue: false,
-            },
+            interpolation: { escapeValue: false, },
             resources: { en: { translations: {} } },
         });
 

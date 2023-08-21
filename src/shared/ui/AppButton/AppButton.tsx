@@ -1,4 +1,6 @@
-import { ButtonHTMLAttributes, FC, PropsWithChildren } from 'react';
+import  {
+    type ButtonHTMLAttributes, type FC, type PropsWithChildren 
+} from 'react';
 import _c from 'shared/helpers/classNames';
 
 import cls from './AppButton.module.scss';

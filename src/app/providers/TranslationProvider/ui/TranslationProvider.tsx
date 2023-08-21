@@ -1,6 +1,8 @@
 import { I18nextProvider } from 'react-i18next';
 import i18n from 'config/i18n';
-import { FC, PropsWithChildren, Suspense } from 'react';
+import  {
+    type FC, type PropsWithChildren, Suspense 
+} from 'react';
 
 
 const TranslationProvider: FC<PropsWithChildren> = ({ children }) => {

@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import  { type PayloadAction, createSlice } from '@reduxjs/toolkit';
 
-import { ILoginSchema } from '..';
+import  { type ILoginSchema } from '..';
 import { loginByUsername } from './actionCreators';
 
 

@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from '@storybook/react';
+import  { type Meta, type StoryObj } from '@storybook/react';
 import { ETheme } from 'app/providers/theme';
 
 import ThemeSwitcher from '../ThemeSwitcher';
@@ -14,6 +14,4 @@ type Story = StoryObj<typeof ThemeSwitcher>;
 
 export const Light: Story = {};
 
-export const Dark: Story = {
-    storyName: `$${ETheme.DARK}`
-};
+export const Dark: Story = { storyName: `$${ETheme.DARK}` };

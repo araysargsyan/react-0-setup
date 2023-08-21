@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import  { type FC } from 'react';
 import _c from 'shared/helpers/classNames';
 
 import cls from './Text.module.scss';

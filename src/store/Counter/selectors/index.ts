@@ -1,7 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
-import { IStateSchema } from 'store';
+import  { type IStateSchema } from 'store';
 
-import { ICounterSchema } from '..';
+import  { type ICounterSchema } from '..';
 
 
 export const getCounter = (state: IStateSchema) => state.counter;

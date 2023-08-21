@@ -7,9 +7,7 @@ import AppLink, { EAppLinkTheme } from '../AppLink';
 const meta: Meta<typeof AppLink> = {
     title: 'shared-ui/AppLink',
     component: AppLink,
-    args: {
-        to: '/'
-    }
+    args: { to: '/' }
 };
 
 export default meta;

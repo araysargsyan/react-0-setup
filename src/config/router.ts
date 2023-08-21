@@ -1,5 +1,5 @@
-import { ComponentType } from 'react';
-import { PathRouteProps } from 'react-router-dom';
+import  { type ComponentType } from 'react';
+import  { type PathRouteProps } from 'react-router-dom';
 import { lazyImport } from 'app/router';
 
 

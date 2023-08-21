@@ -1,4 +1,4 @@
-import { RuleSetRule } from 'webpack';
+import  { type RuleSetRule } from 'webpack';
 
 import buildTypescriptLoader from '../../build/loaders/buildTypescriptLoader';
 import buildCssLoader from '../../build/loaders/buildCssLoader';

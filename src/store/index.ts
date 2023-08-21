@@ -1,8 +1,8 @@
-import { ReducersMapObject } from '@reduxjs/toolkit';
-import login, { loginActions, ILoginSchema } from 'features/AuthByUsername/model';
+import  { type ReducersMapObject } from '@reduxjs/toolkit';
+import login, { type ILoginSchema, loginActions } from 'features/AuthByUsername/model';
 
-import counter, { counterActions, ICounterSchema } from './Counter';
-import user, { userActions, IUserSchema } from './User';
+import counter, { type ICounterSchema, counterActions } from './Counter';
+import user, { type IUserSchema, userActions } from './User';
 
 
 export interface IStateSchema {

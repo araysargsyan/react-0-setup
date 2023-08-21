@@ -1,4 +1,6 @@
-import { lazy, type LazyExoticComponent, type ComponentType } from 'react';
+import {
+    lazy, type LazyExoticComponent, type ComponentType 
+} from 'react';
 
 
 type LazyImportReturnType = { default: ComponentType };

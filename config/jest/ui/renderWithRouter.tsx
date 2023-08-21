@@ -9,9 +9,7 @@ export interface componentRenderOptions {
 }
 
 export function renderWithRouter(component: ReactNode, options: componentRenderOptions = {}) {
-    const {
-        route = ERoutes.MAIN,
-    } = options;
+    const { route = ERoutes.MAIN, } = options;
 
     return render(
         <MemoryRouter initialEntries={ [ route ] }>

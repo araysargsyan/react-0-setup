@@ -2,11 +2,16 @@ import { useTranslation } from 'react-i18next';
 import _c from 'shared/helpers/classNames';
 import AppInput from 'shared/ui/AppInput';
 import AppButton, { EAppButtonTheme } from 'shared/ui/AppButton';
-import { FC, memo, useCallback, useEffect } from 'react';
+import {
+    type FC,
+    memo,
+    useCallback,
+    useEffect 
+} from 'react';  
 import { useDispatch, useSelector } from 'react-redux';
-import { TAppDispatch } from 'config/store';
+import { type TAppDispatch } from 'config/store';
 import AppText, { ETextTheme } from 'shared/ui/Text';
-
+ 
 import { getLoginState, loginActions } from '../../model';
 import cls from './LoginForm.module.scss';
 
@@ -38,7 +43,10 @@ const LoginForm: FC<ILoginFormProps> = ({ className }) => {
     }, [ dispatch ]);
 
     const onLogin = useCallback(() => {
-        dispatch(loginActions.loginByUsername({ username, password }));
+        dispatch(loginActions.loginByUsername({
+            username,
+            password 
+        }));
     }, [ dispatch, password, username ]);
 
     return (

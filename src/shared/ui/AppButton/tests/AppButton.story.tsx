@@ -13,11 +13,7 @@ export default meta;
 type Story = StoryObj<typeof AppButton>;
 
 
-export const Primary: Story = {
-    args: {
-        children: 'Primary',
-    }
-};
+export const Primary: Story = { args: { children: 'Primary', } };
 
 export const Clear: Story = {
     args: {

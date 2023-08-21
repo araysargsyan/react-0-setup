@@ -1,4 +1,4 @@
-import counterSlice, { counterActions, ICounterSchema } from '..';
+import counterSlice, { type ICounterSchema, counterActions } from '..';
 
 
 const counterReducer = counterSlice.reducer;

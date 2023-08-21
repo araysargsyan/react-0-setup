@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { initialReducers, IStateSchema } from 'store';
+import  { type IStateSchema, initialReducers } from 'store';
+
 
 
 export function createStore(initialState?: IStateSchema) {

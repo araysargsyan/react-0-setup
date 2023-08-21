@@ -15,9 +15,7 @@ module.exports = {
     ],
     parser: '@typescript-eslint/parser',
     parserOptions: {
-        ecmaFeatures: {
-            jsx: true,
-        },
+        ecmaFeatures: { jsx: true, },
         ecmaVersion: 'latest',
         sourceType: 'module',
     },
@@ -54,8 +52,14 @@ module.exports = {
             'keywords': 'always',
             'classes': 'always'
         } ],
-        'keyword-spacing': [ 'error', { 'before': true, 'after': true } ],
-        'comma-spacing': [ 'error', { 'before': false, 'after': true } ],
+        'keyword-spacing': [ 'error', {
+            'before': true,
+            'after': true
+        } ],
+        'comma-spacing': [ 'error', {
+            'before': false,
+            'after': true
+        } ],
         'func-call-spacing': [ 'error', 'never' ],
         'space-before-function-paren': [ 'error', {
             'anonymous': 'never',
@@ -63,25 +67,23 @@ module.exports = {
             'asyncArrow': 'always'
         } ],
         'brace-style': 'error',
-        // 'no-unused-vars': [ 'warn', {
-        //     vars: 'all',
-        //     args: 'after-used',
-        //     ignoreRestSiblings: false,
-        //     argsIgnorePattern: '^_$',
-        //     //varsIgnorePattern: '^_$'
-        // } ],
+        'object-curly-newline': [ 'error', {
+            multiline: true,
+            minProperties: 3
+        } ],
         //! react
         'react/jsx-curly-spacing': [
             'error',
             {
                 'when': 'always',
                 'children': true,
-                'spacing': {
-                    'objectLiterals': 'never'
-                }
+                'spacing': { 'objectLiterals': 'never' }
             }
         ],
-        'react/jsx-curly-newline': [ 'error', { 'multiline': 'consistent', 'singleline': 'forbid' } ],
+        'react/jsx-curly-newline': [ 'error', {
+            'multiline': 'consistent',
+            'singleline': 'forbid'
+        } ],
         'react/jsx-equals-spacing': [ 'error', 'never' ],
         'react/react-in-jsx-scope': 'off',
         'react/jsx-uses-react': 'off',
@@ -89,7 +91,10 @@ module.exports = {
         'react/jsx-no-comment-textnodes': 'off',
         'react/no-children-prop': 'off',
         'react/jsx-max-props-per-line': 'error',
-        'react/jsx-indent': [ 'error', 4, { 'checkAttributes': true, 'indentLogicalExpressions': true } ],
+        'react/jsx-indent': [ 'error', 4, {
+            'checkAttributes': true,
+            'indentLogicalExpressions': true
+        } ],
         'react/jsx-indent-props': [ 'error', 4 ],
         'react/jsx-key': 'error',
         'react/jsx-first-prop-new-line': 'error',
@@ -107,7 +112,10 @@ module.exports = {
             }
         ],
         'react/jsx-child-element-spacing': 'error',
-        'react/jsx-closing-bracket-location': [ 'error', { 'selfClosing': 'tag-aligned', 'nonEmpty': 'tag-aligned' } ],
+        'react/jsx-closing-bracket-location': [ 'error', {
+            'selfClosing': 'tag-aligned',
+            'nonEmpty': 'tag-aligned'
+        } ],
         'react/jsx-props-no-multi-spaces': 'error',
         'react/jsx-tag-spacing': [
             'error',
@@ -133,6 +141,10 @@ module.exports = {
         '@typescript-eslint/ban-types': 'error',
         '@typescript-eslint/semi': 'error',
         '@typescript-eslint/member-delimiter-style': 'error',
+        '@typescript-eslint/consistent-type-imports': [ 'error', {
+            fixStyle: 'inline-type-imports',
+            prefer: 'type-imports'
+        } ],
         //! import
         'import/order': [
             'error',
@@ -147,7 +159,10 @@ module.exports = {
         ],
         'import/consistent-type-specifier-style':  [ 'error', 'prefer-inline' ],
         'import/no-duplicates': [ 'error', { 'prefer-inline': true } ],
-        'import/newline-after-import': [ 'error', { 'count': 2, 'considerComments': false } ],
+        'import/newline-after-import': [ 'error', {
+            'count': 2,
+            'considerComments': false
+        } ],
         //! i18next
         'i18next/no-literal-string': [ 'warn', {
             validateTemplate: true, //Indicate whether to validate template strings or not. Default false
@@ -157,20 +172,12 @@ module.exports = {
         'react-hooks/rules-of-hooks': 'error', // Checks rules of Hooks
         'react-hooks/exhaustive-deps': 'error', // Checks effect dependencies
     },
-    globals: {
-        __IS_DEV__: true,
-    },
-    settings: {
-        'react': {
-            version: dependencies.react,
-        }
-    },
+    globals: { __IS_DEV__: true, },
+    settings: { 'react': { version: dependencies.react, } },
     overrides: [
         {
             files: [ '**/*.test.{ts,tsx}' ],
-            rules: {
-                'i18next/no-literal-string': 'off'
-            },
+            rules: { 'i18next/no-literal-string': 'off' },
         }
     ],
 };

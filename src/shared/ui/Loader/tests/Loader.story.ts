@@ -14,6 +14,4 @@ type Story = StoryObj<typeof Loader>;
 
 export const Light: Story = {};
 
-export const Dark: Story = {
-    storyName: `$${ETheme.DARK}`
-};
+export const Dark: Story = { storyName: `$${ETheme.DARK}` };

@@ -20,7 +20,7 @@ const StoreProvider:FC<IStoreProviderProps> = ({
 }) => {
 
     const store = createStore(initialState, asyncReducers);
-    
+
     return (
         <Provider store={ store }>
             { children }

@@ -1,15 +1,15 @@
 import {
     type ReducersMapObject,
-    combineReducers, type Reducer, type CombinedState,
+    combineReducers,
+    type Reducer,
+    type CombinedState,
 } from '@reduxjs/toolkit';
-import { type IStateSchema } from 'config/store';
-import { type INestedStateSchema } from 'config/store/types';
+import { type IStateSchema, type INestedStateSchema } from 'config/store';
 
 import {
     type TAsyncStateKeys,
-    type TFormsStateKeys,
+    type TNestedStateKeys,
     type IReducerManager,
-    type INestedReducers,
     type IAddReducersOptions,
     type IRemoveReducersOptions,
 } from './types';
@@ -18,8 +18,9 @@ import {
 export default class ReducerManager {
     private reducers: ReturnType<IReducerManager['getReducerMap']>;
     private combinedReducer: Reducer<CombinedState<IStateSchema>>;
-    private nestedReducers: INestedReducers = {};
+    private nestedReducers: INestedStateSchema<true> = {};
     private keysToRemove: Array<keyof IStateSchema> = [];
+    private parentKeysToRemove: Array<keyof INestedStateSchema> = [];
 
 
     constructor(
@@ -38,24 +39,25 @@ export default class ReducerManager {
 
                 if (this.keysToRemove.length > 0) {
                     this.keysToRemove.forEach((key) => {
-                        if (key === 'forms') {
-                            if (Object.keys(this.nestedReducers[key]).length) {
-                                Object.keys(newState[key]).forEach((nestedKey) => {
-                                    if (!this.nestedReducers[key][nestedKey as TFormsStateKeys]) {
-                                        delete newState[key][nestedKey as TFormsStateKeys];
-                                    }
-                                });
-                            } else {
-                                delete newState[key];
-                            }
+                        delete newState[key];
+                    });
+
+                    this.keysToRemove = [];
+
+                } else if (this.parentKeysToRemove.length > 0) {
+                    this.parentKeysToRemove.forEach((key) => {
+                        if (Object.keys(this.nestedReducers[key]).length) {
+                            Object.keys(newState[key]).forEach((nestedKey) => {
+                                if (!this.nestedReducers[key][nestedKey as TNestedStateKeys]) {
+                                    delete newState[key][nestedKey as TNestedStateKeys];
+                                }
+                            });
                         } else {
                             delete newState[key];
                         }
-
-                        this.keysToRemove = [];
-
                     });
 
+                    this.parentKeysToRemove = [];
                 }
 
                 return this.combinedReducer(newState, action);
@@ -87,7 +89,7 @@ export default class ReducerManager {
         parentKey
     }: IAddReducersOptions) {
         if (parentKey) {
-            const currentKey = key as TFormsStateKeys;
+            const currentKey = key as TNestedStateKeys;
 
             if (this.reducers[parentKey]) {
                 if (this.nestedReducers[parentKey]) {
@@ -121,14 +123,14 @@ export default class ReducerManager {
                 return;
             }
 
-            const currentKey = key as TFormsStateKeys;
+            const currentKey = key as TNestedStateKeys;
             delete this.nestedReducers[parentKey][currentKey];
 
             if (Object.keys(this.nestedReducers[parentKey]).length) {
                 this.reducers[parentKey] = combineReducers(this.nestedReducers[parentKey]);
             } else {
                 delete this.reducers[parentKey];
-                this.keysToRemove.push(parentKey);
+                this.parentKeysToRemove.push(parentKey);
             }
         } else {
             const currentKey = key as TAsyncStateKeys;
@@ -161,8 +163,8 @@ export default class ReducerManager {
 //                     if (key === 'forms') {
 //                         if (Object.keys(nestedReducers[key]).length) {
 //                             Object.keys(newState[key]).forEach((nestedKey) => {
-//                                 if (!nestedReducers[key][nestedKey as TFormsStateKeys]) {
-//                                     delete newState[key][nestedKey as TFormsStateKeys];
+//                                 if (!nestedReducers[key][nestedKey as TNestedStateKeys]) {
+//                                     delete newState[key][nestedKey as TNestedStateKeys];
 //                                 }
 //                             });
 //                         } else {
@@ -192,7 +194,7 @@ export default class ReducerManager {
 //                 parentKey
 //             }) => {
 //                 if (parentKey) {
-//                     const currentKey = key as TFormsStateKeys;
+//                     const currentKey = key as TNestedStateKeys;
 //
 //                     if (reducers[parentKey]) {
 //                         if (nestedReducers[parentKey]) {
@@ -227,7 +229,7 @@ export default class ReducerManager {
 //                     return;
 //                 }
 //
-//                 const currentKey = key as TFormsStateKeys;
+//                 const currentKey = key as TNestedStateKeys;
 //                 delete nestedReducers[parentKey][currentKey];
 //
 //                 if (Object.keys(nestedReducers[parentKey]).length) {

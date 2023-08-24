@@ -6,7 +6,7 @@ import { type IReducerManager } from '../lib';
 import { type TCreateStore } from '../store';
 
 
-export interface IDefaultStateSchema extends IInitialStateSchema, IAsyncStateSchema {
+interface IDefaultStateSchema extends IInitialStateSchema, IAsyncStateSchema {
 }
 
 export interface INestedStateSchema<M = false> {

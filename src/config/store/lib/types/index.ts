@@ -4,25 +4,31 @@ import {
     type Reducer,
     type ReducersMapObject
 } from '@reduxjs/toolkit';
-import { type IStateSchema } from 'config/store';
-import { type IFormStateSchema } from 'features';
+import { type IStateSchema, type INestedStateSchema } from 'config/store';
 
 
-export type TAsyncStateKeys = keyof Omit<IStateSchema, 'forms'>;
-export type TFormsStateKeys = keyof IFormStateSchema;
+export type TSchema = Record<string, any>;
+
+export interface INested<M = false> {
+    [key: string | never]: M extends true ? ReducersMapObject<TSchema> : TSchema;
+}
+
+export interface IState extends TSchema {}
+
+
+export type TParentStateKeys = keyof INestedStateSchema;
+export type TAsyncStateKeys = keyof Omit<IStateSchema, TParentStateKeys>;
+export type TNestedStateKeys = keyof IStateSchema[TParentStateKeys];
 export interface IAddReducersOptions {
-    key: TAsyncStateKeys | TFormsStateKeys;
-    parentKey?: 'forms';
+    key: TAsyncStateKeys | TNestedStateKeys;
+    parentKey?: TParentStateKeys;
     reducer: Reducer;
 }
 export interface IRemoveReducersOptions {
-    key: TAsyncStateKeys | TFormsStateKeys;
-    parentKey?: 'forms';
+    key: TAsyncStateKeys | TNestedStateKeys;
+    parentKey?: TParentStateKeys;
 }
 
-export interface INestedReducers {
-    forms?: Record<TFormsStateKeys, Reducer>;
-}
 export interface IReducerManager {
     getReducerMap: () => ReducersMapObject<IStateSchema>;
     reduce: (state: IStateSchema, action: AnyAction) => CombinedState<IStateSchema>;

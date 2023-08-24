@@ -8,7 +8,7 @@ import buildDevServer from './buildDevServer';
  
  
 export default function({
-    paths, mode, port, isDev, styleMode 
+    paths, mode, port, isDev, styleMode, mustAnalyzeBundle
 }: IBuildOptions): Configuration {
     return {
         mode,
@@ -17,11 +17,15 @@ export default function({
             filename: '[name][contenthash].js',
             path: paths.build,
             clean: true
-        }, 
-        plugins: buildPlugins(paths.html, isDev),
+        },
+        plugins: buildPlugins(paths.html, isDev, mustAnalyzeBundle),
         module: { rules: buildLoaders(isDev, styleMode), },
         resolve: buildResolvers(paths.src),
         devtool: isDev ? 'inline-source-map' : undefined,
-        devServer: isDev ? buildDevServer(port) : undefined
+        devServer: isDev ? buildDevServer(port) : undefined,
+        performance: {
+            maxEntrypointSize: 400000,
+            maxAssetSize: 400000
+        },
     };
 }

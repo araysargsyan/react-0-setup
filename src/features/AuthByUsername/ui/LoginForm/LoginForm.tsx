@@ -8,11 +8,19 @@ import {
     useCallback,
     useEffect 
 } from 'react';  
-import { useDispatch, useSelector } from 'react-redux';
-import { type TAppDispatch } from 'config/store';
+import {
+    useDispatch, useSelector, useStore 
+} from 'react-redux';
 import AppText, { ETextTheme } from 'shared/ui/Text';
- 
-import { getLoginState, loginActions } from '../../model';
+import { type IReduxStoreWithManager, type TAppDispatch } from 'config/store';
+
+import loginReducer, {
+    getLoginError,
+    getLoginIsLoading,
+    getLoginPassword,
+    getLoginUsername,
+    loginActions
+} from '../../model';
 import cls from './LoginForm.module.scss';
 
 
@@ -23,12 +31,30 @@ interface ILoginFormProps {
 const LoginForm: FC<ILoginFormProps> = ({ className }) => {
     const { t } = useTranslation();
     const dispatch = useDispatch<TAppDispatch>();
-    const {
-        username,
-        password,
-        isLoading,
-        error
-    } = useSelector(getLoginState);
+    const store = useStore() as IReduxStoreWithManager;
+    const username = useSelector(getLoginUsername);
+    const password = useSelector(getLoginPassword);
+    const isLoading = useSelector(getLoginIsLoading);
+    const error = useSelector(getLoginError);
+
+    useEffect(() => {
+        console.log('use', store.getState());
+        store.reducerManager.add({
+            key: loginReducer.name,
+            reducer: loginReducer.reducer,
+            parentKey: 'forms'
+        });
+        dispatch({ type: `@INIT ${loginReducer.name} reducer` });
+
+        return () => {
+            store.reducerManager.remove({
+                key: loginReducer.name,
+                parentKey: 'forms'
+            });
+            dispatch({ type: `@DESTROY ${loginReducer.name} reducer` });
+        };
+        // eslint-disable-next-line
+    }, []);
 
     useEffect(() => {
         console.log('LoginForm');

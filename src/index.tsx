@@ -11,15 +11,15 @@ import 'app/styles/index.scss';
 const root = createRoot(document.getElementById('root') as HTMLElement);
 
 root.render(
-    <TranslationProvider>
-        <StoreProvider>
-            <BrowserRouter>
+    <StoreProvider>
+        <BrowserRouter>
+            <TranslationProvider>
                 <ErrorBoundary>
                     <ThemeProvider>
                         <App />
                     </ThemeProvider>
                 </ErrorBoundary>
-            </BrowserRouter>
-        </StoreProvider>
-    </TranslationProvider>
+            </TranslationProvider>
+        </BrowserRouter>
+    </StoreProvider>
 );

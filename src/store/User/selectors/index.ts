@@ -1,4 +1,4 @@
-import  { type IStateSchema } from 'store';
+import  { type IInitialStateSchema } from 'store';
 
 
-export const getUserAuthData = ({ user }: IStateSchema) => user.authData;
+export const getUserAuthData = ({ user }: IInitialStateSchema) => user.authData;

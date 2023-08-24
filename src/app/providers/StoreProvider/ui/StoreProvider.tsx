@@ -1,18 +1,26 @@
-import  { type FC, type ReactNode } from 'react';
-import  { type DeepPartial } from '@reduxjs/toolkit';
+import {
+    type FC, type ReactNode, useEffect 
+} from 'react';
+import { type ReducersMapObject } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
-import { createStore } from 'config/store';
-import  { type IStateSchema } from 'store';
+import { type IAsyncStateSchema } from 'store';
+import createStore, { type IStateSchema } from 'config/store';
 
 
 interface IStoreProviderProps {
     children: ReactNode;
-    initialState?: DeepPartial<IStateSchema>;
-} 
+    initialState?: IStateSchema;
+    asyncReducers?: ReducersMapObject<IAsyncStateSchema>;
+}
 
-const StoreProvider:FC<IStoreProviderProps> = ({ children, initialState }) => {
-    const store = createStore(initialState as IStateSchema);
+const StoreProvider:FC<IStoreProviderProps> = ({
+    children,
+    initialState,
+    asyncReducers
+}) => {
 
+    const store = createStore(initialState, asyncReducers);
+    
     return (
         <Provider store={ store }>
             { children }

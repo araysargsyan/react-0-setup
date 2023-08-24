@@ -12,8 +12,9 @@ export interface IBuildOptions {
     styleMode?: TStyleMode;
     mode: TBuildMode;
     paths: IBuildPaths;
-    isDev: boolean;
     port: number;
+    isDev: boolean;
+    mustAnalyzeBundle: boolean;
 }
 
 export interface IBuildEnv {

@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit';
-import  { type IStateSchema } from 'store';
+import { type IStateSchema } from 'config/store';
 
 import  { type ICounterSchema } from '..';
 

@@ -8,6 +8,9 @@ import  {
 
  
 export default (env: IBuildEnv) => {
+    //* run scripts with [-- analyzer | analyzer] flag
+    const mustAnalyzeBundle = process.argv.includes('analyzer');
+
     const paths: IBuildPaths = {
         entry: resolve(__dirname, 'src', 'index.tsx'),
         build: resolve(__dirname, 'dist'),
@@ -20,6 +23,7 @@ export default (env: IBuildEnv) => {
         mode: env.MODE || 'development',
         styleMode: 'scss',
         paths,
+        mustAnalyzeBundle
     };
 
     const config: Configuration = BuildWebpackConfig({

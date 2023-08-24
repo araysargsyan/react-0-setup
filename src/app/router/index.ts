@@ -1,4 +1,4 @@
-import lazyImport from './lib/lazyImport';
+import lazyImport from '../../shared/helpers/lazyImport';
 
 
 export { default } from './ui/AppRouter';

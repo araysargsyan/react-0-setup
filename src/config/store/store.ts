@@ -1,8 +1,5 @@
-import {
-    combineReducers, configureStore, type ReducersMapObject 
-} from '@reduxjs/toolkit';
+import { configureStore, type ReducersMapObject } from '@reduxjs/toolkit';
 import { initialReducers } from 'store';
-import loginReducer from 'features/AuthByUsername/model/reducer/slice';
 
 import {
     type IStateSchema,

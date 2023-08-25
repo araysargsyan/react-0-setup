@@ -1,8 +1,11 @@
 import { configureStore, type ReducersMapObject } from '@reduxjs/toolkit';
 import { type IAsyncStateSchema, initialReducers } from 'store';
-import { formReducers } from 'features';
 
-import { type IStateSchema } from './types';
+import {
+    type IStateSchema,
+    type IDefaultStateSchema,
+    type INestedStateSchema
+} from './types';
 import ReducerManager from './lib';
 
 
@@ -15,11 +18,7 @@ function createStore(
         ...initialReducers
     };
 
-
-    const reducerManager = (new ReducerManager(
-        rootReducers,
-        { forms: formReducers })
-    ).create();
+    const reducerManager = ReducerManager.create<IDefaultStateSchema, INestedStateSchema>(rootReducers);
 
     const store = configureStore<IStateSchema>({
         reducer: reducerManager.reduce,

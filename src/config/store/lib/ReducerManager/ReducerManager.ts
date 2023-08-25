@@ -36,7 +36,8 @@ class ReducerManager {
 
                     this.keysToRemove = [];
 
-                } else if (this.parentKeysToRemove.length > 0) {
+                }
+                if (this.parentKeysToRemove.length > 0) {
                     this.parentKeysToRemove.forEach((key: string) => {
                         if (Object.keys(this.nestedReducers[key]).length) {
                             Object.keys(newState[key]).forEach((nestedKey) => {

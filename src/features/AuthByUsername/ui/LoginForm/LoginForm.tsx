@@ -8,11 +8,11 @@ import {
     useCallback,
     useEffect 
 } from 'react';  
-import {
-    useDispatch, useSelector, useStore 
-} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import AppText, { ETextTheme } from 'shared/ui/Text';
-import { type IReduxStoreWithManager, type TAppDispatch } from 'config/store';
+import {
+    AsyncReducer, type TAppDispatch, type TAsyncReducerOptions
+} from 'config/store';
 
 import loginReducer, {
     getLoginError,
@@ -28,33 +28,19 @@ interface ILoginFormProps {
     className?: string;
 }
 
+const asyncReducerOptions: TAsyncReducerOptions = {
+    key: loginReducer.name,
+    reducer: loginReducer.reducer,
+    parentKey: 'forms'
+};
+
 const LoginForm: FC<ILoginFormProps> = ({ className }) => {
     const { t } = useTranslation();
     const dispatch = useDispatch<TAppDispatch>();
-    const store = useStore() as IReduxStoreWithManager;
     const username = useSelector(getLoginUsername);
     const password = useSelector(getLoginPassword);
     const isLoading = useSelector(getLoginIsLoading);
     const error = useSelector(getLoginError);
-
-    useEffect(() => {
-        console.log('use', store.getState());
-        store.reducerManager.add({
-            key: loginReducer.name,
-            reducer: loginReducer.reducer,
-            parentKey: 'forms'
-        });
-        dispatch({ type: `@INIT ${loginReducer.name} reducer` });
-
-        return () => {
-            store.reducerManager.remove({
-                key: loginReducer.name,
-                parentKey: 'forms'
-            });
-            dispatch({ type: `@DESTROY ${loginReducer.name} reducer` });
-        };
-        // eslint-disable-next-line
-    }, []);
 
     useEffect(() => {
         console.log('LoginForm');
@@ -76,38 +62,43 @@ const LoginForm: FC<ILoginFormProps> = ({ className }) => {
     }, [ dispatch, password, username ]);
 
     return (
-        <div className={ _c(cls['login-form'], [ className ]) }>
-            <AppText title={ t('Форма авторизации') } />
-            { error && (
-                <AppText
-                    text={ t(error) }
-                    theme={ ETextTheme.ERROR }
+        <AsyncReducer
+            removeAfterUnmount
+            options={ asyncReducerOptions }
+        >
+            <div className={ _c(cls['login-form'], [ className ]) }>
+                <AppText title={ t('Форма авторизации') } />
+                { error && (
+                    <AppText
+                        text={ t(error) }
+                        theme={ ETextTheme.ERROR }
+                    />
+                ) }
+                <AppInput
+                    autofocus
+                    type="text"
+                    className={ cls.input }
+                    placeholder={ t('Введите username') }
+                    onChange={ onChangeUsername }
+                    value={ username }
                 />
-            ) }
-            <AppInput
-                autofocus
-                type="text"
-                className={ cls.input }
-                placeholder={ t('Введите username') }
-                onChange={ onChangeUsername }
-                value={ username }
-            />
-            <AppInput
-                type="text"
-                className={ cls.input }
-                placeholder={ t('Введите пароль') }
-                onChange={ onChangePassword }
-                value={ password }
-            />
-            <AppButton
-                className={ cls['login-btn'] }
-                theme={ EAppButtonTheme.OUTLINE }
-                disabled={ isLoading }
-                onClick={ onLogin }
-            >
-                { t('Войти') }
-            </AppButton>
-        </div>
+                <AppInput
+                    type="text"
+                    className={ cls.input }
+                    placeholder={ t('Введите пароль') }
+                    onChange={ onChangePassword }
+                    value={ password }
+                />
+                <AppButton
+                    className={ cls['login-btn'] }
+                    theme={ EAppButtonTheme.OUTLINE }
+                    disabled={ isLoading }
+                    onClick={ onLogin }
+                >
+                    { t('Войти') }
+                </AppButton>
+            </div>
+        </AsyncReducer>
     );
 };
 

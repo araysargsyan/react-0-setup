@@ -1,24 +1,28 @@
-import { configureStore, type ReducersMapObject } from '@reduxjs/toolkit';
-import { type IAsyncStateSchema, initialReducers } from 'store';
+import {
+    combineReducers, configureStore, type ReducersMapObject 
+} from '@reduxjs/toolkit';
+import { initialReducers } from 'store';
+import loginReducer from 'features/AuthByUsername/model/reducer/slice';
 
 import {
     type IStateSchema,
-    type IDefaultStateSchema,
-    type INestedStateSchema
+    type INestedStateSchema,
+    type TStateWithoutNestedSchema
 } from './types';
-import ReducerManager from './lib';
+import ReducerManager from './lib/ReducerManager';
 
 
 function createStore(
     initialState?: IStateSchema,
-    asyncReducers?: ReducersMapObject<IAsyncStateSchema>
+    asyncReducers?: ReducersMapObject<IStateSchema>
 ) {
+
     const rootReducers: ReducersMapObject<IStateSchema> = {
         ...asyncReducers,
-        ...initialReducers
+        ...initialReducers,
     };
 
-    const reducerManager = ReducerManager.create<IDefaultStateSchema, INestedStateSchema>(rootReducers);
+    const reducerManager = ReducerManager.create<TStateWithoutNestedSchema, INestedStateSchema>(rootReducers);
 
     const store = configureStore<IStateSchema>({
         reducer: reducerManager.reduce,

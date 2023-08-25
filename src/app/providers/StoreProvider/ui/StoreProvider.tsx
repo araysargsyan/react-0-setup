@@ -1,14 +1,13 @@
 import { type FC, type ReactNode } from 'react';
 import { type ReducersMapObject } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
-import { type IAsyncStateSchema } from 'store';
 import createStore, { type IStateSchema } from 'config/store';
 
 
 interface IStoreProviderProps {
     children: ReactNode;
     initialState?: IStateSchema;
-    asyncReducers?: ReducersMapObject<IAsyncStateSchema>;
+    asyncReducers?: ReducersMapObject<IStateSchema>;
 }
 
 const StoreProvider:FC<IStoreProviderProps> = ({

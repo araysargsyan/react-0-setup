@@ -3,6 +3,8 @@ export {
     IStateSchema,
     TAppDispatch,
     TStore,
-    IReduxStoreWithManager
+    IReduxStoreWithManager,
 } from './types';
+
+export { AsyncReducer, TAsyncReducerOptions } from './lib/AsyncReducer';
 

@@ -6,9 +6,6 @@ import user, { type IUserSchema, userActions } from './User';
 
 export interface IInitialStateSchema {
     user: IUserSchema;
-}
-
-export interface IAsyncStateSchema {
     counter?: ICounterSchema;
 }
 

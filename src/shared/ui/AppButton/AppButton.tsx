@@ -41,8 +41,8 @@ const AppButton: FC<PropsWithChildren<IAppButtonProps>> = ({
     ...otherProps
 }) => {
 
-    const mute = disabled
-        ? disabled !== undefined
+    const mute = disabled !== undefined
+        ? disabled
         : disabledSelector
             // eslint-disable-next-line react-hooks/rules-of-hooks
             ? useSelector<IStateSchema, boolean>(disabledSelector)

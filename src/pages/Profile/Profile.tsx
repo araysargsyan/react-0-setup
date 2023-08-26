@@ -7,14 +7,13 @@ import profile from 'store/Profile';
 const asyncReducerOptions: TAsyncReducerOptions = {
     key: profile.name,
     reducer: profile.reducer,
-    parentKey: 'forms'
 };
 
-interface ProfilePageProps {
+interface IProfileProps {
     className?: string;
 }
 
-const ProfilePage: FC<ProfilePageProps> = ({ className }) => {
+const Profile: FC<IProfileProps> = ({ className }) => {
     const { t } = useTranslation();
 
     return (
@@ -29,4 +28,4 @@ const ProfilePage: FC<ProfilePageProps> = ({ className }) => {
     );
 };
 
-export default ProfilePage;
+export default Profile;

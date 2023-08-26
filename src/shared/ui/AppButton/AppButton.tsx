@@ -2,6 +2,8 @@ import  {
     type ButtonHTMLAttributes, type FC, type PropsWithChildren 
 } from 'react';
 import _c from 'shared/helpers/classNames';
+import { type IStateSchema } from 'config/store';
+import { useSelector } from 'react-redux';
 
 import cls from './AppButton.module.scss';
 
@@ -26,16 +28,26 @@ interface IAppButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     square?: boolean;
     size?: EAppButtonSize;
     disabled?: boolean;
+    disabledSelector?: (state: IStateSchema) => boolean;
 }
 const AppButton: FC<PropsWithChildren<IAppButtonProps>> = ({
     className,
     children,
     square,
     disabled,
+    disabledSelector,
     theme = EAppButtonTheme.CLEAR,
     size = EAppButtonSize.M,
     ...otherProps
 }) => {
+
+    const mute = disabled
+        ? disabled !== undefined
+        : disabledSelector
+            // eslint-disable-next-line react-hooks/rules-of-hooks
+            ? useSelector<IStateSchema, boolean>(disabledSelector)
+            : false;
+
     return (
         <button
             className={ _c(
@@ -43,9 +55,9 @@ const AppButton: FC<PropsWithChildren<IAppButtonProps>> = ({
                 [ className, cls[theme], cls[size] ],
                 {
                     [cls.square]: square,
-                    [cls.disabled]: disabled
+                    [cls.disabled]: mute
                 }) }
-            disabled={ disabled }
+            disabled={ mute }
             { ...otherProps }
         >
             { children }

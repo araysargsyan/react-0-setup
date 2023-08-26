@@ -1,6 +1,6 @@
 import { type EnhancedStore } from '@reduxjs/toolkit';
 import { type IInitialStateSchema } from 'store';
-import { type IFormStateSchema } from 'features';
+import { type IFormStateSchema } from 'features/forms';
 
 import { type IReducerManager } from '../lib/ReducerManager';
 import { type TCreateStore } from '../store';

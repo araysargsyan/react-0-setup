@@ -1,5 +1,6 @@
-import login, { type ILoginSchema, loginActions } from 'features/AuthByUsername/model';
 import { type ReducersMapObject } from '@reduxjs/toolkit';
+
+import login, { type ILoginSchema, loginActions } from './Login/model';
 
 
 export interface IFormStateSchema {

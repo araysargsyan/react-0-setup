@@ -24,7 +24,7 @@ export default function(template: string, isDev: boolean, mustAnalyzeBundle: boo
     ];
 
     if (isDev || mustAnalyzeBundle) {
-        plugins.push(new BundleAnalyzerPlugin({ openAnalyzer: false }));
+        // plugins.push(new BundleAnalyzerPlugin({ openAnalyzer: false }));
     }
 
     return plugins;

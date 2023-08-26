@@ -4,9 +4,9 @@ import {
 import _c from 'shared/helpers/classNames';
 import { useTranslation } from 'react-i18next';
 import AppButton, { EAppButtonTheme } from 'shared/ui/AppButton';
-import LoginModal from 'features/AuthByUsername';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserAuthData, userActions } from 'store/User';
+import LoginModal from 'features/forms/Login';
 
 import cls from './Navbar.module.scss';
 

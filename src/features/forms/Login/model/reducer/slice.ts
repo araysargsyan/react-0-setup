@@ -1,7 +1,7 @@
 import  { type PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 import  { type ILoginSchema } from '..';
-import { loginByUsername } from './actionCreators';
+import { login } from './actionCreators';
 
 
 const initialState: ILoginSchema = {
@@ -23,14 +23,14 @@ export const loginSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(loginByUsername.pending, (state) => {
+            .addCase(login.pending, (state) => {
                 state.error = undefined;
                 state.isLoading = true;
             })
-            .addCase(loginByUsername.fulfilled, (state) => {
+            .addCase(login.fulfilled, (state) => {
                 state.isLoading = false;
             })
-            .addCase(loginByUsername.rejected, (state, action) => {
+            .addCase(login.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
             });
@@ -39,7 +39,7 @@ export const loginSlice = createSlice({
 
 export const loginActions = {
     ...loginSlice.actions,
-    loginByUsername
+    login
 };
 export default {
     name: loginSlice.name,

@@ -1,8 +1,8 @@
 import  { type Meta, type StoryObj } from '@storybook/react';
 import StoreDecorator from '@config/storybook/lib/decorators/StoreDecorator';
-import loginReducer from 'features/AuthByUsername/model';
 import { combineReducers } from '@reduxjs/toolkit';
 
+import loginReducer from '../../model';
 import LoginForm from './LoginForm';
 
 

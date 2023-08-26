@@ -7,22 +7,28 @@ import {
     useRef,
 } from 'react';
 import _c from 'shared/helpers/classNames';
+import { type IStateSchema } from 'config/store';
+import { useSelector } from 'react-redux';
 
 import cls from './AppInput.module.scss';
 
 
-type HTMLInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>;
+type HTMLInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'>;
 
 interface IInputProps extends HTMLInputProps {
+    name: string;
     className?: string;
-    value?: string;
+    value?: HTMLInputProps['value'];
+    selector?: (state: IStateSchema) => HTMLInputProps['value'];
     onChange?: (value: string) => void;
     autofocus?: boolean;
 }
 
 const AppInput: FC<IInputProps> = ({
+    name,
     className,
     value,
+    selector,
     onChange,
     type = 'text',
     placeholder,
@@ -32,14 +38,20 @@ const AppInput: FC<IInputProps> = ({
     const ref = useRef<HTMLInputElement>(null);
     //const [ isFocused, setIsFocused ] = useState(false);
     //const [ caretPosition, setCaretPosition ] = useState(0);
+    const inputValue = value
+        ? value
+        : selector
+            // eslint-disable-next-line react-hooks/rules-of-hooks
+            ? useSelector<IStateSchema, HTMLInputProps['value']>(selector) || ''
+            : '';
 
     useEffect(() => {
-        console.log('AppInput', value);
+        console.log('AppInput', inputValue);
     });
 
     useEffect(() => {
         if (autofocus) {
-            // setIsFocused(true);
+            //setIsFocused(true);
             ref.current?.focus();
         }
     }, [ autofocus ]);
@@ -70,22 +82,23 @@ const AppInput: FC<IInputProps> = ({
             ) }
             <div className={ cls['caret-wrapper'] }>
                 <input
+                    name={ name }
+                    className={ cls.input }
                     ref={ ref }
                     type={ type }
-                    value={ value }
+                    value={ inputValue }
                     onChange={ onChangeHandler }
-                    className={ cls.input }
+                    { ...otherProps }
                     // onFocus={ onFocus }
                     // onBlur={ onBlur }
                     //onSelect={ onSelect }
-                    { ...otherProps }
                 />
-                { /*{ isFocused && (*/ }
-                { /*    <span*/ }
-                { /*        className={ cls.caret }*/ }
-                { /*        style={{ left: `${caretPosition * 9}px` }}*/ }
-                { /*    />*/ }
-                { /*) }*/ }
+                { /*{ isFocused && (
+                    <span
+                        className={ cls.caret }
+                        //style={{ left: `${caretPosition * 9}px`}}
+                    />
+                ) }*/ }
             </div>
         </div>
     );

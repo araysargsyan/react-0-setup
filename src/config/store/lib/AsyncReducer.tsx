@@ -1,8 +1,9 @@
 import {
     type FC, type PropsWithChildren, useEffect 
 } from 'react';
-import { useDispatch, useStore } from 'react-redux';
+import { useStore } from 'react-redux';
 import { type IReduxStoreWithManager } from 'config/store';
+import { useAppDispatch } from 'shared/hooks/redux';
 
 
 export type TAsyncReducerOptions = Parameters<IReduxStoreWithManager['reducerManager']['add']>[0];
@@ -18,7 +19,7 @@ export const AsyncReducer: FC<PropsWithChildren<IAsyncReducerProps>> = ({
     removeAfterUnmount, 
 }) => {
     const store = useStore() as IReduxStoreWithManager;
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const removeOptions = Array.isArray(options)
         ? options.map(({ key, parentKey }) => ({ key, parentKey }))
         : { key: options.key, parentKey: options.parentKey };

@@ -1,4 +1,5 @@
-import  { type ReducersMapObject } from '@reduxjs/toolkit';
+import { type ReducersMapObject } from '@reduxjs/toolkit';
+import { type IProfileSchema, profileActions } from 'store/Profile';
 
 import { type ICounterSchema, counterActions } from './Counter';
 import user, { type IUserSchema, userActions } from './User';
@@ -7,6 +8,7 @@ import user, { type IUserSchema, userActions } from './User';
 export interface IInitialStateSchema {
     user: IUserSchema;
     counter?: ICounterSchema;
+    profile?: IProfileSchema;
 }
 
 export const initialReducers: ReducersMapObject<IInitialStateSchema> = { [user.name]: user.reducer, };
@@ -14,4 +16,5 @@ export const initialReducers: ReducersMapObject<IInitialStateSchema> = { [user.n
 export const actionCreators = {
     ...counterActions,
     ...userActions,
+    ...profileActions,
 };

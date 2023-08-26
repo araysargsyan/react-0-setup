@@ -6,6 +6,7 @@ import { lazyImport } from 'app/router';
 export enum ERoutes {
     MAIN = '/',
     ABOUT = '/about',
+    PROFILE = '/profile',
     NOT_FOUND = '*',
 }
 
@@ -18,6 +19,11 @@ export const routesConfig: Array<PathRouteProps & { Element: ComponentType; path
         path: ERoutes.ABOUT,
         Element: lazyImport(() => import('pages/About'))
     },
+    {
+        path: ERoutes.PROFILE,
+        Element: lazyImport(() => import('pages/Profile'))
+    },
+    //! must be last
     {
         path: ERoutes.NOT_FOUND,
         Element: lazyImport(() => import('pages/NotFound'))

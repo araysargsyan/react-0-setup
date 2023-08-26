@@ -3,12 +3,12 @@ import _c from 'shared/helpers/classNames';
 import AppRouter from 'app/router';
 import Sidebar from 'components/SideBar';
 import Navbar from 'components/Navbar';
-import { useDispatch } from 'react-redux';
 import { userActions } from 'store/User';
+import { useAppDispatch } from 'shared/hooks/redux';
 
 
 function App() {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         dispatch(userActions.initAuthData());

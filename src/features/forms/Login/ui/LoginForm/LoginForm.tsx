@@ -7,10 +7,10 @@ import {
     memo,
     useCallback,
     useEffect
-} from 'react';  
-import { useDispatch } from 'react-redux';
-import { type TAppDispatch, type TAsyncReducerOptions } from 'config/store';
+} from 'react';
+import { type TAsyncReducerOptions } from 'config/store';
 import AppForm from 'shared/ui/AppForm';
+import { useAppDispatch } from 'shared/hooks/redux';
 
 import loginReducer, {
     getLoginError,
@@ -22,8 +22,9 @@ import loginReducer, {
 import cls from './LoginForm.module.scss';
 
 
-interface ILoginFormProps {
+export interface ILoginFormProps {
     className?: string;
+    onSuccess: () => void;
 }
 
 const asyncReducerOptions: TAsyncReducerOptions = {
@@ -32,9 +33,9 @@ const asyncReducerOptions: TAsyncReducerOptions = {
     parentKey: 'forms'
 };
 
-const LoginForm: FC<ILoginFormProps> = ({ className }) => {
+const LoginForm: FC<ILoginFormProps> = ({ className, onSuccess }) => {
     const { t } = useTranslation();
-    const dispatch = useDispatch<TAppDispatch>();
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         console.log('LoginForm');
@@ -49,10 +50,12 @@ const LoginForm: FC<ILoginFormProps> = ({ className }) => {
     }, [ dispatch ]);
 
 
-    const onSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        dispatch(loginActions.login());
-    }, [ dispatch ]);
+    const onSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
+        const result = await dispatch(loginActions.login());
+        if (result.meta.requestStatus === 'fulfilled') {
+            onSuccess();
+        }
+    }, [ onSuccess, dispatch ]);
 
     return (
         <AppForm

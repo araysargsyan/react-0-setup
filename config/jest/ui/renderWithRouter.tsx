@@ -4,11 +4,11 @@ import { type ReactNode } from 'react';
 import { ERoutes } from 'config/router';
 
 
-export interface componentRenderOptions {
+export interface IComponentRenderOptions {
     route?: string;
 }
 
-export function renderWithRouter(component: ReactNode, options: componentRenderOptions = {}) {
+export function renderWithRouter(component: ReactNode, options: IComponentRenderOptions = {}) {
     const { route = ERoutes.MAIN, } = options;
 
     return render(

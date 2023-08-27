@@ -1,5 +1,5 @@
 import {
-    type FC, useCallback, useState 
+    type FC, memo, useCallback, useState
 } from 'react';
 import _c from 'shared/helpers/classNames';
 import { useTranslation } from 'react-i18next';
@@ -66,4 +66,4 @@ const Navbar: FC<INavbarProps> = ({ className }) => {
     );
 };
 
-export default Navbar;
+export default memo(Navbar);

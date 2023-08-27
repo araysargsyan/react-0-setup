@@ -7,7 +7,7 @@ import {
     useRef,
     useCallback
 } from 'react';
-import _c from 'shared/helpers/classNames';
+import _c, { type TMods } from 'shared/helpers/classNames';
 import Portal from 'shared/ui/Portal';
 import { useTheme } from 'app/providers/theme';
 
@@ -72,7 +72,7 @@ const Modal: FC<PropsWithChildren<IModalProps>> = ({
         };
     }, [ isOpen, onKeyDown ]);
 
-    const mods: Record<string, boolean> = {
+    const mods: TMods = {
         [cls.opened]: isOpen,
         [cls['is-closing']]: isClosing,
     };

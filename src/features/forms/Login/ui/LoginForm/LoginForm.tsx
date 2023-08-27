@@ -50,7 +50,7 @@ const LoginForm: FC<ILoginFormProps> = ({ className, onSuccess }) => {
     }, [ dispatch ]);
 
 
-    const onSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
+    const onSubmit = useCallback(async (_: FormEvent<HTMLFormElement>) => {
         const result = await dispatch(loginActions.login());
         if (result.meta.requestStatus === 'fulfilled') {
             onSuccess();

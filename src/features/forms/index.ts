@@ -4,7 +4,7 @@ import login, { type ILoginSchema, loginActions } from './Login/model';
 
 
 export interface IFormStateSchema {
-    login?: ILoginSchema;
+    login: ILoginSchema;
 }
 
 export const formReducers: ReducersMapObject<IFormStateSchema> = { [login.name]: login.reducer, };

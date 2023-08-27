@@ -1,5 +1,4 @@
 import { type IStateSchema } from 'config/store';
-import { type DeepPartial } from '@reduxjs/toolkit';
 
 import {
     getLoginError,

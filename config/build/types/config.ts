@@ -6,7 +6,7 @@ export interface IBuildPaths {
 }
 
 type TBuildMode = 'development' | 'production';
-export type TStyleMode = 'scss' | 'sass';
+export type TStyleMode = 'scss' | 'sass' | 's[ac]ss';
 
 export interface IBuildOptions {
     styleMode?: TStyleMode;
@@ -14,10 +14,12 @@ export interface IBuildOptions {
     paths: IBuildPaths;
     port: number;
     isDev: boolean;
+    apiUrl: string;
     mustAnalyzeBundle: boolean;
 }
 
 export interface IBuildEnv {
     MODE: TBuildMode;
     PORT: number;
+    apiUrl: string;
 }

@@ -8,7 +8,7 @@ export default function ThemeDecorator(defaultTheme = ETheme.LIGHT) {
         let theme = defaultTheme;
         const storyName = (context.name as ETheme);
 
-        Object.keys(ETheme).forEach((key: keyof typeof ETheme) => {
+        (Object.keys(ETheme) as Array<keyof typeof ETheme>).forEach((key) => {
             const value = ETheme[key];
 
             if (new RegExp(`\\$${value}$`).test(storyName)) {

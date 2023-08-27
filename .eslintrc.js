@@ -172,7 +172,10 @@ module.exports = {
         'react-hooks/rules-of-hooks': 'error', // Checks rules of Hooks
         'react-hooks/exhaustive-deps': 'error', // Checks effect dependencies
     },
-    globals: { __IS_DEV__: true, },
+    globals: {
+        __IS_DEV__: true,
+        __API__: true,
+    },
     settings: { 'react': { version: dependencies.react, } },
     overrides: [
         {

@@ -9,7 +9,7 @@ import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 // import Dotenv from 'dotenv-webpack';
 
 
-export default function(template: string, isDev: boolean, mustAnalyzeBundle: boolean): WebpackPluginInstance[] {
+export default function(template: string, isDev: boolean, apiUrl: string, mustAnalyzeBundle: boolean): WebpackPluginInstance[] {
     const plugins: WebpackPluginInstance[] = [
         // new Dotenv({
         //     path: resolve(__dirname, '../../.env')
@@ -20,7 +20,10 @@ export default function(template: string, isDev: boolean, mustAnalyzeBundle: boo
             filename: 'css/[name][contenthash:8].css',
             chunkFilename: 'css/[name][contenthash:8].css'
         }),
-        new DefinePlugin({ __IS_DEV__: JSON.stringify(isDev), }),
+        new DefinePlugin({
+            __IS_DEV__: JSON.stringify(isDev),
+            __API__: JSON.stringify(apiUrl),
+        }),
     ];
 
     if (isDev || mustAnalyzeBundle) {

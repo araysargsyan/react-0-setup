@@ -1,4 +1,4 @@
-import  { type ComponentType } from 'react';
+import { type ComponentType, memo } from 'react';
 import  { type PathRouteProps } from 'react-router-dom';
 import { lazyImport } from 'app/router';
 
@@ -13,20 +13,20 @@ export enum ERoutes {
 export const routesConfig: Array<PathRouteProps & { Element: ComponentType; path: ERoutes }> = [
     {
         path: ERoutes.MAIN,
-        Element: lazyImport(() => import('pages/Main'))
+        Element: memo(lazyImport(() => import('pages/Main')))
     },
     {
         path: ERoutes.ABOUT,
-        Element: lazyImport(() => import('pages/About'))
+        Element: memo(lazyImport(() => import('pages/About')))
     },
     {
         path: ERoutes.PROFILE,
-        Element: lazyImport(() => import('pages/Profile'))
+        Element: memo(lazyImport(() => import('pages/Profile')))
     },
     //! must be last
     {
         path: ERoutes.NOT_FOUND,
-        Element: lazyImport(() => import('pages/NotFound'))
+        Element: memo(lazyImport(() => import('pages/NotFound')))
     },
 ];
 

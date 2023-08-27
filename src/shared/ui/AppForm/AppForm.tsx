@@ -18,7 +18,7 @@ interface IAppFormProps extends FormHTMLAttributes<HTMLFormElement> {
     title: string;
     onSubmit: (e: FormEvent<HTMLFormElement>) => void;
     error?: string;
-    errorSelector?: (state: IStateSchema) => string;
+    errorSelector?: (state: IStateSchema) => string | undefined;
 }
 
 const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
@@ -40,7 +40,7 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
         ? error
         : errorSelector
             // eslint-disable-next-line react-hooks/rules-of-hooks
-            ? useSelector<IStateSchema, string>(errorSelector) || ''
+            ? useSelector<IStateSchema, string | undefined>(errorSelector) || ''
             : '';
 
     function onSubmitHandler(e: FormEvent<HTMLFormElement>) {

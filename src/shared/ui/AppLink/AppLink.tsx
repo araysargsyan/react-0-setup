@@ -1,4 +1,6 @@
-import  { type FC, type PropsWithChildren } from 'react';
+import {
+    type FC, memo, type PropsWithChildren 
+} from 'react';
 import _c from 'shared/helpers/classNames';
 import  { type LinkProps, Link } from 'react-router-dom';
 
@@ -32,4 +34,4 @@ const AppLink: FC<PropsWithChildren<IAppLinkProps>> = ({
     );
 };
 
-export default AppLink;
+export default memo(AppLink);

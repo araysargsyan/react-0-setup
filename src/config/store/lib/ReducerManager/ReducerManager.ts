@@ -3,6 +3,7 @@ import {
     combineReducers,
     type Reducer,
     type CombinedState,
+    type AnyAction,
 } from '@reduxjs/toolkit';
 
 import {
@@ -14,8 +15,8 @@ import {
 
 
 class ReducerManager {
-    private reducers: ReducersMapObject<IState>;
-    private combinedReducer: Reducer<CombinedState<IState>>;
+    private reducers!: ReducersMapObject<IState>;
+    private combinedReducer!: Reducer<CombinedState<IState>>;
     private nestedReducers: INested<true> = {};
     private keysToRemove: Array<keyof IState> = [];
     private parentKeysToRemove: Array<keyof INested> = [];
@@ -95,9 +96,9 @@ class ReducerManager {
                 this.nestedReducers[parentKey] = { [currentKey]: reducer };
             }
 
-            this.reducers[parentKey] = combineReducers(this.nestedReducers[parentKey]);
+            this.reducers[parentKey] = combineReducers<AnyAction>(this.nestedReducers[parentKey]);
         } else {
-            const currentKey = key;
+            const currentKey = key as string;
 
             if (this.reducers[currentKey]) {
                 return;
@@ -120,13 +121,13 @@ class ReducerManager {
             delete this.nestedReducers[parentKey][currentKey];
 
             if (Object.keys(this.nestedReducers[parentKey]).length) {
-                this.reducers[parentKey] = combineReducers(this.nestedReducers[parentKey]);
+                this.reducers[parentKey] = combineReducers<AnyAction>(this.nestedReducers[parentKey]);
             } else {
                 delete this.reducers[parentKey];
                 this.parentKeysToRemove.push(parentKey);
             }
         } else {
-            const currentKey = key;
+            const currentKey = key as string;
 
             if (!this.reducers[currentKey]) {
                 return;

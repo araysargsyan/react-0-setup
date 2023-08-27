@@ -1,14 +1,14 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
 import { type IUser, userActions } from 'store/User';
 import { USER_LOCALSTORAGE_KEY } from 'shared/const';
-import { type IStateSchema } from 'config/store';
+import { type IThunkConfig } from 'config/store/types';
+
 
 
 export const login = createAsyncThunk<
     IUser,
-    never,
-    { state: IStateSchema; rejectValue: string }
+    undefined,
+    IThunkConfig<string>
 >(
     'login/submit',
     async (_,
@@ -16,12 +16,13 @@ export const login = createAsyncThunk<
             getState,
             dispatch,
             rejectWithValue,
-            fulfillWithValue
+            fulfillWithValue,
+            extra: { api }
         }) => {
         try {
-            const { password, username } = getState().forms.login;
+            const { password, username  } = getState()?.forms?.login || {};
 
-            const { data } = await axios.post<IUser>('http://localhost:8000/login', { password, username });
+            const { data } = await api.post<IUser>('/login', { password, username });
 
             if (!data) {
                 throw new Error();

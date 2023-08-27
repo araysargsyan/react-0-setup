@@ -19,6 +19,7 @@ export const AsyncReducer: FC<PropsWithChildren<IAsyncReducerProps>> = ({
     removeAfterUnmount, 
 }) => {
     const store = useStore() as IReduxStoreWithManager;
+
     const dispatch = useAppDispatch();
     const removeOptions = Array.isArray(options)
         ? options.map(({ key, parentKey }) => ({ key, parentKey }))

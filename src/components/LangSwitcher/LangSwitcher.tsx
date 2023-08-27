@@ -1,4 +1,4 @@
-import { type FC } from 'react';
+import { type FC, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import _c from 'shared/helpers/classNames';
 import AppButton, { EAppButtonTheme } from 'shared/ui/AppButton';
@@ -29,5 +29,5 @@ const LangSwitcher: FC<LangSwitcherProps> = ({ className, short }) => {
     );
 };
 
-export default LangSwitcher;
+export default memo(LangSwitcher);
 

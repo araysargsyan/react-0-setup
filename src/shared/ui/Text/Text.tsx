@@ -1,4 +1,4 @@
-import  { type FC } from 'react';
+import { type FC, memo } from 'react';
 import _c from 'shared/helpers/classNames';
 
 import cls from './Text.module.scss';
@@ -30,4 +30,4 @@ const AppText: FC<ITextProps> = ({
     );
 };
 
-export default AppText;
+export default memo(AppText);

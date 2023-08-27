@@ -23,6 +23,7 @@ export default (env: IBuildEnv) => {
         mode: env.MODE || 'development',
         styleMode: 'scss',
         paths,
+        apiUrl: env.apiUrl || 'http://localhost:8000',
         mustAnalyzeBundle
     };
 

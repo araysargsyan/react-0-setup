@@ -6,7 +6,7 @@ import buildTypescriptLoader from './loaders/buildTypescriptLoader';
 import buildSvgLoader from './loaders/buildSvgLoader';
  
  
-export default function(isDev: boolean, styleMode: TStyleMode): RuleSetRule[] {
+export default function(isDev: boolean, styleMode: TStyleMode = 's[ac]ss'): RuleSetRule[] {
 
     const svgLoader = buildSvgLoader();
 
@@ -17,7 +17,7 @@ export default function(isDev: boolean, styleMode: TStyleMode): RuleSetRule[] {
         ],
     };
 
-    const cssLoader = buildCssLoader(isDev, styleMode || 's[ac]ss');
+    const cssLoader = buildCssLoader(isDev, styleMode);
 
     //! if ot using typescript - need babel-loader
     const typescriptLoader = buildTypescriptLoader();

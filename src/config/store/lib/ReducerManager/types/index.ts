@@ -18,11 +18,15 @@ export interface IState extends TSchema {}
 
 export type TParentStateKeys<N = INested> = keyof N;
 export type TAsyncStateKeys<S = IState> = keyof S;
+// export type TNestedStateKeys<T = INested> = {
+//     [K in keyof T]: T[K] extends TSchema
+//         ? keyof T[K] & string
+//         : never;
+// }[keyof T];
 export type TNestedStateKeys<T = INested> = {
-    [K in keyof T]: T[K] extends TSchema
-        ? keyof T[K] & string
-        : never;
-}[keyof T];
+    [K in keyof T]: keyof T[K]
+}[Exclude<keyof T, undefined>];
+
 // export type TAsyncStateKeys<S = IState, N = INested> = keyof Omit<S, TParentStateKeys<N>>;
 // export type TNestedStateKeys<S extends IState = IState, N = INested> = Exclude<keyof S[TParentStateKeys], symbol>;
 

@@ -1,6 +1,6 @@
 import  { type StoryFn } from '@storybook/react';
 import StoreProvider from 'app/providers/StoreProvider';
-import { type DeepPartial, type ReducersMapObject } from '@reduxjs/toolkit';
+import { type ReducersMapObject } from '@reduxjs/toolkit';
 import { type IStateSchema } from 'config/store';
 
 

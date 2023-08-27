@@ -30,9 +30,9 @@ export const loginSlice = createSlice({
             .addCase(login.fulfilled, (state) => {
                 state.isLoading = false;
             })
-            .addCase(login.rejected, (state, action) => {
+            .addCase(login.rejected, (state, { payload }) => {
                 state.isLoading = false;
-                state.error = action.payload;
+                state.error = payload;
             });
     },
 });

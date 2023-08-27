@@ -3,7 +3,7 @@ import  {
 } from '@storybook/react';
 import { ETheme } from 'app/providers/theme';
 
-import Sidebar from '../Sidebar';
+import Sidebar from '../ui/Sidebar';
 
 
 const meta: Meta<typeof Sidebar> = {

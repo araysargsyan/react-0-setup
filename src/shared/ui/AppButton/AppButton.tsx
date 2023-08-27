@@ -1,5 +1,5 @@
-import  {
-    type ButtonHTMLAttributes, type FC, type PropsWithChildren 
+import {
+    type ButtonHTMLAttributes, type FC, memo, type PropsWithChildren
 } from 'react';
 import _c from 'shared/helpers/classNames';
 import { type IStateSchema } from 'config/store';
@@ -65,4 +65,4 @@ const AppButton: FC<PropsWithChildren<IAppButtonProps>> = ({
     );
 };
 
-export default AppButton;
+export default memo(AppButton);

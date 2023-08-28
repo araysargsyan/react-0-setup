@@ -1,6 +1,6 @@
 import { type ReducersMapObject } from '@reduxjs/toolkit';
-import { type IProfileSchema, profileActions } from 'store/Profile';
 
+import { type IProfileSchema, profileActions } from './Profile';
 import { type ICounterSchema, counterActions } from './Counter';
 import user, { type IUserSchema, userActions } from './User';
 

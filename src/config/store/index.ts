@@ -3,6 +3,7 @@ export {
     IStateSchema,
     TAppDispatch,
     TStore,
+    IThunkConfig,
     IReduxStoreWithManager,
 } from './types';
 

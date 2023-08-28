@@ -1,7 +1,8 @@
-import { useTranslation } from 'react-i18next';
 import { AsyncReducer, type TAsyncReducerOptions } from 'config/store';
-import { type FC } from 'react';
-import profile from 'store/Profile';
+import { type FC, useEffect } from 'react';
+import profile, { profileActions } from 'store/Profile';
+import { useAppDispatch } from 'shared/hooks/redux';
+import ProfileCard from 'features/forms/ProfileCard';
 
 
 const asyncReducerOptions: TAsyncReducerOptions = {
@@ -14,7 +15,11 @@ interface IProfileProps {
 }
 
 const Profile: FC<IProfileProps> = ({ className }) => {
-    const { t } = useTranslation();
+    const dispatch = useAppDispatch();
+
+    useEffect(() => {
+        dispatch(profileActions.fetchData());
+    }, [ dispatch ]);
 
     return (
         <AsyncReducer
@@ -22,7 +27,7 @@ const Profile: FC<IProfileProps> = ({ className }) => {
             removeAfterUnmount
         >
             <div className={ className }>
-                { t('PROFILE PAGE') }
+                <ProfileCard />
             </div>
         </AsyncReducer>
     );

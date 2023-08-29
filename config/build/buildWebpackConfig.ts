@@ -8,7 +8,7 @@ import buildDevServer from './buildDevServer';
  
  
 export default function({
-    paths, mode, port, isDev, styleMode, apiUrl, mustAnalyzeBundle
+    paths, mode, port, isDev, styleMode, apiUrl, mustAnalyzeBundle, project
 }: IBuildOptions): Configuration {
     return {
         mode,
@@ -18,7 +18,12 @@ export default function({
             path: paths.build,
             clean: true
         },
-        plugins: buildPlugins(paths.html, isDev, apiUrl, mustAnalyzeBundle),
+        plugins: buildPlugins(isDev, {
+            template: paths.html,
+            apiUrl,
+            mustAnalyzeBundle,
+            project
+        }),
         module: { rules: buildLoaders(isDev, styleMode), },
         resolve: buildResolvers(paths.src),
         devtool: isDev ? 'inline-source-map' : undefined,

@@ -4,7 +4,7 @@ import  { type TStyleMode } from './types/config';
 import buildCssLoader from './loaders/buildCssLoader';
 import buildTypescriptLoader from './loaders/buildTypescriptLoader';
 import buildSvgLoader from './loaders/buildSvgLoader';
- 
+
  
 export default function(isDev: boolean, styleMode: TStyleMode = 's[ac]ss'): RuleSetRule[] {
 
@@ -19,8 +19,8 @@ export default function(isDev: boolean, styleMode: TStyleMode = 's[ac]ss'): Rule
 
     const cssLoader = buildCssLoader(isDev, styleMode);
 
-    //! if ot using typescript - need babel-loader
-    const typescriptLoader = buildTypescriptLoader();
+    //! if not using typescript - need babel-loader
+    const typescriptLoader = buildTypescriptLoader(isDev);
 
     return [
         typescriptLoader,

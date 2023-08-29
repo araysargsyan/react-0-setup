@@ -20,7 +20,7 @@ export class TestAsyncThunk<Return, Arg, RejectedValue> {
     constructor(actionCreator: ActionCreatorType<Return, Arg, RejectedValue>, state?: DeepPartial<IStateSchema>) {
         this.actionCreator = actionCreator;
         this.dispatch = jest.fn();
-        this.getState = () => state;
+        this.getState = jest.fn(() => state);
 
         this.api = mockedAxios;
     }

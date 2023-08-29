@@ -6,7 +6,7 @@ import buildSvgLoader from '../../build/loaders/buildSvgLoader';
 
 
 export default function(rules: RuleSetRule[]): RuleSetRule[] {
-    const typescriptLoader = buildTypescriptLoader();
+    const typescriptLoader = buildTypescriptLoader(false);
     const cssLoader = buildCssLoader(true, 'scss');
     const svgLoader = buildSvgLoader();
 

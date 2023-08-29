@@ -12,15 +12,10 @@ interface IUseThemeResult {
 
 export default function useTheme(): IUseThemeResult {
     const { theme, setTheme } = useContext(ThemeContext);
-    console.log(666, theme);
+
     if (!theme) {
         throw new Error('can\'t use useTheme outside of StoreProvider');
     }
-
-    useEffect(() => {
-        document.body.className = theme;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
     const toggleTheme = () => {
         const newTheme = theme === ETheme.DARK ? ETheme.LIGHT : ETheme.DARK;

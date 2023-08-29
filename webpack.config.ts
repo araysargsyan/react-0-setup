@@ -22,6 +22,7 @@ export default (env: IBuildEnv) => {
         port: Number(env.PORT) || 3000,
         mode: env.MODE || 'development',
         styleMode: 'scss',
+        project: 'frontend',
         paths,
         apiUrl: env.apiUrl || 'http://localhost:8000',
         mustAnalyzeBundle

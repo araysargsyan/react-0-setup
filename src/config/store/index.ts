@@ -4,7 +4,7 @@ export {
     TAppDispatch,
     TStore,
     IThunkConfig,
-    IReduxStoreWithManager,
+    IReduxStoreWithManager
 } from './types';
 
 export { AsyncReducer, TAsyncReducerOptions } from './lib/AsyncReducer';

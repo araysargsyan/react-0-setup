@@ -1,6 +1,7 @@
 import  { type Meta, type StoryObj } from '@storybook/react';
 import StoreDecorator from '@config/storybook/lib/decorators/StoreDecorator';
 import { combineReducers } from '@reduxjs/toolkit';
+import { ETheme } from 'app/providers/theme';
 
 import loginReducer from '../../model';
 import LoginForm from './LoginForm';
@@ -31,7 +32,8 @@ export const WithError: Story = {
             }
         },
         { forms: combineReducers({ login: loginReducer.reducer }) }
-    ) ]
+    ) ],
+    storyName: `$${ETheme.DARK}`
 };
 
 export const Loading: Story = {

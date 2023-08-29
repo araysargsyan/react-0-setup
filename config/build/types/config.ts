@@ -16,6 +16,7 @@ export interface IBuildOptions {
     isDev: boolean;
     apiUrl: string;
     mustAnalyzeBundle: boolean;
+    project: 'storybook' | 'frontend' | 'jest';
 }
 
 export interface IBuildEnv {

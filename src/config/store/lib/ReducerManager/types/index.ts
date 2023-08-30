@@ -31,12 +31,12 @@ export type TNestedStateKeys<T = INested> = {
 // export type TNestedStateKeys<S extends IState = IState, N = INested> = Exclude<keyof S[TParentStateKeys], symbol>;
 
 export interface IAddReducersOptions<S = IState, N = INested> {
-    key: TAsyncStateKeys<S> | TNestedStateKeys<N>;
+    key: Exclude<TAsyncStateKeys<S> | TNestedStateKeys<N>, symbol>;
     parentKey?: TParentStateKeys<N>;
     reducer: Reducer;
 }
 export interface IRemoveReducersOptions<S = IState, N = INested> {
-    key: TAsyncStateKeys<S> | TNestedStateKeys<N>;
+    key: Exclude<TAsyncStateKeys<S> | TNestedStateKeys<N>, symbol>;
     parentKey?: TParentStateKeys<N>;
 }
 

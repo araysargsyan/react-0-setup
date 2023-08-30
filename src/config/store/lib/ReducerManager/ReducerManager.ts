@@ -95,28 +95,24 @@ class ReducerManager {
         parentKey
     }: IAddReducersOptions) {
         if (parentKey) {
-            const currentKey = key;
-
             if (this.reducers[parentKey]) {
                 if (this.nestedReducers[parentKey]) {
-                    this.nestedReducers[parentKey][currentKey] = reducer;
+                    this.nestedReducers[parentKey][key] = reducer;
                 } else {
-                    this.nestedReducers[parentKey] = { [currentKey]: reducer };
+                    this.nestedReducers[parentKey] = { [key]: reducer };
                 }
 
             } else {
-                this.nestedReducers[parentKey] = { [currentKey]: reducer };
+                this.nestedReducers[parentKey] = { [key]: reducer };
             }
 
             this.reducers[parentKey] = combineReducers<AnyAction>(this.nestedReducers[parentKey]);
         } else {
-            const currentKey = key as string;
-
-            if (this.reducers[currentKey]) {
+            if (this.reducers[key]) {
                 return;
             }
 
-            this.reducers[currentKey] = reducer;
+            this.reducers[key] = reducer;
         }
     }
 
@@ -129,8 +125,7 @@ class ReducerManager {
                 return;
             }
 
-            const currentKey = key;
-            delete this.nestedReducers[parentKey][currentKey];
+            delete this.nestedReducers[parentKey][key];
 
             if (Object.keys(this.nestedReducers[parentKey]).length) {
                 this.reducers[parentKey] = combineReducers<AnyAction>(this.nestedReducers[parentKey]);
@@ -139,13 +134,11 @@ class ReducerManager {
                 this.parentKeysToRemove.push(parentKey);
             }
         } else {
-            const currentKey = key as string;
-
-            if (!this.reducers[currentKey]) {
+            if (!this.reducers[key]) {
                 return;
             }
-            delete this.reducers[currentKey];
-            this.keysToRemove.push(currentKey);
+            delete this.reducers[key];
+            this.keysToRemove.push(key);
         }
     }
 }

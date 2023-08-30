@@ -1,1 +1,1 @@
-export { default } from './AppForm';
+export { default, EFormComponent } from './AppForm';

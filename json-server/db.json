@@ -25,9 +25,9 @@
       "password": "123"
     }
   ],
-  "profile":  {
-    "first": "Тимур",
-    "lastname": "Ульби",
+  "profile": {
+    "firstname": "Aro",
+    "lastname": "Sargsyan",
     "age": 22,
     "currency": "RUB",
     "country": "Russia",

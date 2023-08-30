@@ -2,7 +2,8 @@ import { AsyncReducer, type TAsyncReducerOptions } from 'config/store';
 import { type FC, useEffect } from 'react';
 import profile, { profileActions } from 'store/Profile';
 import { useAppDispatch } from 'shared/hooks/redux';
-import ProfileCard from 'features/forms/ProfileCard';
+
+import ProfileCard from './ProfileCard';
 
 
 const asyncReducerOptions: TAsyncReducerOptions = {

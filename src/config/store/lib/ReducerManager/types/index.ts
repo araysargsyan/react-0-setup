@@ -1,6 +1,6 @@
 import {
     type AnyAction,
-    type CombinedState,
+    type CombinedState, type DeepPartial,
     type Reducer,
     type ReducersMapObject
 } from '@reduxjs/toolkit';
@@ -43,6 +43,9 @@ export interface IRemoveReducersOptions<S = IState, N = INested> {
 export interface IReducerManager<S = IState, N = INested> {
     getReducerMap: () => ReducersMapObject<S>;
     reduce: (state: S, action: AnyAction) => CombinedState<S>;
-    add: (options: IAddReducersOptions<S, N> | IAddReducersOptions<S, N>[]) => void;
+    add: (
+        options: IAddReducersOptions<S, N> | IAddReducersOptions<S, N>[],
+        state?: DeepPartial<S & N>
+    ) => void;
     remove: (options: IRemoveReducersOptions<S, N> | IRemoveReducersOptions<S, N>[]) => void;
 }

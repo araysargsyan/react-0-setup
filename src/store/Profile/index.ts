@@ -1,14 +1,15 @@
 export { default, profileActions } from './reducer/slice';
+export * from './selectors';
 
-import { type Country, type Currency } from 'shared/const/common';
+import { type ECountry, type ECurrency } from 'shared/const/common';
 
 
 export interface IProfile {
-    first: string;
+    firstname: string;
     lastname: string;
-    age: 22;
-    currency: Currency;
-    country: Country;
+    age: number;
+    currency: ECurrency;
+    country: ECountry;
     city: string;
     username: string;
     avatar: string;

@@ -1,4 +1,4 @@
-import { type FC } from 'react';
+import { type FC, useEffect } from 'react';
 import _c from 'shared/helpers/classNames';
 
 import cls from './Loader.module.scss';
@@ -9,10 +9,12 @@ interface ILoaderProps {
 }
 const Loader: FC<ILoaderProps> = ({ className }) => {
 
-    return (
-        <div className={ _c(cls['loader'], [ className ]) }>
+    useEffect(() => {
+        console.log('Loader');
+    }, []);
 
-        </div>
+    return (
+        <div className={ _c(cls['loader'], [ className ]) } />
     );
 };
 

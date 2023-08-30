@@ -1,4 +1,4 @@
-import  { type Meta, type StoryObj } from '@storybook/react';
+import { type Meta, type StoryObj } from '@storybook/react';
 import StoreDecorator from '@config/storybook/lib/decorators/StoreDecorator';
 import { combineReducers } from '@reduxjs/toolkit';
 import { ETheme } from 'app/providers/theme';

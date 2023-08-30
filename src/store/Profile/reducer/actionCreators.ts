@@ -9,14 +9,18 @@ const fetchData = createAsyncThunk<
     undefined,
     IThunkConfig<string>
 >(
-    'profile/fetchProfileData',
+    'profile/fetchData',
     async (_, {
         extra: { api }, rejectWithValue, fulfillWithValue 
     }) => {
         try {
-            const response = await api.get<IProfile>('/profile');
+            const { data } = await api.get<IProfile>('/profile');
 
-            return fulfillWithValue(response.data);
+            if (!data) {
+                throw new Error();
+            }
+
+            return fulfillWithValue(data);
         } catch (e) {
             console.log('__CUSTOM__', e);
             return rejectWithValue('error');
@@ -24,4 +28,39 @@ const fetchData = createAsyncThunk<
     },
 );
 
-export default fetchData;
+const updateData = createAsyncThunk<
+    IProfile,
+    void,
+    IThunkConfig<string>
+>(
+    'profile/updateProfileData',
+    async (_, {
+        extra: { api }, rejectWithValue, getState
+    }) => {
+        const formData = getState().forms?.editProfile;
+
+        // const errors = validateProfileData(formData);
+        //
+        // if (errors.length) {
+        //     return rejectWithValue(errors);
+        // }
+
+        try {
+            const response = await api.put<IProfile>('/profile', formData);
+
+            if (!response.data) {
+                throw new Error();
+            }
+
+            return response.data;
+        } catch (e) {
+            console.log(e);
+            return rejectWithValue('error');
+        }
+    },
+);
+
+export {
+    fetchData,
+    updateData
+};

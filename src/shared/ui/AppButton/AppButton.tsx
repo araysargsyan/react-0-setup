@@ -12,6 +12,7 @@ export enum EAppButtonTheme {
     CLEAR = 'clear',
     CLEAR_INVERTED = 'clear-inverted',
     OUTLINE = 'outline',
+    OUTLINE_RED = 'outline_red',
     BACKGROUND = 'background',
     BACKGROUND_INVERTED = 'background-inverted',
 }

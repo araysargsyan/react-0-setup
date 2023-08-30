@@ -4,6 +4,7 @@ import {
     type Reducer,
     type CombinedState,
     type AnyAction,
+    type DeepPartial,
 } from '@reduxjs/toolkit';
 
 import {
@@ -20,6 +21,7 @@ class ReducerManager {
     private nestedReducers: INested<true> = {};
     private keysToRemove: Array<keyof IState> = [];
     private parentKeysToRemove: Array<keyof INested> = [];
+    private state: DeepPartial<IState & INested> | null = null;
 
     create<S extends IState = IState, N extends INested = INested>(initialReducers: ReducersMapObject<IState>) {
         this.reducers = { ...initialReducers };
@@ -28,7 +30,10 @@ class ReducerManager {
         return {
             getReducerMap: () => this.reducers,
             reduce: (state, action) => {
-                const newState = { ...state };
+                const newState = {
+                    ...state,
+                    ...(this.state as IState),
+                };
 
                 if (this.keysToRemove.length > 0) {
                     this.keysToRemove.forEach((key) => {
@@ -54,14 +59,21 @@ class ReducerManager {
                     this.parentKeysToRemove = [];
                 }
 
+                if (this.state) {
+                    this.state = null;
+                }
                 return this.combinedReducer(newState, action);
             },
-            add: (options) => {
+            add: (options, state) => {
                 Array.isArray(options)
                     ? options.forEach((option) => {
                         this.addReducer(option as IAddReducersOptions);
                     })
                     : this.addReducer(options as IAddReducersOptions);
+
+                if (state) {
+                    this.state = state;
+                }
 
                 this.combinedReducer = combineReducers(this.reducers);
             },

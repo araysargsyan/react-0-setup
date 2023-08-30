@@ -1,3 +1,8 @@
+import lazyImport from 'shared/helpers/lazyImport';
+
+
+export { TAsyncReducerOptions } from './lib/AsyncReducer';
+
 export { default } from './store';
 export {
     IStateSchema,
@@ -7,5 +12,5 @@ export {
     IReduxStoreWithManager
 } from './types';
 
-export { AsyncReducer, TAsyncReducerOptions } from './lib/AsyncReducer';
+export const AsyncReducer = lazyImport(() => import('./lib/AsyncReducer'));
 

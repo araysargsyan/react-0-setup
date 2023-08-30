@@ -1,6 +1,7 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { type IProfileSchema } from 'store/Profile';
-import fetchData from 'store/Profile/reducer/actionCreators';
+
+import { fetchData, updateData } from './actionCreators';
 
 
 const initialState: IProfileSchema = {
@@ -13,7 +14,16 @@ const initialState: IProfileSchema = {
 export const profileSlice = createSlice({
     name: 'profile',
     initialState,
-    reducers: {},
+    reducers: {
+        setReadonly: (state, action: PayloadAction<boolean>) => {
+            state.readonly = action.payload;
+        },
+        cancelEdit: (state) => {
+            state.readonly = true;
+            //state.validateErrors = undefined;
+            //state.form = state.data;
+        },
+    },
     extraReducers: (builder) => {
         builder
             .addCase(fetchData.pending, (state) => {
@@ -30,12 +40,33 @@ export const profileSlice = createSlice({
             .addCase(fetchData.rejected, (state, { payload }) => {
                 state.isLoading = false;
                 state.error = payload;
+            })
+
+            .addCase(updateData.pending, (state) => {
+                // state.validateErrors = undefined;
+                state.isLoading = true;
+            })
+            .addCase(updateData.fulfilled, (
+                state,
+                action,
+            ) => {
+                state.isLoading = false;
+                state.data = action.payload;
+                //state.form = action.payload;
+                state.readonly = true;
+                //state.validateErrors = undefined;
+            })
+            .addCase(updateData.rejected, (state) => {
+                state.isLoading = false;
+                //state.validateErrors = action.payload;
             });
     },
 });
 
 
-export const profileActions = { ...profileSlice.actions, fetchData };
+export const profileActions = {
+    ...profileSlice.actions, fetchData, updateData 
+};
 export default {
     name: profileSlice.name,
     reducer: profileSlice.reducer

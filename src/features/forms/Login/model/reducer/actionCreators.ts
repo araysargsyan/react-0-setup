@@ -20,7 +20,6 @@ export const login = createAsyncThunk<
             extra: { api }
         }
     ) => {
-        console.log(_, 99999999999);
         try {
             const { password, username  } = getState()?.forms?.login || {};
 

@@ -97,7 +97,7 @@ export const useDynamicActions = <
         K extends keyof T,
         R extends TReturnedActions<T, K> = TReturnedActions<T, K>
     >(key: K): (...args: Parameters<R[K]>) => Promise<R[K]> => {
-        console.log('666666666666666666666666666666666666666666');
+        console.log('666666666666666666666666666666666666666666', key);
 
         return async (...args) => {
             if (!isModuleLoaded.current) return {} as R[K];

@@ -35,6 +35,10 @@ const Modal: FC<PropsWithChildren<IModalProps>> = ({
     const { theme } = useTheme();
 
     useEffect(() => {
+        console.log('RENDER:::MODAL');
+    });
+
+    useEffect(() => {
         if (isOpen) {
             setIsMounted(true);
         }
@@ -80,7 +84,7 @@ const Modal: FC<PropsWithChildren<IModalProps>> = ({
     if (lazy && !isMounted) {
         return null;
     }
-    
+
     return (
         <Portal>
             <div className={ _c(cls['modal'], [ className, theme ], mods) }>

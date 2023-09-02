@@ -10,7 +10,7 @@ import {
 } from 'react';
 import { type TAsyncReducerOptions } from 'config/store';
 import AppForm from 'shared/ui/AppForm';
-import { useAppDispatch } from 'shared/hooks/redux';
+import { useActions } from 'shared/hooks/redux';
 
 import loginReducer, {
     getLoginError,
@@ -35,27 +35,24 @@ const asyncReducerOptions: TAsyncReducerOptions = {
 
 const LoginForm: FC<ILoginFormProps> = ({ className, onSuccess }) => {
     const { t } = useTranslation();
-    const dispatch = useAppDispatch();
+
+    const {
+        login,
+        setUsername,
+        setPassword
+    } = useActions(loginActions);
 
     useEffect(() => {
-        console.log('LoginForm');
+        console.log('RENDER::LoginForm');
     });
 
-    const onChangeUsername = useCallback((value: string) => {
-        dispatch(loginActions.setUsername(value));
-    }, [ dispatch ]);
-
-    const onChangePassword = useCallback((value: string) => {
-        dispatch(loginActions.setPassword(value));
-    }, [ dispatch ]);
-
-
     const onSubmit = useCallback(async (_: FormEvent<HTMLFormElement>) => {
-        const result = await dispatch(loginActions.login());
+        const result = await login();
+
         if (result.meta.requestStatus === 'fulfilled') {
             onSuccess();
         }
-    }, [ onSuccess, dispatch ]);
+    }, [ onSuccess, login ]);
 
     return (
         <AppForm
@@ -71,7 +68,7 @@ const LoginForm: FC<ILoginFormProps> = ({ className, onSuccess }) => {
                 type="text"
                 className={ cls.input }
                 placeholder={ t('Введите username') }
-                onChange={ onChangeUsername }
+                onChange={ setUsername }
                 selector={ getLoginUsername }
             />
             <AppInput
@@ -79,7 +76,7 @@ const LoginForm: FC<ILoginFormProps> = ({ className, onSuccess }) => {
                 type="text"
                 className={ cls.input }
                 placeholder={ t('Введите пароль') }
-                onChange={ onChangePassword }
+                onChange={ setPassword }
                 selector={ getLoginPassword }
             />
             <AppButton

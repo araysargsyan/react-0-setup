@@ -6,7 +6,7 @@ import React, {
     useEffect, useMemo
 } from 'react';
 import {
-    AsyncReducer,
+    //AsyncReducer,
     type IStateSchema,
     type TAsyncReducerOptions
 } from 'config/store';
@@ -15,6 +15,7 @@ import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import DynamicComponent from 'shared/helpers/DynamicComponent';
 import { type DeepPartial } from '@reduxjs/toolkit';
+import AsyncReducer from 'config/store/lib/AsyncReducer';
 
 
 export enum EFormComponent {
@@ -89,11 +90,11 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
             </DynamicComponent>
         );
     }
-
+    console.log('!!!!!!!!!!!!!!!!');
     return (
         <AsyncReducer
             removeAfterUnmount
-            options={ reducersOption }
+            options={ reducersOption as never }
             state={ state }
         >
             <DynamicComponent

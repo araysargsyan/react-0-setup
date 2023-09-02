@@ -17,17 +17,19 @@ const LoginModal: FC<ILoginModalProps> = ({
     className,
     isOpen,
     onClose
-}) => (
-    <Modal
-        className={ className }
-        isOpen={ isOpen }
-        onClose={ onClose }
-        lazy
-    >
-        <Suspense fallback={ <Loader /> }>
-            <LoginForm onSuccess={ onClose } />
-        </Suspense>
-    </Modal>
-);
+}) => {
+    return (
+        <Modal
+            className={ className }
+            isOpen={ isOpen }
+            onClose={ onClose }
+            lazy
+        >
+            <Suspense fallback={ <Loader /> }>
+                <LoginForm onSuccess={ onClose } />
+            </Suspense>
+        </Modal>
+    );
+};
 
 export default LoginModal;

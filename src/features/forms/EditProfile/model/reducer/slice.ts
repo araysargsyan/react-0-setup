@@ -35,6 +35,7 @@ export const editProfileSlice = createSlice({
     // },
 });
 export const editProfileActions = { ...editProfileSlice.actions, };
+
 export default {
     name: editProfileSlice.name,
     reducer: editProfileSlice.reducer

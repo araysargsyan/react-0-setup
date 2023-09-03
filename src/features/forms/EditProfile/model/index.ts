@@ -4,12 +4,14 @@ import { editProfileActions } from  './reducer/slice';
 
 
 type TEditProfileActions = typeof editProfileActions;
+interface IEditProfileSchema extends Partial<IProfile> {}
+
 
 export { default } from './reducer/slice';
 export * from './selectors';
-export interface IEditProfileSchema extends Partial<IProfile> {}
 
 export {
     TEditProfileActions,
-    editProfileActions
+    editProfileActions,
+    IEditProfileSchema
 };

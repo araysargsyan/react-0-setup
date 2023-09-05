@@ -1,9 +1,13 @@
 import {
-    type ButtonHTMLAttributes, type FC, memo, type PropsWithChildren
+    type ButtonHTMLAttributes,
+    type FC,
+    type PropsWithChildren,
+    memo,
 } from 'react';
 import _c from 'shared/helpers/classNames';
 import { type IStateSchema } from 'config/store';
 import { useSelector } from 'react-redux';
+import { type ActionCreator } from 'redux';
 
 import cls from './AppButton.module.scss';
 

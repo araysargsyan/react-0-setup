@@ -4,6 +4,7 @@ import { ETheme, useTheme } from 'app/providers/theme';
 import LightIcon from 'shared/assets/icons/theme-light.svg';
 import DarkIcon from 'shared/assets/icons/theme-dark.svg';
 import AppButton from 'shared/ui/AppButton';
+import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 
 import cls from './ThemeSwitcher.module.scss';
 
@@ -14,6 +15,7 @@ interface IThemeSwitcherProps {
 const ThemeSwitcher: FC<IThemeSwitcherProps> = ({ className }) => {
     const { theme, toggleTheme } = useTheme();
 
+    useRenderWatcher(ThemeSwitcher.name, theme);
     return (
         <AppButton
             className={ _c(cls['theme-switcher'], [ className ]) }

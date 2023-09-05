@@ -5,6 +5,7 @@ import LangSwitcher from 'components/LangSwitcher';
 import ThemeSwitcher from 'components/ThemeSwitcher';
 import AppButton, { EAppButtonSize, EAppButtonTheme } from 'shared/ui/AppButton';
 import _c from 'shared/helpers/classNames';
+import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 
 import { sidebarItemsList } from '../model/items';
 import cls from './Sidebar.module.scss';
@@ -29,6 +30,8 @@ const Sidebar: FC<ISidebarProps> = ({ className }) => {
             key={ item.path }
         />
     )), [ collapsed ]);
+
+    useRenderWatcher(Sidebar.name, JSON.stringify({ collapsed }));
 
     return (
         <div

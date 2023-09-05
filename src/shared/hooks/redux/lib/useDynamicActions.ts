@@ -4,6 +4,7 @@ import {
     useRef
 } from 'react';
 import { bindActionCreators } from '@reduxjs/toolkit';
+import { watcher } from 'shared/hooks/useRenderWatcher';
 
 import {
     type TAsyncModule,
@@ -18,7 +19,6 @@ const useDynamicActions = <
     T extends TModule<T>,
     IM extends TAsyncModule<T> = TAsyncModule<T>
 >(importModule: IM, options: TUseDynamicActionsOptions) => {
-    console.log('_________useDynamicActions____________');
     const {
         moduleKey = 'default',
         when = true,
@@ -46,13 +46,14 @@ const useDynamicActions = <
         R extends TReturnedActions<T, K> = TReturnedActions<T, K>
     >(key: K): Promise<(...args: Parameters<R[K]>) => R[K]> => {
         return await importModule().then(modules => (modules[moduleKey] as R)[key]);
-    }, [ importModule, moduleKey ]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const getAsyncAction = useCallback(<
         K extends keyof T,
         R extends TReturnedActions<T, K> = TReturnedActions<T, K>
     >(key: K): (...args: Parameters<R[K]>) => Promise<R[K]> => {
-        console.log('666666666666666666666666666666666666666666', key);
+        watcher('useDynamicActions::getAsyncAction', JSON.stringify({ actionKey: key, }), 'HOOK');
 
         return async (...args) => {
             if (!isModuleLoaded.current) return {} as R[K];
@@ -60,7 +61,8 @@ const useDynamicActions = <
             const boundAction = bindActionCreators(action, dispatch);
             return boundAction(...args) ;
         };
-    }, [ dispatch, getAction ]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return getAsyncAction;
 };

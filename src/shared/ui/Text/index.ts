@@ -1,1 +1,3 @@
-export { default, ETextTheme } from './Text';
+export {
+    default, ETextTheme, ETextAlign 
+} from './Text';

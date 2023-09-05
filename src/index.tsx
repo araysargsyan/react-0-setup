@@ -6,13 +6,14 @@ import StoreProvider from 'app/providers/StoreProvider';
 import TranslationProvider from 'app/providers/TranslationProvider';
 import App from 'app/App';
 import 'app/styles/index.scss';
+// import 'config/i18n';
 
 
 const root = createRoot(document.getElementById('root') as HTMLElement);
 
 root.render(
-    <StoreProvider>
-        <BrowserRouter>
+    <BrowserRouter>
+        <StoreProvider>
             <TranslationProvider>
                 <ErrorBoundary>
                     <ThemeProvider>
@@ -20,6 +21,6 @@ root.render(
                     </ThemeProvider>
                 </ErrorBoundary>
             </TranslationProvider>
-        </BrowserRouter>
-    </StoreProvider>
+        </StoreProvider>
+    </BrowserRouter>
 );

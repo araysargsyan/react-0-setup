@@ -1,11 +1,12 @@
-import { type FC, useCallback } from 'react';
+import { type FC, useEffect } from 'react';
 import _c from 'shared/helpers/classNames';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { useAppDispatch } from 'shared/hooks/redux';
+import { useActions } from 'shared/hooks/redux';
 import { profileActions, getProfileReadonly } from 'store/Profile';
 import AppButton, { EAppButtonTheme } from 'shared/ui/AppButton';
 import AppText from 'shared/ui/Text';
+import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 
 import cls from './ProfilePageHeader.module.scss';
 
@@ -16,22 +17,14 @@ interface IProfilePageHeaderProps {
 
 const ProfilePageHeader: FC<IProfilePageHeaderProps> = ({ className }) => {
     const { t } = useTranslation('profile');
-
     const readonly = useSelector(getProfileReadonly);
-    const dispatch = useAppDispatch();
+    const {
+        setReadonly,
+        cancelEdit,
+        updateData
+    } = useActions(profileActions, [ 'setReadonly', 'cancelEdit', 'updateData' ]);
 
-    const onEdit = useCallback(() => {
-        dispatch(profileActions.setReadonly(false));
-    }, [ dispatch ]);
-
-    const onCancelEdit = useCallback(() => {
-        dispatch(profileActions.cancelEdit());
-    }, [ dispatch ]);
-
-    const onSave = useCallback(() => {
-        dispatch(profileActions.updateData());
-    }, [ dispatch ]);
-
+    useRenderWatcher(ProfilePageHeader.name, JSON.stringify(readonly));
     return (
         <div className={ _c(cls['profile-page-header'], [ className ]) }>
             <AppText title={ t('Профиль') } />
@@ -39,7 +32,7 @@ const ProfilePageHeader: FC<IProfilePageHeaderProps> = ({ className }) => {
                 <AppButton
                     className={ cls['edit-btn'] }
                     theme={ EAppButtonTheme.OUTLINE }
-                    onClick={ onEdit }
+                    onClick={ setReadonly.bind(null, false) }
                 >
                     { t('Редактировать') }
                 </AppButton>
@@ -48,14 +41,14 @@ const ProfilePageHeader: FC<IProfilePageHeaderProps> = ({ className }) => {
                     <AppButton
                         className={ cls['edit-btn'] }
                         theme={ EAppButtonTheme.OUTLINE_RED }
-                        onClick={ onCancelEdit }
+                        onClick={ cancelEdit.bind(null, undefined) }
                     >
                         { t('Отменить') }
                     </AppButton>
                     <AppButton
                         className={ cls['save-btn'] }
                         theme={ EAppButtonTheme.OUTLINE }
-                        onClick={ onSave }
+                        onClick={ updateData }
                     >
                         { t('Сохранить') }
                     </AppButton>

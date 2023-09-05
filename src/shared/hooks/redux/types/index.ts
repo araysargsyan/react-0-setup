@@ -20,6 +20,7 @@ type TUseDynamicActionsOptions = {
 };
 
 export {
+    TAction,
     TModule,
     TReturnedActions,
     TAsyncModule,

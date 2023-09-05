@@ -6,16 +6,17 @@ import React, {
     useEffect, useMemo
 } from 'react';
 import {
-    //AsyncReducer,
+    AsyncReducer,
     type IStateSchema,
     type TAsyncReducerOptions
 } from 'config/store';
+// import AsyncReducer from 'config/store/lib/AsyncReducer';
 import AppText, { ETextTheme } from 'shared/ui/Text';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import DynamicComponent from 'shared/helpers/DynamicComponent';
+import Index from 'shared/ui/DynamicComponent';
 import { type DeepPartial } from '@reduxjs/toolkit';
-import AsyncReducer from 'config/store/lib/AsyncReducer';
+import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 
 
 export enum EFormComponent {
@@ -71,9 +72,11 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
         return props;
     }, [ formComponent, defaultProps, onSubmit ]);
 
+
+    useRenderWatcher(AppForm.name, JSON.stringify(state));
     if (!reducersOption) {
         return (
-            <DynamicComponent
+            <Index
                 tagName={ formComponent }
                 { ...formProps }
             >
@@ -87,17 +90,17 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
                 ) }
 
                 { children }
-            </DynamicComponent>
+            </Index>
         );
     }
 
     return (
         <AsyncReducer
             removeAfterUnmount
-            options={ reducersOption as never }
+            options={ reducersOption }
             state={ state }
         >
-            <DynamicComponent
+            <Index
                 tagName={ formComponent }
                 { ...formProps }
             >
@@ -111,7 +114,7 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
                 ) }
 
                 { children }
-            </DynamicComponent>
+            </Index>
         </AsyncReducer>
     );
 };

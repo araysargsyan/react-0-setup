@@ -2,6 +2,7 @@ import { type FC, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import _c from 'shared/helpers/classNames';
 import AppButton, { EAppButtonTheme } from 'shared/ui/AppButton';
+import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 
 import cls from './LangSwitcher.module.scss';
 
@@ -18,6 +19,8 @@ const LangSwitcher: FC<LangSwitcherProps> = ({ className, short }) => {
         await i18n.changeLanguage(i18n.language === 'ru' ? 'en' : 'ru');
     };
 
+
+    useRenderWatcher(LangSwitcher.name, JSON.stringify({ short }));
     return (
         <AppButton
             className={ _c(cls['lang-switcher'], [ className ]) }

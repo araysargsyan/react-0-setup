@@ -1,36 +1,31 @@
-import { AsyncReducer, type TAsyncReducerOptions } from 'config/store';
-import { type FC, useEffect } from 'react';
-import profile, { profileActions } from 'store/Profile';
-import { useAppDispatch } from 'shared/hooks/redux';
+import {
+    type FC, Suspense, useEffect 
+} from 'react';
+import { profileActions } from 'store/Profile';
+import { useActions, useDynamicActions } from 'shared/hooks/redux';
+import useRenderWatcher from 'shared/hooks/useRenderWatcher';
+import { useTranslation } from 'react-i18next';
 
 import ProfileCard from './ProfileCard';
 
-
-const asyncReducerOptions: TAsyncReducerOptions = {
-    key: profile.name,
-    reducer: profile.reducer,
-};
 
 interface IProfileProps {
     className?: string;
 }
 
 const Profile: FC<IProfileProps> = ({ className }) => {
-    const dispatch = useAppDispatch();
+    useTranslation('profile');
+    const { fetchData } = useActions(profileActions, [ 'fetchData' ]);
 
     useEffect(() => {
-        dispatch(profileActions.fetchData());
-    }, [ dispatch ]);
+        fetchData();
+    }, [ fetchData ]);
 
+    useRenderWatcher(Profile.name);
     return (
-        <AsyncReducer
-            options={ asyncReducerOptions }
-            removeAfterUnmount
-        >
-            <div className={ className }>
-                <ProfileCard />
-            </div>
-        </AsyncReducer>
+        <div className={ className }>
+            <ProfileCard />
+        </div>
     );
 };
 

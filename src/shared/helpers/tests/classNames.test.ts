@@ -1,4 +1,4 @@
-import _c from './classNames';
+import _c from '../classNames';
 
 
 describe('classNames', () => {

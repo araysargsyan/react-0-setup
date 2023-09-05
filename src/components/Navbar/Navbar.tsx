@@ -7,7 +7,8 @@ import AppButton, { EAppButtonTheme } from 'shared/ui/AppButton';
 import { useSelector } from 'react-redux';
 import { getUserAuthData, userActions } from 'store/User';
 import LoginModal from 'features/forms/Login';
-import { useAppDispatch } from 'shared/hooks/redux';
+import { useActions } from 'shared/hooks/redux';
+import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 
 import cls from './Navbar.module.scss';
 
@@ -19,7 +20,7 @@ const Navbar: FC<INavbarProps> = ({ className }) => {
     const { t } = useTranslation();
     const [ isAuthModal, setIsAuthModal ] = useState(false);
     const authData = useSelector(getUserAuthData);
-    const dispatch = useAppDispatch();
+    const { logout } = useActions(userActions, [ 'logout' ]);
 
     const onCloseModal = useCallback(() => {
         setIsAuthModal(false);
@@ -29,9 +30,7 @@ const Navbar: FC<INavbarProps> = ({ className }) => {
         setIsAuthModal(true);
     }, []);
 
-    const onLogout = useCallback(() => {
-        dispatch(userActions.logout());
-    }, [ dispatch ]);
+    useRenderWatcher(Navbar.name, JSON.stringify(authData));
 
     if (authData) {
         return (
@@ -39,7 +38,7 @@ const Navbar: FC<INavbarProps> = ({ className }) => {
                 <AppButton
                     theme={ EAppButtonTheme.CLEAR_INVERTED }
                     className={ cls.links }
-                    onClick={ onLogout }
+                    onClick={ logout.bind(null, undefined) }
                 >
                     { t('Выйти') }
                 </AppButton>

@@ -7,10 +7,11 @@ import AppInput from 'shared/ui/AppInput';
 import AppForm, { EFormComponent } from 'shared/ui/AppForm';
 import { type TAsyncReducerOptions } from 'config/store';
 import { getEditProfileField } from 'features/forms/EditProfile/model/selectors';
-import { useDynamicActions } from 'shared/hooks/redux';
+import { useActions, useDynamicActions } from 'shared/hooks/redux';
+import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 
 import cls from './EditProfile.module.scss';
-import { type TEditProfileActions } from '../model';
+import editProfileReducer, { editProfileActions, type TEditProfileActions } from '../model';
 
 
 const asyncReducerOptions: TAsyncReducerOptions = async () => {
@@ -39,8 +40,10 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
             moduleKey: 'editProfileActions'
         }
     );
+    // const { setFirstname, setLastname } = useActions(editProfileActions, [ 'setFirstname', 'setLastname' ]);
 
 
+    useRenderWatcher(EditProfile.name, JSON.stringify({ ...data, readonly }));
     return (
         <AppForm
             state={ !readonly ? { forms: { editProfile: data } } : undefined }
@@ -53,7 +56,8 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
                 className={ cls.input }
                 placeholder={ t('Ваше имя') }
                 selector={ getEditProfileField('firstname') }
-                onChange={ getAsyncAction('setFirstname')  }
+                onChange={ !readonly ? getAsyncAction('setFirstname') : undefined }
+                // onChange={ !readonly ? setFirstname : undefined }
                 disabled={ readonly }
             />
             <AppInput
@@ -61,7 +65,8 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
                 className={ cls.input }
                 placeholder={ t('Ваша фамилия') }
                 selector={ getEditProfileField('lastname') }
-                onChange={ getAsyncAction('setLastname')  }
+                onChange={ !readonly ? getAsyncAction('setLastname') : undefined }
+                // onChange={ !readonly ? setLastname : undefined }
                 disabled={ readonly }
             />
         </AppForm>

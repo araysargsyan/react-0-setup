@@ -47,7 +47,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
         if (hasError) {
             // You can render any custom fallback UI
             return (
-                <Suspense fallback="">
+                <Suspense fallback={ 'XZZZ' }>
                     <PageError />
                 </Suspense>
             );

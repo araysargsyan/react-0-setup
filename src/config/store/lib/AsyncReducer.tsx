@@ -1,6 +1,6 @@
 import {
     type FC,
-    type PropsWithChildren,
+    type PropsWithChildren, Suspense,
     useCallback,
     useEffect,
     useRef
@@ -9,6 +9,7 @@ import { useStore } from 'react-redux';
 import { type IReduxStoreWithManager, type IStateSchema } from 'config/store';
 import { useAppDispatch } from 'shared/hooks/redux';
 import { type DeepPartial } from '@reduxjs/toolkit';
+import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 
 
 type TAsyncReducerOptionsParameters = Parameters<IReduxStoreWithManager['reducerManager']['add']>[0]
@@ -42,6 +43,7 @@ const AsyncReducer: FC<PropsWithChildren<IAsyncReducerProps>> = ({
         : null
     );
 
+    useRenderWatcher(AsyncReducer.name, JSON.stringify(options));
     useEffect(() => {
         if (typeof options === 'function') {
             options().then((o) => {
@@ -66,7 +68,13 @@ const AsyncReducer: FC<PropsWithChildren<IAsyncReducerProps>> = ({
         // eslint-disable-next-line
     }, []);
 
-    return children;
+    return (
+        //! must be suspended before the reducers are initialized
+        <Suspense
+            fallback={ 'AsyncReducer' }
+            children={ children }
+        />
+    );
 };
 
 

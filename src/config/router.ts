@@ -1,6 +1,8 @@
 import { type ComponentType, memo } from 'react';
 import  { type PathRouteProps } from 'react-router-dom';
 import { lazyImport } from 'app/router';
+import { type TAsyncReducerOptions } from 'config/store';
+import profile from 'store/Profile';
 
 
 export enum ERoutes {
@@ -10,7 +12,12 @@ export enum ERoutes {
     NOT_FOUND = '*',
 }
 
-export const routesConfig: Array<PathRouteProps & { Element: ComponentType; path: ERoutes }> = [
+export interface IRouterConfig {
+    Element: ComponentType;
+    path: ERoutes;
+    asyncReducers?: TAsyncReducerOptions;
+}
+export const routesConfig: Array<PathRouteProps & IRouterConfig> = [
     {
         path: ERoutes.MAIN,
         Element: memo(lazyImport(() => import('pages/Main')))
@@ -21,7 +28,15 @@ export const routesConfig: Array<PathRouteProps & { Element: ComponentType; path
     },
     {
         path: ERoutes.PROFILE,
-        Element: memo(lazyImport(() => import('pages/Profile')))
+        Element: memo(lazyImport(() => import('pages/Profile'))),
+        asyncReducers: async () => {
+            const profileReducer = (await import('store/Profile')).default;
+
+            return {
+                key: profileReducer.name,
+                reducer: profileReducer.reducer,
+            };
+        },
     },
     //! must be last
     {

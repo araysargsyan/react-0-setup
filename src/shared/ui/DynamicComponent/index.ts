@@ -5,7 +5,7 @@ interface IDynamicComponentProps {
     tagName: string;
 }
 
-function DynamicComponent({
+function Index({
     tagName,
     children,
     ...otherProps
@@ -13,4 +13,4 @@ function DynamicComponent({
     return createElement(tagName, otherProps, children);
 }
 
-export default DynamicComponent;
+export default Index;

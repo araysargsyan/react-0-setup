@@ -30,6 +30,7 @@ class ReducerManager {
         return {
             getReducerMap: () => this.reducers,
             reduce: (state, action) => {
+                console.log(action, '__reduce__');
                 const newState = {
                     ...state,
                     ...(this.state as IState),
@@ -62,6 +63,7 @@ class ReducerManager {
                 if (this.state) {
                     this.state = null;
                 }
+
                 return this.combinedReducer(newState, action);
             },
             add: (options, state) => {

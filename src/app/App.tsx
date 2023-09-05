@@ -1,29 +1,34 @@
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import _c from 'shared/helpers/classNames';
 import AppRouter from 'app/router';
 import Sidebar from 'components/SideBar';
 import Navbar from 'components/Navbar';
 import { userActions } from 'store/User';
-import { useAppDispatch } from 'shared/hooks/redux';
+import { useActions } from 'shared/hooks/redux';
+import useRenderWatcher from 'shared/hooks/useRenderWatcher';
+import Loader from 'shared/ui/Loader';
 
 import { useTheme } from './providers/theme';
 
 
 function App() {
-    const dispatch = useAppDispatch();
+    const { initAuthData } = useActions(userActions, [ 'initAuthData' ]);
     const { theme } = useTheme();
 
     useEffect(() => {
-        dispatch(userActions.initAuthData());
-    }, [ dispatch ]);
-    
+        initAuthData();
+    }, [ initAuthData ]);
+
+    useRenderWatcher(App.name, theme);
     return (
         <div className={ _c('app', [ theme ]) }>
-            <Navbar />
-            <div className="content-page">
-                <Sidebar />
-                <AppRouter />
-            </div>
+            <Suspense fallback={ <h1>APP LOADING</h1> }>
+                <Navbar />
+                <div className="content-page">
+                    <Sidebar />
+                    <AppRouter />
+                </div>
+            </Suspense>
         </div>
     );
 }

@@ -1,24 +1,65 @@
-import { type FC, Suspense } from 'react';
+import {
+    type ComponentType,
+    type FC, memo,
+    Suspense,
+    useCallback
+} from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { routesConfig } from 'config/router';
+import { type IRouterConfig, routesConfig } from 'config/router';
 import PageLoader from 'components/PageLoader';
+import useRenderWatcher from 'shared/hooks/useRenderWatcher';
+import { AsyncReducer, type TAsyncReducerOptions } from 'config/store';
 
+
+interface IElementWithWrapper {
+    asyncReducers?: TAsyncReducerOptions;
+    Element: ComponentType;
+}
+
+const ElementWithWrapper = memo<IElementWithWrapper>(function ElementWithWrapper(
+    { asyncReducers, Element }
+) {
+    if (!asyncReducers) {
+        return <Element />;
+    }
+
+    return (
+        <AsyncReducer
+            options={ asyncReducers }
+            removeAfterUnmount
+        >
+            <Element />
+        </AsyncReducer>
+    );
+});
 
 const AppRouter: FC = () => {
+    const renderWithWrapper = useCallback(({
+        asyncReducers, Element, path
+    }: IRouterConfig) => {
+        return (
+            <Route
+                key={ path }
+                path={ path }
+                element={ (
+                    <ElementWithWrapper
+                        asyncReducers={ asyncReducers }
+                        Element={ Element }
+                    />
+                ) }
+            />
+        );
+    }, []);
+
+    useRenderWatcher(AppRouter.name);
     return (
-        <Suspense fallback={ <PageLoader /> }>
-            <div className="page-wrapper">
+        <div className="page-wrapper">
+            <Suspense fallback={ <PageLoader /> }>
                 <Routes>
-                    { routesConfig.map(({ path, Element }) => (
-                        <Route
-                            path={ path }
-                            element={ <Element /> }
-                            key={ path }
-                        />
-                    )) }
+                    { routesConfig.map(renderWithWrapper) }
                 </Routes>
-            </div>
-        </Suspense>
+            </Suspense>
+        </div>
     );
 };
 

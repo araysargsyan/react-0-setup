@@ -6,7 +6,6 @@ import Navbar from 'components/Navbar';
 import { userActions } from 'store/User';
 import { useActions } from 'shared/hooks/redux';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
-import Loader from 'shared/ui/Loader';
 
 import { useTheme } from './providers/theme';
 

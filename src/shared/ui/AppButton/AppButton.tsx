@@ -7,7 +7,6 @@ import {
 import _c from 'shared/helpers/classNames';
 import { type IStateSchema } from 'config/store';
 import { useSelector } from 'react-redux';
-import { type ActionCreator } from 'redux';
 
 import cls from './AppButton.module.scss';
 

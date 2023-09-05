@@ -1,7 +1,7 @@
 import { type ReducersMapObject } from '@reduxjs/toolkit';
 
-import { type IProfileSchema, profileActions } from './Profile';
-import { type ICounterSchema, counterActions } from './Counter';
+import { type IProfileSchema } from './Profile';
+import { type ICounterSchema } from './Counter';
 import user, { type IUserSchema, userActions } from './User';
 import app, { type IAppSchema, appActions } from './App';
 
@@ -20,7 +20,7 @@ export const initialReducers: ReducersMapObject<IInitialStateSchema> = {
 
 export const actionCreators = {
     ...appActions,
-    // ...counterActions,
     ...userActions,
+    // ...counterActions,
     // ...profileActions,
 };

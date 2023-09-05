@@ -1,4 +1,4 @@
-import { type FC, useEffect } from 'react';
+import { type FC } from 'react';
 import _c from 'shared/helpers/classNames';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';

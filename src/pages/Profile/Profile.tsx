@@ -1,8 +1,6 @@
-import {
-    type FC, Suspense, useEffect 
-} from 'react';
+import { type FC, useEffect } from 'react';
 import { profileActions } from 'store/Profile';
-import { useActions, useDynamicActions } from 'shared/hooks/redux';
+import { useActions } from 'shared/hooks/redux';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import { useTranslation } from 'react-i18next';
 

@@ -7,11 +7,11 @@ import AppInput from 'shared/ui/AppInput';
 import AppForm, { EFormComponent } from 'shared/ui/AppForm';
 import { type TAsyncReducerOptions } from 'config/store';
 import { getEditProfileField } from 'features/forms/EditProfile/model/selectors';
-import { useActions, useDynamicActions } from 'shared/hooks/redux';
+import { useDynamicActions } from 'shared/hooks/redux';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 
 import cls from './EditProfile.module.scss';
-import editProfileReducer, { editProfileActions, type TEditProfileActions } from '../model';
+import { type TEditProfileActions } from '../model';
 
 
 const asyncReducerOptions: TAsyncReducerOptions = async () => {

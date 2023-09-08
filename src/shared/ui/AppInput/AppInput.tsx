@@ -20,7 +20,7 @@ interface IInputProps extends HTMLInputProps {
     className?: string;
     value?: HTMLInputProps['value'];
     selector?: (state: IStateSchema) => HTMLInputProps['value'];
-    onChange?: (value: string) => void;
+    onChange?: ((value: string) => void) | ((value: number) => void);
     autofocus?: boolean;
 }
 
@@ -46,7 +46,7 @@ const AppInput: FC<IInputProps> = ({
             : '';
 
     useEffect(() => {
-        console.log('AppInput', inputValue);
+        console.log('AppInput', { name, inputValue });
     });
 
     useEffect(() => {
@@ -57,7 +57,7 @@ const AppInput: FC<IInputProps> = ({
     }, [ autofocus ]);
 
     const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
-        onChange?.(e.target.value);
+        (onChange as (value: string) => void)?.(e.target.value);
         //setCaretPosition(e.target.value.length);
     };
 

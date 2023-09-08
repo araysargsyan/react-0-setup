@@ -2,6 +2,7 @@ import { type EnhancedStore } from '@reduxjs/toolkit';
 import { type IInitialStateSchema } from 'store';
 import { type IFormStateSchema } from 'features/forms';
 import { type AxiosInstance } from 'axios';
+import { type NavigateOptions, type To } from 'react-router-dom';
 
 import { type IReducerManager } from '../lib/ReducerManager';
 import { type TCreateStore } from '../store';
@@ -23,7 +24,7 @@ export interface IReduxStoreWithManager extends EnhancedStore<IStateSchema> {
 
 export interface IThunkExtraArg {
     api: AxiosInstance;
-    //navigate?: (to: To, options?: NavigateOptions) => void,
+    navigate?: (to: To, options?: NavigateOptions) => void;
 }
 
 export interface IThunkConfig<R> {

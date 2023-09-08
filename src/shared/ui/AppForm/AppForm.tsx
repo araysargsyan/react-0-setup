@@ -49,10 +49,6 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
 }) => {
     const { t } = useTranslation();
 
-    useEffect(() => {
-        console.log('AppForm', title);
-    });
-
     const err = error
         ? error
         : errorSelector

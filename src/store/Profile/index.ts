@@ -1,7 +1,9 @@
+import { type ECurrency } from 'features/Currency/model';
+import { type ECountry } from 'features/Country/model';
+
+
 export { default, profileActions } from './reducer/slice';
 export * from './selectors';
-
-import { type ECountry, type ECurrency } from 'shared/const/common';
 
 
 export interface IProfile {

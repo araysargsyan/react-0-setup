@@ -7,6 +7,7 @@ import profile from 'store/Profile';
 
 export enum ERoutes {
     MAIN = '/',
+    LOGIN = '/login',
     ABOUT = '/about',
     PROFILE = '/profile',
     NOT_FOUND = '*',

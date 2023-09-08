@@ -8,11 +8,11 @@ export const getEditProfileData =  createSelector(
     getProfileData,
     getEditProfile,
     (profileData, editProfileData) => {
-        return  editProfileData ? editProfileData : profileData;
+        return editProfileData ? editProfileData : profileData;
     }
 );
 
-export const getEditProfileField = (key: keyof IProfile) => createSelector(
+export const getEditProfileField = <T extends keyof IProfile>(key: T) => createSelector(
     getEditProfileData,
-    (data) => data ? data![key] : undefined
+    (data): IProfile[T] => (data as IProfile)[key]
 );

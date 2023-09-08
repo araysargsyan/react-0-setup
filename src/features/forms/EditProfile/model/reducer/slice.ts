@@ -17,7 +17,22 @@ export const editProfileSlice = createSlice({
         },
         setAge(state, { payload }: PayloadAction<IEditProfileSchema['age']>) {
             state.age = payload;
-        }
+        },
+        setCity(state, { payload }: PayloadAction<IEditProfileSchema['city']>) {
+            state.city = payload;
+        },
+        setUsername(state, { payload }: PayloadAction<IEditProfileSchema['username']>) {
+            state.username = payload;
+        },
+        setAvatar(state, { payload }: PayloadAction<IEditProfileSchema['avatar']>) {
+            state.avatar = payload;
+        },
+        setCurrency(state, { payload }: PayloadAction<IEditProfileSchema['currency']>) {
+            state.currency = payload;
+        },
+        setCountry(state, { payload }: PayloadAction<IEditProfileSchema['country']>) {
+            state.country = payload;
+        },
     },
     // extraReducers: (builder) => {
     //     builder

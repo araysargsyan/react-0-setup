@@ -1,5 +1,6 @@
-import { ECountry, ECurrency } from 'shared/const/common';
 import { TestAsyncThunk } from '@config/jest/ui/TestAsyncThunk';
+import { ECurrency } from 'features/Currency/model';
+import { ECountry } from 'features/Country/model';
 
 import { fetchData } from '../reducer/actionCreators';
 

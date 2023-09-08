@@ -18,7 +18,8 @@ import ReducerManager from './lib/ReducerManager';
 
 function createStore(
     initialState?: IStateSchema,
-    asyncReducers?: ReducersMapObject<IStateSchema>
+    asyncReducers?: ReducersMapObject<IStateSchema>,
+    navigate?: IThunkExtraArg['navigate'],
 ) {
 
     const rootReducers: ReducersMapObject<IStateSchema> = {
@@ -29,7 +30,7 @@ function createStore(
     const reducerManager = ReducerManager.create<TStateWithoutNestedSchema, INestedStateSchema>(rootReducers);
     const extraArg: IThunkExtraArg = {
         api: $api,
-        //navigate,
+        navigate,
     };
 
     const store = configureStore({

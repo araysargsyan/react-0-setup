@@ -11,7 +11,8 @@ import { useDynamicActions } from 'shared/hooks/redux';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import AppSelect from 'shared/ui/AppSelect';
 import AppAvatar from 'shared/ui/AppAvatar';
-import { type ECountry } from 'features/Country';
+import { CountrySelectOptions, type ECountry } from 'features/Country';
+import { Currency, CurrencySelectOptions } from 'features/Currency';
 
 import cls from './EditProfile.module.scss';
 import { type TEditProfileActions } from '../model';
@@ -111,6 +112,7 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
                 name="currency"
                 label={ t('Set currency') }
                 className={ cls.input }
+                options={ CurrencySelectOptions }
                 selector={ getEditProfileField('currency') }
                 onChange={ !readonly ? getAsyncAction('setCurrency') : undefined }
                 readonly={ readonly }
@@ -119,6 +121,7 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
                 name="currency"
                 label={ t('Set currency') }
                 className={ cls.input }
+                options={ CountrySelectOptions }
                 selector={ getEditProfileField('country') }
                 onChange={ !readonly ? getAsyncAction('setCountry') : undefined }
                 readonly={ readonly }

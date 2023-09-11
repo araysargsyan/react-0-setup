@@ -46,9 +46,6 @@ function AppSelect<V extends string = string>(...[ {
         onChange?.(e.target.value as V);
     };
 
-    useEffect(() => {
-        console.log('AppSelect', { name,  selectValue });
-    });
 
     const optionsList = useMemo(() => options?.map((opt) => (
         <option
@@ -59,6 +56,10 @@ function AppSelect<V extends string = string>(...[ {
             { opt.content }
         </option>
     )), [ options ]);
+
+    useEffect(() => {
+        console.log('AppSelect', { name,  selectValue });
+    });
 
     return (
         <div className={ classNames(cls['app-select'], [ className ]) }>

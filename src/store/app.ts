@@ -4,7 +4,6 @@ import { appReducerName } from 'shared/const';
 import { ERoutes } from 'config/router';
 
 
-console.log(6666, appReducerName);
 const stateSetupConfig = new StateSetup(
     getStateSetupConfig,
     {

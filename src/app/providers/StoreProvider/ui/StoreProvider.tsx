@@ -5,7 +5,7 @@ import { type ReducersMapObject } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
 import createStore, { type IStateSchema, StateSetupProvider } from 'config/store';
 import { useAppNavigate } from 'shared/hooks/redux';
-// import { $stateSetup } from 'store/app';
+import { $stateSetup } from 'store/app';
 
 
 interface IStoreProviderProps {
@@ -27,9 +27,9 @@ const StoreProvider:FC<IStoreProviderProps> = ({
 
     return (
         <Provider store={ store }>
-            { /*<StateSetupProvider setUp={ $stateSetup }>*/ }
-            { children }
-            { /*</StateSetupProvider>*/ }
+            <StateSetupProvider setUp={ $stateSetup }>
+                { children }
+            </StateSetupProvider>
         </Provider>
     );
 };

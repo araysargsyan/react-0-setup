@@ -13,13 +13,10 @@ describe('Sidebar', () => {
             theme: ETheme.LIGHT,
             toggleTheme: jest.fn(),
         }));
-        // jest.mock('../../../config/router', () => ({ ERoutes: 5 }));
     });
 
 
     test('Render', () => {
-        // jest.mock('../../../config/router', () => ({ ERoutes: 5 }));
-
         renderWithRouter(<Sidebar />);
         expect(screen.getByTestId('sidebar')).toBeInTheDocument();
     });

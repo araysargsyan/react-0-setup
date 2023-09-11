@@ -2,16 +2,23 @@ import { type ComponentType, memo } from 'react';
 import  { type PathRouteProps } from 'react-router-dom';
 import { lazyImport } from 'app/router';
 import { type TAsyncReducerOptions } from 'config/store';
-import profile from 'store/Profile';
 
 
-export enum ERoutes {
+export const enum ERoutes {
     MAIN = '/',
     LOGIN = '/login',
     ABOUT = '/about',
     PROFILE = '/profile',
     NOT_FOUND = '*',
 }
+
+// export const CRoutes = {
+//     MAIN: '/',
+//     LOGIN: '/login',
+//     ABOUT: '/about',
+//     PROFILE: '/profile',
+//     NOT_FOUND: '*',
+// };
 
 export interface IRouterConfig {
     Element: ComponentType;

@@ -1,8 +1,11 @@
-import { type FC, type ReactNode } from 'react';
+import {
+    type FC, type ReactNode, Suspense, useMemo
+} from 'react';
 import { type ReducersMapObject } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
-import createStore, { type IStateSchema } from 'config/store';
-import { useNavigate } from 'react-router-dom';
+import createStore, { type IStateSchema, StateSetupProvider } from 'config/store';
+import { useAppNavigate } from 'shared/hooks/redux';
+// import { $stateSetup } from 'store/app';
 
 
 interface IStoreProviderProps {
@@ -16,13 +19,17 @@ const StoreProvider:FC<IStoreProviderProps> = ({
     initialState,
     asyncReducers
 }) => {
-    const navigate = useNavigate();
-
-    const store = createStore(initialState, asyncReducers, navigate);
+    const navigate = useAppNavigate();
+    const store = useMemo(() => {
+        return createStore(initialState, asyncReducers, navigate);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <Provider store={ store }>
+            { /*<StateSetupProvider setUp={ $stateSetup }>*/ }
             { children }
+            { /*</StateSetupProvider>*/ }
         </Provider>
     );
 };

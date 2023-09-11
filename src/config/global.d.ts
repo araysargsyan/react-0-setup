@@ -29,3 +29,5 @@ type DeepPartial<T> = T extends object ? {
 type AnyFunction = (...args: any[]) => any;
 
 interface EmptyObject {}
+
+type ValueOf<T extends object> = T[keyof T];

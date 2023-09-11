@@ -1,1 +1,1 @@
-export { default } from './ui/CountrySelect';
+export * from './model';

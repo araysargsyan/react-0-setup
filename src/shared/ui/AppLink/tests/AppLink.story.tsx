@@ -17,7 +17,7 @@ type Story = StoryObj<typeof AppLink>;
 export const Primary: Story = {
     args: {
         children: 'Primary',
-        theme: EAppLinkTheme.PRYMARY,
+        theme: EAppLinkTheme.PRIMARY,
     },
 };
 
@@ -31,7 +31,7 @@ export const Secondary: Story = {
 export const PrimaryDark: Story = {
     args: {
         children: 'PrimaryDark',
-        theme: EAppLinkTheme.PRYMARY,
+        theme: EAppLinkTheme.PRIMARY,
     },
     storyName: `$${ETheme.DARK}`
 };

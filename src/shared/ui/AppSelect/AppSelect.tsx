@@ -4,7 +4,6 @@ import {
 import classNames from 'shared/helpers/classNames';
 import { useSelector } from 'react-redux';
 import { type IStateSchema } from 'config/store';
-import { ECurrency } from 'features/Currency/model';
 
 import cls from './AppSelect.module.scss';
 
@@ -14,18 +13,18 @@ interface ISelectOption {
     content: string;
 }
 
-interface IAppSelectProps {
+interface IAppSelectProps<V extends string = string> {
     name: string;
     className?: string;
     label?: string;
     options?: ISelectOption[];
     value?: string;
-    selector?: (state: IStateSchema) => string;
-    onChange?: (value: string) => void;
+    selector?: (state: IStateSchema) => V;
+    onChange?: (value: V) => void;
     readonly?: boolean;
 }
 
-const AppSelect: FC<IAppSelectProps> = ({
+function AppSelect<V extends string = string>(...[ {
     name,
     className,
     label,
@@ -34,7 +33,7 @@ const AppSelect: FC<IAppSelectProps> = ({
     value,
     selector,
     readonly,
-}) => {
+} ]: Parameters<FC<IAppSelectProps<V>>>): ReturnType<FC<IAppSelectProps<V>>> {
 
     const selectValue = value
         ? value
@@ -44,7 +43,7 @@ const AppSelect: FC<IAppSelectProps> = ({
             : '';
 
     const onChangeHandler = (e: ChangeEvent<HTMLSelectElement>) => {
-        onChange?.(e.target.value);
+        onChange?.(e.target.value as V);
     };
 
     useEffect(() => {

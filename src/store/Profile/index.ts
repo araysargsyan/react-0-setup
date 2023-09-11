@@ -1,5 +1,5 @@
-import { type ECurrency } from 'features/Currency/model';
-import { type ECountry } from 'features/Country/model';
+import { type ECountry } from 'features/Country';
+import { type TCurrency } from 'features/Currency';
 
 
 export { default, profileActions } from './reducer/slice';
@@ -10,7 +10,7 @@ export interface IProfile {
     firstname: string;
     lastname: string;
     age: number;
-    currency: ECurrency;
+    currency: TCurrency;
     country: ECountry;
     city: string;
     username: string;

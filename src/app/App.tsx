@@ -18,7 +18,7 @@ function App() {
         initAuthData();
     }, [ initAuthData ]);
 
-    useRenderWatcher(App.name, theme);
+    useRenderWatcher(App.name, JSON.stringify({ theme }));
     return (
         <div className={ _c('app', [ theme ]) }>
             <Suspense fallback={ <h1>APP LOADING</h1> }>

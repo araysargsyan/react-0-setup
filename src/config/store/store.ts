@@ -21,7 +21,6 @@ function createStore(
     asyncReducers?: ReducersMapObject<IStateSchema>,
     navigate?: IThunkExtraArg['navigate'],
 ) {
-
     const rootReducers: ReducersMapObject<IStateSchema> = {
         ...asyncReducers,
         ...initialReducers,

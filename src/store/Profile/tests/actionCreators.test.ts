@@ -1,6 +1,6 @@
 import { TestAsyncThunk } from '@config/jest/ui/TestAsyncThunk';
-import { ECurrency } from 'features/Currency/model';
 import { ECountry } from 'features/Country/model';
+import { Currency } from 'features/Currency';
 
 import { fetchData } from '../reducer/actionCreators';
 
@@ -12,7 +12,7 @@ const data = {
     lastname: 'ulbi tv',
     first: 'asd',
     city: 'asf',
-    currency: ECurrency.USD,
+    currency: Currency.USD,
 };
 
 describe('fetchData.test', () => {

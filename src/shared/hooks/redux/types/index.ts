@@ -2,6 +2,8 @@ import { type ActionCreator } from 'redux';
 import { type AsyncThunkAction } from '@reduxjs/toolkit';
 import { type InferThunkActionCreatorType } from 'react-redux';
 import { type DependencyList } from 'react';
+import { type NavigateOptions, type To } from 'react-router-dom';
+import { type IHistoryState } from 'shared/types';
 
 
 type TAction = ActionCreator<any> | AsyncThunkAction<any, any, any>;
@@ -19,10 +21,17 @@ type TUseDynamicActionsOptions = {
     deps?: DependencyList;
 };
 
+interface TNavigateOptions extends NavigateOptions {
+    state?: IHistoryState;
+}
+
+type TAppNavigateFunction = (to: To, options?: TNavigateOptions) => void;
+
 export {
     TAction,
     TModule,
     TReturnedActions,
     TAsyncModule,
-    TUseDynamicActionsOptions
+    TUseDynamicActionsOptions,
+    TAppNavigateFunction
 };

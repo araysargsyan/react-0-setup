@@ -10,10 +10,8 @@ import { getEditProfileField } from 'features/forms/EditProfile/model/selectors'
 import { useDynamicActions } from 'shared/hooks/redux';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import AppSelect from 'shared/ui/AppSelect';
-import { ECurrency } from 'features/Currency/model';
-import CurrencySelect from 'features/Currency';
 import AppAvatar from 'shared/ui/AppAvatar';
-import CountrySelect from 'features/Country';
+import { type ECountry } from 'features/Country';
 
 import cls from './EditProfile.module.scss';
 import { type TEditProfileActions } from '../model';
@@ -109,7 +107,7 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
                 onChange={ !readonly ? getAsyncAction('setAvatar') : undefined  }
                 readOnly={ readonly }
             />
-            <CurrencySelect
+            <AppSelect
                 name="currency"
                 label={ t('Set currency') }
                 className={ cls.input }
@@ -117,9 +115,9 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
                 onChange={ !readonly ? getAsyncAction('setCurrency') : undefined }
                 readonly={ readonly }
             />
-            <CountrySelect
-                name="country"
-                label={ t('Set country') }
+            <AppSelect<ECountry>
+                name="currency"
+                label={ t('Set currency') }
                 className={ cls.input }
                 selector={ getEditProfileField('country') }
                 onChange={ !readonly ? getAsyncAction('setCountry') : undefined }

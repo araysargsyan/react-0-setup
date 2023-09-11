@@ -4,11 +4,16 @@ import {
     Suspense,
     useCallback
 } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import {
+    Navigate,
+    Route, Routes, useSearchParams
+} from 'react-router-dom';
 import { type IRouterConfig, routesConfig } from 'config/router';
 import PageLoader from 'components/PageLoader';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import { AsyncReducer, type TAsyncReducerOptions } from 'config/store';
+import { useAppSelector } from 'shared/hooks/redux';
+import { ProtectedElement } from 'store/app';
 
 
 interface IElementWithWrapper {
@@ -34,6 +39,8 @@ const ElementWithWrapper = memo<IElementWithWrapper>(function ElementWithWrapper
 });
 
 const AppRouter: FC = () => {
+    const isAppReady = useAppSelector(({ app }) => app.isAppReady);
+
     const renderWithWrapper = useCallback(({
         asyncReducers, Element, path
     }: IRouterConfig) => {
@@ -42,22 +49,27 @@ const AppRouter: FC = () => {
                 key={ path }
                 path={ path }
                 element={ (
-                    <ElementWithWrapper
-                        asyncReducers={ asyncReducers }
-                        Element={ Element }
-                    />
+                    <ProtectedElement pathname={ path }>
+                        <ElementWithWrapper
+                            asyncReducers={ asyncReducers }
+                            Element={ Element }
+                        />
+                    </ProtectedElement>
                 ) }
             />
         );
     }, []);
 
     useRenderWatcher(AppRouter.name);
+
     return (
         <div className="page-wrapper">
             <Suspense fallback={ <PageLoader /> }>
-                <Routes>
-                    { routesConfig.map(renderWithWrapper) }
-                </Routes>
+                { isAppReady ? (
+                    <Routes>
+                        { routesConfig.map(renderWithWrapper) }
+                    </Routes>
+                ) : <PageLoader /> }
             </Suspense>
         </div>
     );

@@ -1,1 +1,1 @@
-export { default } from './ui/CurrencySelect';
+export * from './model';

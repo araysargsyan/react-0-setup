@@ -12,7 +12,7 @@ import {
     type IReducerManager,
     type IAddReducersOptions,
     type IRemoveReducersOptions,
-} from './types';
+} from '../types';
 
 
 class ReducerManager {
@@ -30,7 +30,7 @@ class ReducerManager {
         return {
             getReducerMap: () => this.reducers,
             reduce: (state, action) => {
-                console.log(action, '__reduce__');
+                //console.log(action, '__reduce__');
                 const newState = {
                     ...state,
                     ...(this.state as IState),

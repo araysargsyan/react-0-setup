@@ -1,26 +1,29 @@
 import { type ReducersMapObject } from '@reduxjs/toolkit';
+import { type IAppSchema } from 'config/store';
 
 import { type IProfileSchema } from './Profile';
-import { type ICounterSchema } from './Counter';
+import counter, { counterActions, type ICounterSchema } from './Counter';
 import user, { type IUserSchema, userActions } from './User';
-import app, { type IAppSchema, appActions } from './App';
+import app from './app';
 
 
 export interface IInitialStateSchema {
     app: IAppSchema;
     user: IUserSchema;
-    counter?: ICounterSchema;
     profile?: IProfileSchema;
+
+    counter: ICounterSchema;
 }
 
 export const initialReducers: ReducersMapObject<IInitialStateSchema> = {
     [app.name]: app.reducer,
     [user.name]: user.reducer,
+
+    [counter.name]: counter.reducer,
 };
 
 export const actionCreators = {
-    ...appActions,
     ...userActions,
-    // ...counterActions,
+    ...counterActions,
     // ...profileActions,
 };

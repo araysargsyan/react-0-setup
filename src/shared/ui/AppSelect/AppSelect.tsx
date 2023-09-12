@@ -24,7 +24,7 @@ interface IAppSelectProps<V extends string = string> {
     readonly?: boolean;
 }
 
-function AppSelect<V extends string = string>(...[ {
+function AppSelect<V extends string = string>({
     name,
     className,
     label,
@@ -33,7 +33,7 @@ function AppSelect<V extends string = string>(...[ {
     value,
     selector,
     readonly,
-} ]: Parameters<FC<IAppSelectProps<V>>>): ReturnType<FC<IAppSelectProps<V>>> {
+}: IAppSelectProps<V>): ReturnType<FC<IAppSelectProps<V>>> {
 
     const selectValue = value
         ? value
@@ -79,6 +79,6 @@ function AppSelect<V extends string = string>(...[ {
             </select>
         </div>
     );
-};
+}
 
 export default AppSelect;

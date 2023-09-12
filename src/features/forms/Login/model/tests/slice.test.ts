@@ -3,6 +3,7 @@ import { type DeepPartial } from '@reduxjs/toolkit';
 import login, { type ILoginSchema, loginActions } from '..';
 
 
+jest.mock('store/app');
 describe('loginSlice.test', () => {
     test('test set username', () => {
         const state: DeepPartial<ILoginSchema> = { username: '123' };

@@ -5,10 +5,11 @@ import _c from 'shared/helpers/classNames';
 import { useTranslation } from 'react-i18next';
 import AppButton, { EAppButtonTheme } from 'shared/ui/AppButton';
 import { useSelector } from 'react-redux';
-import { getUserAuthData, userActions } from 'store/User';
+import { userActionCreators } from 'store/User';
 import LoginModal from 'features/forms/Login';
-import { useActions, useAppSelector } from 'shared/hooks/redux';
+import { useActions } from 'shared/hooks/redux';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
+import { getIsAuthenticated } from 'store/app';
 
 import cls from './Navbar.module.scss';
 
@@ -19,9 +20,8 @@ interface INavbarProps {
 const Navbar: FC<INavbarProps> = ({ className }) => {
     const { t } = useTranslation();
     const [ isAuthModal, setIsAuthModal ] = useState(false);
-    const authData = useSelector(getUserAuthData);
-    const a = useAppSelector((state) => state.user);
-    const { logout } = useActions(userActions, [ 'logout' ]);
+    const isAuthenticated = useSelector(getIsAuthenticated);
+    const { logout } = useActions(userActionCreators, [ 'logout' ]);
 
     const onCloseModal = useCallback(() => {
         setIsAuthModal(false);
@@ -30,16 +30,16 @@ const Navbar: FC<INavbarProps> = ({ className }) => {
     const onShowModal = useCallback(() => {
         setIsAuthModal(true);
     }, []);
-    console.log(a);
-    useRenderWatcher(Navbar.name, JSON.stringify(Boolean(authData)));
+    
+    useRenderWatcher(Navbar.name, JSON.stringify({ isAuthenticated }));
 
-    if (authData) {
+    if (isAuthenticated) {
         return (
             <div className={ _c(cls.navbar,  [ className ]) }>
                 <AppButton
                     theme={ EAppButtonTheme.CLEAR_INVERTED }
                     className={ cls.links }
-                    onClick={ logout.bind(null, undefined) }
+                    onClick={ logout }
                 >
                     { t('Выйти') }
                 </AppButton>

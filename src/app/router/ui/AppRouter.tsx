@@ -1,19 +1,20 @@
 import {
     type ComponentType,
-    type FC, memo,
+    type FC,
+    memo,
     Suspense,
     useCallback
 } from 'react';
 import {
-    Navigate,
-    Route, Routes, useSearchParams
+    Route,
+    Routes,
 } from 'react-router-dom';
 import { type IRouterConfig, routesConfig } from 'config/router';
 import PageLoader from 'components/PageLoader';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import { AsyncReducer, type TAsyncReducerOptions } from 'config/store';
-import { useAppSelector } from 'shared/hooks/redux';
 import { ProtectedElement } from 'store/app';
+// import { useAppSelector } from 'shared/hooks/redux';
 
 
 interface IElementWithWrapper {
@@ -39,7 +40,7 @@ const ElementWithWrapper = memo<IElementWithWrapper>(function ElementWithWrapper
 });
 
 const AppRouter: FC = () => {
-    const isAppReady = useAppSelector(({ app }) => app.isAppReady);
+    // const isAppReady = useAppSelector(({ app }) => app.isAppReady);
 
     const renderWithWrapper = useCallback(({
         asyncReducers, Element, path
@@ -65,11 +66,11 @@ const AppRouter: FC = () => {
     return (
         <div className="page-wrapper">
             <Suspense fallback={ <PageLoader /> }>
-                { isAppReady ? (
-                    <Routes>
-                        { routesConfig.map(renderWithWrapper) }
-                    </Routes>
-                ) : <PageLoader /> }
+                { /*  { isAppReady ? (*/ }
+                <Routes>
+                    { routesConfig.map(renderWithWrapper) }
+                </Routes>
+                { /*) : <PageLoader /> }*/ }
             </Suspense>
         </div>
     );

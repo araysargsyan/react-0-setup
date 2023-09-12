@@ -3,7 +3,6 @@ import {
 } from 'react-redux';
 import { type IStateSchema, type TAppDispatch } from 'config/store';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useActions } from 'shared/hooks/redux';
 import { type IHistoryState } from 'shared/types';
 import { type Location } from 'history';
 

@@ -1,5 +1,5 @@
 import {
-    type FC, type ReactNode, Suspense, useMemo
+    type FC, type ReactNode, useMemo
 } from 'react';
 import { type ReducersMapObject } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 
-interface IOptions {
+interface IOptionsParameter {
     prefix: string;
     color: string;
     bgColor: string;
@@ -10,7 +10,7 @@ interface IOptions {
 
 type TType = 'COMPONENT' | 'HOOK';
 
-const OptionsList: Record<TType, IOptions> = {
+const OptionsList: Record<TType, IOptionsParameter> = {
     COMPONENT: {
         prefix: 'RENDER',
         color: '#000',

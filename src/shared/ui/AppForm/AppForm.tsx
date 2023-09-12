@@ -3,14 +3,13 @@ import React, {
     type FormEvent,
     type HTMLAttributes,
     type PropsWithChildren,
-    useEffect, useMemo
+    useMemo
 } from 'react';
 import {
     AsyncReducer,
     type IStateSchema,
     type TAsyncReducerOptions
 } from 'config/store';
-// import AsyncReducer from 'config/store/lib/AsyncReducer';
 import AppText, { ETextTheme } from 'shared/ui/Text';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';

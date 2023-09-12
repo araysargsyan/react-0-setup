@@ -1,24 +1,20 @@
-import {
-    useAppDispatch, useAppLocation, useAppNavigate, useAppSelector
-} from 'shared/hooks/redux';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { useEffect, useMemo } from 'react';
-import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import { bindActionCreators } from '@reduxjs/toolkit';
-import { type TStateSetup } from 'config/store/lib/StateSetup/types';
+import { useDispatch } from 'react-redux';
+import { type Location } from 'history';
+
+import { type TStateSetup } from './types';
+
 
 
 const usePageStateSetup = (stateSetup: TStateSetup) => {
-    const dispatch = useAppDispatch();
+    const dispatch = useDispatch();
     const setup = useMemo(() => bindActionCreators(stateSetup, dispatch), [ dispatch, stateSetup ]);
-    const { pathname, state: historyState  } = useAppLocation();
+    const { pathname, state: historyState  }: Location<{from?: string} | null> = useLocation();
     const [ searchParams ] = useSearchParams();
-    console.log(66666, historyState);
 
     useEffect(() => {
-        console.log('+++++++++++++++++', pathname);
-        console.log('+++++++++++++++++', historyState?.from);
-
         if (!historyState?.from) {
             console.log(
                 '%c usePageStateSetUp: watcher on change pathname', 'color: #ae54bf',
@@ -32,7 +28,10 @@ const usePageStateSetup = (stateSetup: TStateSetup) => {
         }
     });
 
-    useRenderWatcher('usePageStateSetUp', `redirected from ${historyState?.from}`, 'HOOK');
+    console.log(
+        `%c HOOK:usePageStateSetUp: redirected from ${historyState?.from}`, 'color: #18a4bf',
+        { historyState, pathname }
+    );
     return pathname;
 };
 

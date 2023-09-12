@@ -3,7 +3,7 @@ import { type IAppSchema } from 'config/store';
 
 import { type IProfileSchema } from './Profile';
 import counter, { counterActions, type ICounterSchema } from './Counter';
-import user, { type IUserSchema, userActions } from './User';
+import user, { type IUserSchema, userActionCreators } from './User';
 import app from './app';
 
 
@@ -23,7 +23,7 @@ export const initialReducers: ReducersMapObject<IInitialStateSchema> = {
 };
 
 export const actionCreators = {
-    ...userActions,
+    ...userActionCreators,
     ...counterActions,
     // ...profileActions,
 };

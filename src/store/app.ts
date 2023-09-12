@@ -1,11 +1,12 @@
-import { StateSetup } from 'config/store';
-import getStateSetupConfig from 'config/store/stateSetup';
+import { type IStateSchema, StateSetup } from 'config/store';
+import getStateSetupConfig, { checkAuthorization } from 'config/store/stateSetup';
 import { appReducerName } from 'shared/const';
 import { ERoutes } from 'config/router';
 
 
 const stateSetupConfig = new StateSetup(
     getStateSetupConfig,
+    checkAuthorization,
     {
         appReducerName,
         authProtection: {
@@ -16,7 +17,7 @@ const stateSetupConfig = new StateSetup(
 );
 const appReducer = stateSetupConfig.getStoreReducer();
 
-export const {
+const {
     ProtectedElement,
     $stateSetup,
     actionCreators: appActionCreators
@@ -25,4 +26,13 @@ export const {
 export default {
     name: appReducerName,
     reducer: appReducer
+};
+
+const getIsAuthenticated = ({ app }: IStateSchema) => app.isAuthenticated;
+
+export {
+    ProtectedElement,
+    $stateSetup,
+    appActionCreators,
+    getIsAuthenticated
 };

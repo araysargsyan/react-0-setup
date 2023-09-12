@@ -12,7 +12,7 @@ import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import AppSelect from 'shared/ui/AppSelect';
 import AppAvatar from 'shared/ui/AppAvatar';
 import { CountrySelectOptions, type ECountry } from 'features/Country';
-import { Currency, CurrencySelectOptions } from 'features/Currency';
+import { CurrencySelectOptions } from 'features/Currency';
 
 import cls from './EditProfile.module.scss';
 import { type TEditProfileActions } from '../model';
@@ -45,7 +45,6 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
         }
     );
 
-    const a = getAsyncAction('setFirstname');
     useRenderWatcher(EditProfile.name, JSON.stringify({ ...data, readonly }));
     return (
         <AppForm

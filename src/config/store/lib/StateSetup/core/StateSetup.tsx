@@ -1,27 +1,27 @@
 import {
-    type AnyAction,
-    type ThunkDispatch,
     type ActionCreatorWithPayload,
-    type ActionCreatorWithPreparedPayload,
     type Reducer,
     createAsyncThunk,
     createAction,
     createReducer
 } from '@reduxjs/toolkit';
-import {
-    type IStateSchema, type IThunkConfig, type TStateSetupFn 
-} from 'config/store';
-import { USER_LOCALSTORAGE_KEY } from 'shared/const';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import { type FC, type PropsWithChildren } from 'react';
 
 import {
+    type TStateSetupFn,
     type IAppSchema,
     type IAuthProtection,
-    type IOptions,
+    type IOptionsParameter,
     type IPageOptions,
     type TGetStateSetupConfig,
-    type TStateSetUpArgs
+    type TStateSetUpArgs,
+    type TCheckAuthorizationFn,
+    type TCheckAuthorizationAsyncThunk,
+    type IThunkConfig,
+    type IStateSchema,
+    type TSetIsAuthenticated,
+    type TDispatch
 } from '../types';
 
 
@@ -33,30 +33,29 @@ class StateSetup {
     };
     private readonly authProtection: IAuthProtection;
     private readonly getStateSetupConfig: TGetStateSetupConfig;
+    private readonly checkAuthorization: TCheckAuthorizationAsyncThunk;
 
     private isAuth: boolean | null = null;
     private pageOptionsMap: Record<string, IPageOptions> = {};
 
-    private setIsAuthenticated!: ActionCreatorWithPreparedPayload<
-        [isAuthenticated: boolean, restart?: boolean],
-        {isAuthenticated: boolean; restart: boolean}
-    >;
+    private setIsAuthenticated!: TSetIsAuthenticated;
     private setIsAppReady!: ActionCreatorWithPayload<boolean>;
-    private setRestart!: any; //ActionCreatorWithoutPayload;
     private reducer!: Reducer;
 
     constructor(
         getStateSetupConfig: TStateSetupFn,
+        checkAuthorization: TCheckAuthorizationFn,
         {
             appReducerName,
             authProtection = {
                 unAuthorized: './login',
                 authorized: './'
             }
-        }: IOptions
+        }: IOptionsParameter
     ) {
         console.log('StateSetup::__constructor__', { getStateSetupConfig, options: { appReducerName, authProtection } });
         this.getStateSetupConfig = getStateSetupConfig as TGetStateSetupConfig;
+        this.checkAuthorization = createAsyncThunk('@@INIT:Authorization', checkAuthorization);
         this.generateActions(appReducerName);
         this.generateReducer();
         this.authProtection = authProtection;
@@ -77,10 +76,6 @@ class StateSetup {
             `${appReducerName}/setIsAppReady`,
             (payload: boolean) => ({ payload })
         );
-        this.setRestart = createAsyncThunk(
-            `${appReducerName}/setRestart`,
-            async () => {}
-        );
     }
 
     private generateReducer() {
@@ -88,18 +83,11 @@ class StateSetup {
             isAppReady: false,
             isAuthenticated: false,
             isReducersReady: false,
-            //isStarting: false
         }, (builder) => {
             builder
                 .addCase(this.setup.fulfilled, (state, { payload: isAppReady }) => {
                     state.isAppReady = Boolean(isAppReady);
                 })
-                // .addCase(stateSetUp.fulfilled, (state, { payload }) => {
-                //     payload.a();
-                // })
-                // .addCase(stateSetUp.pending, (state, { payload: isAppReady }) => {
-                //     if (state.isAppReady) state.isAppReady = false;
-                // })
                 .addCase(this.setIsAuthenticated, (
                     state,
                     { payload }
@@ -107,15 +95,8 @@ class StateSetup {
                     state.isAuthenticated = payload.isAuthenticated;
                     if (payload.restart) state.isAppReady = false;
                 })
-                // .addCase(setReducersReady, (state, { payload }) => {
-                //     state.isReducersReady = payload;
-                // })
                 .addCase(this.setIsAppReady, (state, { payload }) => {
                     state.isAppReady = payload;
-                })
-                .addCase(this.setRestart.pending, (state) => {
-                    // state.isStarting = true;
-                    state.isAppReady = false;
                 });
         });
     }
@@ -134,39 +115,9 @@ class StateSetup {
         return actions;
     }
 
-    private async checkAuthorization(
-        dispatch: ThunkDispatch<unknown, unknown, AnyAction>,
-        getState: () => IStateSchema,
-    ): Promise<void> {
-            //! JWT EXAMPLE
-            // if (localStorage.getItem(ETokens.ACCESS) && !getState().app.isAuthenticated) {
-            //     await dispatch(appActionCreators.setIsAuthenticated(true, false));
-            // }
-            // if (!localStorage.getItem(ETokens.ACCESS) && this.isAuth === null) {
-            //     try {
-            //         const { user, accessToken } = await AuthService.refresh();
-            //         localStorage.setItem(ETokens.ACCESS, accessToken);
-            //         console.log({ user });
-            //         await dispatch(appActionCreators.setIsAuthenticated(true, false));
-            //
-            //     } catch (e) {
-            //
-            //     }
-            // }
-        if (localStorage.getItem(USER_LOCALSTORAGE_KEY) && !getState().app.isAuthenticated) {
-            dispatch(this.setIsAuthenticated(true, false));
-        }
-        if (!localStorage.getItem(USER_LOCALSTORAGE_KEY) && this.isAuth === null) {
-
-        }
-        
-
-        this.isAuth = getState().app.isAuthenticated;
-    }
-
     private async callActions(
         actions: IPageOptions['actions'],
-        dispatch: ThunkDispatch<unknown, unknown, AnyAction>,
+        dispatch: TDispatch,
         state: IStateSchema
     ) {
         for (let i = 0; i < actions.length; i++) {
@@ -191,16 +142,6 @@ class StateSetup {
         }
     }
 
-    // private async setUpFormsReducers(replaceReducer: TStateSetUpArgs['replaceReducer'], pathname: string, formState: any) {
-    //     for await (const key of FormsNamesArray) {
-    //         if (FormsPaths[key] === pathname && !formState?.[key]) {
-    //             console.log(7777, pathname, key);
-    //             await replaceReducer(key);
-    //             break;
-    //         }
-    //     }
-    // }
-
     private getRedirectTo(pathname: string) {
         const { authRequirement } = this.pageOptionsMap[pathname];
 
@@ -222,7 +163,7 @@ class StateSetup {
     private setup = createAsyncThunk<
         boolean | null,
         TStateSetUpArgs,
-        IThunkConfig<string>
+        IThunkConfig
     >(
         '@@INIT:STATE',
         async (
@@ -234,8 +175,7 @@ class StateSetup {
                 rejectWithValue,
                 fulfillWithValue,
                 getState,
-                dispatch,
-                extra: { navigate }
+                dispatch
             }
         ) => {
             try {
@@ -243,8 +183,11 @@ class StateSetup {
                     pathname, isAppReady: getState().app.isAppReady, state: getState()
                 }, 'setUp::start');
                 this.updateBasePageOptions(pathname, searchParams);
-                //this.updateBasePageOptions(pathname, searchParams);
-                await this.checkAuthorization(dispatch, getState);
+                await dispatch(this.checkAuthorization({
+                    isAuth: this.isAuth,
+                    setIsAuthenticated: this.setIsAuthenticated
+                }));
+                this.isAuth = getState().app.isAuthenticated;
 
                 const actions = this.getPageOption(pathname);
                 // if (redirectTo) {
@@ -273,7 +216,6 @@ class StateSetup {
                 console.error('setUp::catch', err);
                 return rejectWithValue('Something went wrong!');
             } finally {
-                // (redirectedFrom !== undefined) && window.history.replaceState({}, document.title);
                 console.log({ historyState: window.history.state.usr }, 'setUp::finally');
             }
 
@@ -305,7 +247,6 @@ class StateSetup {
             actionCreators: {
                 setIsAuthenticated: this.setIsAuthenticated,
                 setIsAppReady: this.setIsAppReady,
-                setRestart: this.setRestart,
             },
             $stateSetup: this.setup,
         };

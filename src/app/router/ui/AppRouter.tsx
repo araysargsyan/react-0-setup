@@ -14,7 +14,6 @@ import PageLoader from 'components/PageLoader';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import { AsyncReducer, type TAsyncReducerOptions } from 'config/store';
 import { ProtectedElement } from 'store/app';
-// import { useAppSelector } from 'shared/hooks/redux';
 
 
 interface IElementWithWrapper {

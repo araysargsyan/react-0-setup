@@ -1,7 +1,4 @@
-import lazyImport from 'shared/helpers/lazyImport';
-
-
-export { TAsyncReducerOptions } from './lib/ReducerManager/AsyncReducer';
+export { TAsyncReducerOptions, AsyncReducer } from './lib/ReducerManager';
 export {
     default as StateSetup,
     TStateSetupFn,
@@ -20,5 +17,3 @@ export {
     IThunkConfig,
     IReduxStoreWithManager
 } from './types';
-
-export const AsyncReducer = lazyImport(() => import('./lib/ReducerManager/AsyncReducer'));

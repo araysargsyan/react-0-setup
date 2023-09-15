@@ -1,10 +1,11 @@
 import {
     type ReducersMapObject,
-    combineReducers,
     type Reducer,
     type CombinedState,
     type AnyAction,
     type DeepPartial,
+    createAction,
+    combineReducers
 } from '@reduxjs/toolkit';
 
 import {
@@ -22,6 +23,25 @@ class ReducerManager {
     private keysToRemove: Array<keyof IState> = [];
     private parentKeysToRemove: Array<keyof INested> = [];
     private state: DeepPartial<IState & INested> | null = null;
+
+    public initReducers = createAction(
+        '@INIT:reducers',
+        () => ({
+            payload: {
+                parentKeysToRemove: this.parentKeysToRemove,
+                keysToRemove: this.keysToRemove
+            } 
+        })
+    );
+    public destroyReducers = createAction(
+        '@DESTROY:reducers',
+        () => ({
+            payload: {
+                parentKeysToRemove: this.parentKeysToRemove,
+                keysToRemove: this.keysToRemove
+            }
+        })
+    );
 
     create<S extends IState = IState, N extends INested = INested>(initialReducers: ReducersMapObject<IState>) {
         this.reducers = { ...initialReducers };
@@ -145,4 +165,10 @@ class ReducerManager {
     }
 }
 
-export default new ReducerManager();
+const instance = new ReducerManager();
+
+export const RMActionCreators = {
+    initReducers: instance.initReducers,
+    destroyReducers: instance.destroyReducers
+};
+export default instance;

@@ -30,7 +30,7 @@ const ElementWithWrapper = memo<IElementWithWrapper>(function ElementWithWrapper
 
     return (
         <AsyncReducer
-            options={ asyncReducers }
+            options={ asyncReducers as never }
             removeAfterUnmount
         >
             <Element />

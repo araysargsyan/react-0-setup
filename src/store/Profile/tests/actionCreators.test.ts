@@ -1,4 +1,4 @@
-import { TestAsyncThunk } from '@config/jest/ui/TestAsyncThunk';
+import { TestAsyncThunk } from '@config/jest/lib/TestAsyncThunk';
 import { ECountry } from 'features/Country/model';
 import { Currency } from 'features/Currency';
 

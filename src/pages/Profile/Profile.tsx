@@ -1,6 +1,4 @@
-import { type FC, useEffect } from 'react';
-import { profileActions } from 'store/Profile';
-import { useActions } from 'shared/hooks/redux';
+import { type FC } from 'react';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import { useTranslation } from 'react-i18next';
 
@@ -13,11 +11,6 @@ interface IProfileProps {
 
 const Profile: FC<IProfileProps> = ({ className }) => {
     useTranslation('profile');
-    const { fetchData } = useActions(profileActions, [ 'fetchData' ]);
-
-    useEffect(() => {
-        fetchData();
-    }, [ fetchData ]);
 
     useRenderWatcher(Profile.name);
     return (

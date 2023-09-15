@@ -14,7 +14,6 @@ import AppText, { ETextTheme } from 'shared/ui/Text';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import Index from 'shared/ui/DynamicComponent';
-import { type DeepPartial } from '@reduxjs/toolkit';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 
 
@@ -29,7 +28,7 @@ interface IAppFormProps extends Omit<IAppFormDefaultProps, 'onSubmit'> {
     formComponent?: EFormComponent;
     reducersOption?: TAsyncReducerOptions;
     title?: string;
-    state?: DeepPartial<IStateSchema>;
+    // state?: DeepPartial<IStateSchema>;
     onSubmit?: (e: FormEvent<HTMLFormElement>) => Promise<void>;
     error?: string;
     errorSelector?: (state: IStateSchema) => string | undefined;
@@ -43,7 +42,7 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
     error,
     errorSelector,
     reducersOption,
-    state,
+    //state,
     ...defaultProps
 }) => {
     const { t } = useTranslation();
@@ -68,7 +67,7 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
     }, [ formComponent, defaultProps, onSubmit ]);
 
 
-    useRenderWatcher(AppForm.name, JSON.stringify(state));
+    useRenderWatcher(AppForm.name);
     if (!reducersOption) {
         return (
             <Index
@@ -92,8 +91,8 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
     return (
         <AsyncReducer
             removeAfterUnmount
-            options={ reducersOption }
-            state={ state }
+            options={ reducersOption as never }
+            // state={ state }
         >
             <Index
                 tagName={ formComponent }

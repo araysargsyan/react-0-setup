@@ -1,6 +1,6 @@
 import {
     type AnyAction,
-    type CombinedState, type DeepPartial,
+    type CombinedState, type DeepPartial, type EnhancedStore,
     type Reducer,
     type ReducersMapObject
 } from '@reduxjs/toolkit';
@@ -14,7 +14,6 @@ type TSchema = Record<string, any>;
 
 export type INested<M = false> = Partial<Record<string, M extends true ? ReducersMapObject<TSchema> : TSchema>> | TSchema;
 export interface IState extends TSchema {}
-
 
 export type TParentStateKeys<N = INested> = keyof N;
 export type TAsyncStateKeys<S = IState> = keyof S;
@@ -48,4 +47,8 @@ export interface IReducerManager<S = IState, N = INested> {
         state?: DeepPartial<S & N>
     ) => void;
     remove: (options: IRemoveReducersOptions<S, N> | IRemoveReducersOptions<S, N>[]) => void;
+}
+
+export interface IStore extends EnhancedStore<IState> {
+    reducerManager: IReducerManager;
 }

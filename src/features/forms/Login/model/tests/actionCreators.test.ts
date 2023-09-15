@@ -1,5 +1,5 @@
 import { userActionCreators } from 'store/User';
-import { TestAsyncThunk } from '@config/jest/ui/TestAsyncThunk';
+import { TestAsyncThunk } from '@config/jest/lib/TestAsyncThunk';
 import { loginActions } from 'features/forms/Login/model';
 
 

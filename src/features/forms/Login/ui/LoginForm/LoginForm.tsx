@@ -27,11 +27,11 @@ export interface ILoginFormProps {
     onSuccess: () => void;
 }
 
-const asyncReducerOptions: TAsyncReducerOptions = {
+const asyncReducerOptions: TAsyncReducerOptions = [ {
     key: loginReducer.name,
     reducer: loginReducer.reducer,
     parentKey: 'forms'
-};
+} ];
 
 const LoginForm: FC<ILoginFormProps> = ({ className, onSuccess }) => {
     const { t } = useTranslation();

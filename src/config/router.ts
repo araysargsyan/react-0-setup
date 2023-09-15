@@ -37,14 +37,14 @@ export const routesConfig: Array<PathRouteProps & IRouterConfig> = [
     {
         path: ERoutes.PROFILE,
         Element: memo(lazyImport(() => import('pages/Profile'))),
-        asyncReducers: async () => {
-            const profileReducer = (await import('store/Profile')).default;
-
-            return {
-                key: profileReducer.name,
-                reducer: profileReducer.reducer,
-            };
-        },
+        // asyncReducers: async () => {
+        //     const profileReducer = (await import('store/Profile')).default;
+        //
+        //     return [ {
+        //         key: profileReducer.name,
+        //         reducer: profileReducer.reducer,
+        //     } ];
+        // },
     },
     //! must be last
     {

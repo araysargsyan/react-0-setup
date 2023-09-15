@@ -12,26 +12,14 @@ import { type TAppNavigateFunction } from '../types';
 export const useAppDispatch = () => useDispatch<TAppDispatch>();
 export const useAppLocation = (): Location<IHistoryState | null> => useLocation();
 export const useAppSelector: TypedUseSelectorHook<IStateSchema> = useSelector;
-
-// export function useAppNavigate(): TAppNavigateFunction {
-//     const navigate = useNavigate();
-//     const { pathname } = useLocation();
-//     const { setIsAppReady } = useActions(appActionCreators, [ 'setIsAppReady' ]);
-//
-//     return (to, options) => {
-//         setIsAppReady(false);
-//         return navigate(to, { ...options, state: { from: pathname } });
-//     };
-// }
-
 export function useAppNavigate() {
     const navigate = useNavigate();
-    const { pathname, state: initialState = {} } = useAppLocation();
+    // const { pathname, state: initialState = {} } = useAppLocation();
 
     const appNavigate: TAppNavigateFunction = (to, { state, ...options } = {}) => {
         return navigate(to, {
             ...options, state: {
-                ...initialState,
+                // ...initialState,
                 ...state,
                 //from: pathname
             } 

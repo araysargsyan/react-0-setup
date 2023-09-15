@@ -1,5 +1,5 @@
 import { fireEvent, screen } from '@testing-library/react';
-import { renderWithRouter } from '@config/jest/ui/renderWithRouter';
+import { componentRender } from '@config/jest/ui/componentRender';
 import React from 'react';
 import * as themeModules from 'app/providers/theme';
 import { ETheme } from 'app/providers/theme';
@@ -17,12 +17,12 @@ describe('Sidebar', () => {
 
 
     test('Render', () => {
-        renderWithRouter(<Sidebar />);
+        componentRender(<Sidebar />);
         expect(screen.getByTestId('sidebar')).toBeInTheDocument();
     });
 
     test('test toggle', () => {
-        renderWithRouter(<Sidebar />);
+        componentRender(<Sidebar />);
         const toggleBtn = screen.getByTestId('sidebar-toggle');
         expect(screen.getByTestId('sidebar')).toBeInTheDocument();
         fireEvent.click(toggleBtn);

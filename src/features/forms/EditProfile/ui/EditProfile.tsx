@@ -18,14 +18,14 @@ import cls from './EditProfile.module.scss';
 import { type TEditProfileActions } from '../model';
 
 
-const asyncReducerOptions: TAsyncReducerOptions = async () => {
+const asyncReducerOptions: TAsyncReducerOptions = async (state) => {
     const editProfileReducer = (await import('../model')).default;
 
-    return {
+    return [ {
         key: editProfileReducer.name,
         reducer: editProfileReducer.reducer,
         parentKey: 'forms'
-    };
+    }, state ];
 };
 export interface IEditProfileProps {
     className?: string;
@@ -48,8 +48,8 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
     useRenderWatcher(EditProfile.name, JSON.stringify({ ...data, readonly }));
     return (
         <AppForm
-            state={ !readonly ? { forms: { editProfile: data } } : undefined }
-            reducersOption={ !readonly ? asyncReducerOptions : undefined }
+            //state={ !readonly ? { forms: { editProfile: data } } : undefined }
+            reducersOption={ !readonly ? asyncReducerOptions.bind(null, { forms: { editProfile: data } }) : undefined }
             formComponent={ EFormComponent.DIV }
             className={ _c(cls['edit-profile-form'],  [ className ]) }
         >

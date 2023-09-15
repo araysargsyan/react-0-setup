@@ -1,12 +1,17 @@
 import {
-    type ActionCreatorWithPayload,
-    type Reducer,
+    type FC,
+    type PropsWithChildren,
+    useEffect
+} from 'react';
+import {
     createAsyncThunk,
     createAction,
-    createReducer
+    createReducer,
+    type ActionCreatorWithPayload,
+    type Reducer,
 } from '@reduxjs/toolkit';
 import { Navigate, useSearchParams } from 'react-router-dom';
-import { type FC, type PropsWithChildren } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import {
     type TStateSetupFn,
@@ -21,9 +26,11 @@ import {
     type IThunkConfig,
     type IStateSchema,
     type TSetIsAuthenticated,
-    type TDispatch
+    type TDispatch,
+    type TInitAuth,
+    type TCheckAuthorizationReturn,
+    type TAsyncReducer
 } from '../types';
-
 
 
 class StateSetup {
@@ -31,36 +38,82 @@ class StateSetup {
         actions: [],
         authRequirement: null,
     };
-    private readonly authProtection: IAuthProtection;
     private readonly getStateSetupConfig: TGetStateSetupConfig;
+    private readonly authProtectionConfig: IAuthProtection;
     private readonly checkAuthorization: TCheckAuthorizationAsyncThunk;
 
     private isAuth: boolean | null = null;
+    private prevRoute: {
+        pathname: string;
+        mustDestroy: boolean;
+    } | null = null;
     private pageOptionsMap: Record<string, IPageOptions> = {};
+    private asyncReducer: TAsyncReducer | null = null;
 
-    private setIsAuthenticated!: TSetIsAuthenticated;
-    private setIsAppReady!: ActionCreatorWithPayload<boolean>;
     private reducer!: Reducer;
+    private setIsAuthenticated!: TSetIsAuthenticated;
+    private setIsAppReady!: ActionCreatorWithPayload<boolean | string | null>;
+    private setIsPageReady!: ActionCreatorWithPayload<boolean | null>;
 
     constructor(
         getStateSetupConfig: TStateSetupFn,
         checkAuthorization: TCheckAuthorizationFn,
         {
             appReducerName,
-            authProtection = {
+            authProtectionConfig = {
                 unAuthorized: './login',
                 authorized: './'
             }
         }: IOptionsParameter
     ) {
-        console.log('StateSetup::__constructor__', { getStateSetupConfig, options: { appReducerName, authProtection } });
+        console.log('StateSetup::__constructor__', { getStateSetupConfig, options: { appReducerName, authProtectionConfig } });
         this.getStateSetupConfig = getStateSetupConfig as TGetStateSetupConfig;
-        this.checkAuthorization = createAsyncThunk('@@INIT:Authorization', checkAuthorization);
+        this.authProtectionConfig = authProtectionConfig;
+        this.checkAuthorization = createAsyncThunk<
+            TCheckAuthorizationReturn,
+            Parameters<TCheckAuthorizationAsyncThunk>[0],
+            IThunkConfig
+        >(
+            '@@INIT:Authorization',
+            async (args, thunkAPI) => {
+                return this.initAuth({ ...args, checkAuthorization }, thunkAPI);
+            }
+        );
         this.generateActions(appReducerName);
         this.generateReducer();
-        this.authProtection = authProtection;
     }
 
+    private initAuth: TInitAuth = async (
+        {
+            checkAuthorization,
+            pathname,
+            searchParams,
+            restart = true
+        },
+        thunkAPI
+    ) => {
+        try {
+            const isAuth = await checkAuthorization({ isAuth: this.isAuth }, thunkAPI);
+
+            if (typeof isAuth === 'boolean') {
+                this.isAuth = isAuth;
+                thunkAPI.dispatch(this.setIsAuthenticated(isAuth));
+            } else {
+                throw new Error('checkAuthorization');
+            }
+
+            this.updateBasePageOptions(pathname, searchParams);
+            const redirectTo = this.getRedirectTo(pathname);
+
+            if (redirectTo) {
+                this.updateBasePageOptions(redirectTo, searchParams);
+            }
+
+            return thunkAPI.fulfillWithValue({ redirectTo, restart });
+        } catch (e) {
+            return thunkAPI.rejectWithValue('error');
+        }
+    };
     private generateActions(appReducerName: string) {
         this.setIsAuthenticated = createAction(
             `${appReducerName}/setIsAuthenticated`,
@@ -74,29 +127,53 @@ class StateSetup {
         );
         this.setIsAppReady = createAction(
             `${appReducerName}/setIsAppReady`,
-            (payload: boolean) => ({ payload })
+            (payload: boolean | string | null) => ({ payload })
+        );
+        this.setIsPageReady = createAction(
+            `${appReducerName}/setIsPageReady`,
+            (payload: boolean | null) => ({ payload })
         );
     }
 
     private generateReducer() {
         this.reducer = createReducer<IAppSchema>({
-            isAppReady: false,
+            isPageReady: null,
+            isAppReady: null,
             isAuthenticated: false,
             isReducersReady: false,
         }, (builder) => {
             builder
-                .addCase(this.setup.fulfilled, (state, { payload: isAppReady }) => {
-                    state.isAppReady = Boolean(isAppReady);
+                .addCase(this.checkAuthorization.fulfilled, (
+                    state,
+                    { payload: { redirectTo, restart } }
+                ) => {
+                    if (restart) {
+                        state.isAppReady = redirectTo === null ? false : redirectTo;
+                    } else if (redirectTo === null) {
+                        state.isPageReady = true;
+                    }
+                })
+                .addCase(this.setup.fulfilled, (state, { payload: { isAppReady, restart } }) => {
+                    if (restart) {
+                        state.isAppReady = Boolean(isAppReady);
+                        state.isPageReady = Boolean(isAppReady);
+                    } else {
+                        state.isPageReady = Boolean(isAppReady);
+                    }
                 })
                 .addCase(this.setIsAuthenticated, (
                     state,
                     { payload }
                 ) => {
                     state.isAuthenticated = payload.isAuthenticated;
-                    if (payload.restart) state.isAppReady = false;
+                    this.isAuth = state.isAuthenticated;
+                    // if (payload.restart) state.isAppReady = false;
                 })
                 .addCase(this.setIsAppReady, (state, { payload }) => {
                     state.isAppReady = payload;
+                })
+                .addCase(this.setIsPageReady, (state, { payload }) => {
+                    state.isPageReady = payload;
                 });
         });
     }
@@ -109,12 +186,28 @@ class StateSetup {
         }
     };
 
-    private getPageOption(pathname: string) {
-        const { actions } = this.pageOptionsMap[pathname];
-
-        return actions;
+    private getPageOption<K extends keyof IPageOptions>(pathname: string, key: K): IPageOptions[K] {
+        return this.pageOptionsMap[pathname][key];
     }
 
+    private async callReducerManager(method: 'add' | 'remove', asyncReducerOptions: IPageOptions['asyncReducerOptions'], dispatch: TDispatch) {
+        const callAction = async (options: unknown[])=> {
+            if (method === 'add') {
+                await this.asyncReducer!.add(dispatch, options);
+            } else {
+                await this.asyncReducer!.remove(dispatch, options);
+            }
+        };
+
+        if (asyncReducerOptions) {
+            if (typeof asyncReducerOptions === 'function') {
+                const options = await asyncReducerOptions();
+                await callAction(options);
+            } else {
+                await callAction(asyncReducerOptions);
+            }
+        }
+    }
     private async callActions(
         actions: IPageOptions['actions'],
         dispatch: TDispatch,
@@ -143,17 +236,17 @@ class StateSetup {
     }
 
     private getRedirectTo(pathname: string) {
-        const { authRequirement } = this.pageOptionsMap[pathname];
+        const authRequirement= this.getPageOption(pathname, 'authRequirement');
 
         let redirectTo = null;
 
         if (authRequirement !== null) {
             redirectTo = authRequirement
                 ? (!this.isAuth
-                        ? this.authProtection.unAuthorized
+                        ? this.authProtectionConfig.unAuthorized
                         : null)
                 : (this.isAuth
-                        ? this.authProtection.authorized
+                        ? this.authProtectionConfig.authorized
                         : null);
         }
 
@@ -161,7 +254,7 @@ class StateSetup {
     };
 
     private setup = createAsyncThunk<
-        boolean | null,
+        { isAppReady: boolean | null; restart: boolean },
         TStateSetUpArgs,
         IThunkConfig
     >(
@@ -169,7 +262,8 @@ class StateSetup {
         async (
             {
                 pathname,
-                searchParams
+                restart = true,
+                asyncReducer
             },
             {
                 rejectWithValue,
@@ -180,38 +274,44 @@ class StateSetup {
         ) => {
             try {
                 console.info({
-                    pathname, isAppReady: getState().app.isAppReady, state: getState()
+                    pathname,
+                    isAppReady: getState().app.isAppReady,
+                    restart,
+                    state: getState(),
+                    asyncReducer,
+                    p: this.prevRoute
                 }, 'setUp::start');
-                this.updateBasePageOptions(pathname, searchParams);
-                await dispatch(this.checkAuthorization({
-                    isAuth: this.isAuth,
-                    setIsAuthenticated: this.setIsAuthenticated
-                }));
-                this.isAuth = getState().app.isAuthenticated;
 
-                const actions = this.getPageOption(pathname);
-                // if (redirectTo) {
-                //     //await dispatch(this.setRestart());
-                //     // console.log('________________');
-                //     navigate?.(redirectTo, { state: { from: pathname } });
-                //     dispatch(this.setup({
-                //         redirectedFrom: pathname,
-                //         pathname: redirectTo,
-                //         searchParams
-                //     }));
-                //
-                //     console.info({
-                //         pathname, redirectTo, isAppReady: getState().app.isAppReady, state: getState()
-                //     }, 'setUp::redirected');
-                //     return fulfillWithValue(false);
-                // }
+                if (asyncReducer && this.asyncReducer === null) {
+                    this.asyncReducer = asyncReducer;
+                }
+                if (this.asyncReducer && this.prevRoute?.pathname !== pathname) {
+                    if (this.prevRoute?.mustDestroy) {
+                        const asyncReducerOptions = this.getPageOption(this.prevRoute.pathname, 'asyncReducerOptions');
+                        await this.callReducerManager('remove', asyncReducerOptions, dispatch);
+                    }
 
+
+                    if (this.prevRoute?.pathname !== pathname) {
+                        const asyncReducerOptions = this.getPageOption(pathname, 'asyncReducerOptions');
+                        await this.callReducerManager('add', asyncReducerOptions, dispatch);
+                    }
+                }
+
+                const actions = this.getPageOption(pathname, 'actions');
                 await this.callActions(actions, dispatch, getState());
 
                 console.info({
-                    pathname, isAppReady: getState().app.isAppReady, state: getState()
+                    pathname, isAppReady:
+                    getState().app.isAppReady,
+                    restart,
+                    state: getState()
                 }, 'setUp::end');
-                return fulfillWithValue(true);
+                this.prevRoute = {
+                    pathname,
+                    mustDestroy: false
+                };
+                return fulfillWithValue({ isAppReady: true, restart });
             } catch (err) {
                 console.error('setUp::catch', err);
                 return rejectWithValue('Something went wrong!');
@@ -226,17 +326,53 @@ class StateSetup {
         children,
         pathname
     }) => {
+        const isPageReady = useSelector(({ app }: IStateSchema) => app.isPageReady);
+        const dispatch = useDispatch<TDispatch>();
         const [ searchParams ] = useSearchParams();
-        this.updateBasePageOptions(pathname, searchParams);
+
+        useEffect(() => {
+
+            if (isPageReady === null) {
+                console.log(111111111, { isPageReady, p: this.prevRoute });
+
+                dispatch(this.checkAuthorization({
+                    pathname, searchParams, restart: false 
+                })).then((result) => {
+                    if (this.checkAuthorization.fulfilled.match(result)) {
+                        const path = result.payload.redirectTo || pathname;
+
+                        this.prevRoute!.mustDestroy = this.prevRoute !== null && this.prevRoute.pathname !== path;
+
+                        dispatch(this.setup({
+                            pathname: path,
+                            restart: false,
+                        }));
+                    }
+                });
+            } else {
+                console.log(3333);
+                // if (this.prevRoute !== pathname) {
+                //     this.prevRoute = pathname;
+                // }
+            }
+        });
+
+        if (isPageReady === null) {
+            console.log(2222222);
+            return null;
+        }
 
         const redirectTo = this.getRedirectTo(pathname);
 
         return !redirectTo ? children : (
             <Navigate
                 to={ redirectTo }
-                state={{ from: pathname }}
+                //state={{ from: pathname, redirected: true }}
             />
         );
+  
+
+
     };
     public getStoreReducer() {
         return this.reducer;
@@ -245,8 +381,10 @@ class StateSetup {
         return {
             ProtectedElement: this.ProtectedElement,
             actionCreators: {
+                checkAuthorization: this.checkAuthorization,
                 setIsAuthenticated: this.setIsAuthenticated,
                 setIsAppReady: this.setIsAppReady,
+                setIsPageReady: this.setIsPageReady,
             },
             $stateSetup: this.setup,
         };

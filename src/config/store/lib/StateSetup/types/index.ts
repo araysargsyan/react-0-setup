@@ -9,7 +9,8 @@ import {
 
 
 interface IAppSchema {
-    isAppReady: boolean | null;
+    isAppReady: boolean | null | string;
+    isPageReady: boolean | null;
     isAuthenticated: boolean;
     isReducersReady: boolean;
 }
@@ -36,35 +37,48 @@ interface IPageOption {
 }
 
 interface IAuthProtection {
+    //* will redirect unauthorized user to this path.
     unAuthorized: string;
+    //* will redirect authorized user to this path.
     authorized: string;
 }
 interface IOptionsParameter {
     appReducerName: string;
-    authProtection?: IAuthProtection;
+    authProtectionConfig?: IAuthProtection;
 }
-
-interface IPageOptions<O extends string | false = false> {
+type TAsyncReducersOptions = unknown[] | (() => Promise<unknown[]>);
+interface IPageOptions<O extends string | false = false, AR = TAsyncReducersOptions> {
     actions: O extends string ? Array<Omit<IPageOption, O>> : Array<IPageOption>;
+    //* By default null.
+    //* If false it's mean that page will be enabled only for unauthenticated users.
+    //* If true you know.
     authRequirement: null | boolean;
+    asyncReducerOptions?: AR;
 }
 type TGetStateSetupConfig<
     T extends string = string,
-    O extends string | false = false
+    O extends string | false = false,
+    AR = TAsyncReducersOptions
 > = (searchParams: URLSearchParams) => Partial<
     Record<
         T,
-        Partial<IPageOptions<O>>
+        Partial<IPageOptions<O, AR>>
     >
 >;
-type TStateSetupFn<T extends string = string> = TGetStateSetupConfig<T, '_fetched'>;
+type TStateSetupFn<T extends string = string, AR = TAsyncReducersOptions> = TGetStateSetupConfig<T, '_fetched', AR>;
 
+type TAsyncReducer<AR = TAsyncReducersOptions> = {
+    add: (dispatch: TDispatch, options: AR) => Promise<void>;
+    remove: (dispatch: TDispatch, options: AR) => Promise<void>;
+};
 type TStateSetUpArgs = {
     pathname: string;
-    searchParams: URLSearchParams;
+    restart?: boolean;
+    asyncReducer?: TAsyncReducer;
 };
+
 type TStateSetup = AsyncThunk<
-    boolean | null,
+    { isAppReady: boolean | null; restart: boolean },
     TStateSetUpArgs,
     IThunkConfig<string>
 >;
@@ -74,14 +88,27 @@ type TSetIsAuthenticated = ActionCreatorWithPreparedPayload<
     {isAuthenticated: boolean; restart: boolean}
 >;
 type TCheckAuthorizationFn = AsyncThunkPayloadCreator<
-    void,
-    {isAuth: boolean | null; setIsAuthenticated: TSetIsAuthenticated},
+    boolean,
+    {
+        isAuth: boolean | null;
+        // setIsAuthenticated: TSetIsAuthenticated;
+    },
     IThunkConfig<string>
 >;
+type TCheckAuthorizationReturn = { redirectTo: string | null; restart: boolean };
 type TCheckAuthorizationAsyncThunk = AsyncThunk<
-    void,
-    Parameters<TCheckAuthorizationFn>[0],
-    IThunkConfig<string>
+    TCheckAuthorizationReturn,
+    {
+        pathname: string;
+        searchParams: URLSearchParams;
+        restart?: boolean;
+    },
+    IThunkConfig
+>;
+type TInitAuth = AsyncThunkPayloadCreator<
+    TCheckAuthorizationReturn,
+    Parameters<TCheckAuthorizationAsyncThunk>[0] & {checkAuthorization: TCheckAuthorizationFn},
+    IThunkConfig
 >;
 
 export {
@@ -98,10 +125,14 @@ export {
     TGetStateSetupConfig,
     TStateSetupFn,
 
+    TAsyncReducersOptions,
+    TAsyncReducer,
     TStateSetUpArgs,
     TStateSetup,
 
     TSetIsAuthenticated,
+    TCheckAuthorizationReturn,
     TCheckAuthorizationFn,
-    TCheckAuthorizationAsyncThunk
+    TCheckAuthorizationAsyncThunk,
+    TInitAuth,
 };

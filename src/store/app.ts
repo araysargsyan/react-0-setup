@@ -9,7 +9,7 @@ const stateSetupConfig = new StateSetup(
     checkAuthorization,
     {
         appReducerName,
-        authProtection: {
+        authProtectionConfig: {
             unAuthorized: ERoutes.MAIN,
             authorized: ERoutes.PROFILE
         }
@@ -20,7 +20,7 @@ const appReducer = stateSetupConfig.getStoreReducer();
 const {
     ProtectedElement,
     $stateSetup,
-    actionCreators: appActionCreators
+    actionCreators: appActionCreators,
 } = stateSetupConfig.getStoreCreatorsActions();
 
 export default {
@@ -34,5 +34,5 @@ export {
     ProtectedElement,
     $stateSetup,
     appActionCreators,
-    getIsAuthenticated
+    getIsAuthenticated,
 };

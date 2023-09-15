@@ -1,4 +1,8 @@
-export { TAsyncReducerOptions, AsyncReducer } from './lib/ReducerManager';
+export {
+    AsyncReducer,
+    RMActionCreators
+} from './lib/ReducerManager';
+
 export {
     default as StateSetup,
     TStateSetupFn,
@@ -15,5 +19,8 @@ export {
     TAppDispatch,
     TStore,
     IThunkConfig,
-    IReduxStoreWithManager
+    IReduxStoreWithManager,
+    TAddAsyncReducerParameters,
+    TRemoveAsyncReducerParameters,
+    TAsyncReducerOptions
 } from './types';

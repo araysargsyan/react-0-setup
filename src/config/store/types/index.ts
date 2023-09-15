@@ -1,4 +1,4 @@
-import { type EnhancedStore } from '@reduxjs/toolkit';
+import { type DeepPartial, type EnhancedStore } from '@reduxjs/toolkit';
 import { type IInitialStateSchema } from 'store';
 import { type IFormStateSchema } from 'features/forms';
 import { type AxiosInstance } from 'axios';
@@ -21,6 +21,11 @@ export type TAppDispatch = TStore['dispatch'];
 export interface IReduxStoreWithManager extends EnhancedStore<IStateSchema> {
     reducerManager: IReducerManager<TStateWithoutNestedSchema, INestedStateSchema>;
 }
+export type TAddAsyncReducerParameters = Parameters<IReduxStoreWithManager['reducerManager']['add']>;
+export type TRemoveAsyncReducerParameters = Parameters<IReduxStoreWithManager['reducerManager']['remove']>;
+export type TAsyncReducerOptions = TAddAsyncReducerParameters
+    | ((state?: DeepPartial<IStateSchema>) => Promise<TAddAsyncReducerParameters>);
+// export type TAsyncReducerOptions = TAROptions<IStateSchema, INestedStateSchema, IReduxStoreWithManager>;
 
 export interface IThunkExtraArg {
     api: AxiosInstance;

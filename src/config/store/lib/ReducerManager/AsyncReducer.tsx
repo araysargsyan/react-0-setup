@@ -1,41 +1,41 @@
 import {
     type FC,
-    type PropsWithChildren, Suspense,
+    type PropsWithChildren,
+    Suspense,
     useCallback,
     useEffect,
     useRef
 } from 'react';
-import { useStore } from 'react-redux';
-import { type IReduxStoreWithManager, type IStateSchema } from 'config/store';
-import { useAppDispatch } from 'shared/hooks/redux';
+import { useDispatch, useStore } from 'react-redux';
 import { type DeepPartial } from '@reduxjs/toolkit';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 
+import { type IState, type IStore } from './types';
+import { RMActionCreators } from '.';
 
-type TAsyncReducerOptionsParameters = Parameters<IReduxStoreWithManager['reducerManager']['add']>[0]
-    & Parameters<IReduxStoreWithManager['reducerManager']['add']>[1];
 
-export type TAsyncReducerOptions = TAsyncReducerOptionsParameters | (() => Promise<TAsyncReducerOptionsParameters>);
+type TAddAsyncReducerParameters = Parameters<IStore['reducerManager']['add']>;
+type TAsyncReducerOptions = TAddAsyncReducerParameters | ((state?: DeepPartial<IState>) => Promise<TAddAsyncReducerParameters>);
 
 interface IAsyncReducerProps {
     options: TAsyncReducerOptions;
-    state?: DeepPartial<IStateSchema>;
+    // state?: DeepPartial<IStateSchema>;
     removeAfterUnmount?: boolean;
 }
 
 const AsyncReducer: FC<PropsWithChildren<IAsyncReducerProps>> = ({
     children,
     options,
-    state,
+    // state,
     removeAfterUnmount,
 }) => {
-    const store = useStore() as IReduxStoreWithManager;
-    const dispatch = useAppDispatch();
+    const store = useStore() as IStore;
+    const dispatch = useDispatch();
 
-    const getRemoveOptions = useCallback((o: TAsyncReducerOptionsParameters) => {
-        return Array.isArray(o)
-            ? o.map(({ key, parentKey }) => ({ key, parentKey }))
-            : { key: o.key, parentKey: o.parentKey };
+    const getRemoveOptions = useCallback((o: TAddAsyncReducerParameters) => {
+        return Array.isArray(o[0])
+            ? o[0].map(({ key, parentKey }) => ({ key, parentKey }))
+            : { key: o[0].key, parentKey: o[0].parentKey };
     }, []);
 
     const removeOptions = useRef(typeof options !== 'function'
@@ -50,19 +50,19 @@ const AsyncReducer: FC<PropsWithChildren<IAsyncReducerProps>> = ({
                 if (removeOptions.current === null) {
                     removeOptions.current = getRemoveOptions(o);
                 }
-                store.reducerManager.add(o, state);
-                dispatch({ type: '@INIT:reducers', payload: removeOptions.current });
+                store.reducerManager.add(...o);
+                dispatch(RMActionCreators.initReducers);
             });
         } else {
-            store.reducerManager.add(options, state);
-            dispatch({ type: '@INIT:reducers', payload: removeOptions.current });
+            store.reducerManager.add(...options);
+            dispatch(RMActionCreators.initReducers);
         }
 
         
         return () => {
             if (removeAfterUnmount && removeOptions.current) {
                 store.reducerManager.remove(removeOptions.current);
-                dispatch({ type: '@DESTROY:reducers', payload: removeOptions });
+                dispatch(RMActionCreators.destroyReducers);
             }
         };
         // eslint-disable-next-line

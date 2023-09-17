@@ -24,7 +24,6 @@ export const checkAuthorization: TCheckAuthorizationFn = async (
     //     try {
     //         const { user, accessToken } = await AuthService.refresh();
     //         localStorage.setItem(ETokens.ACCESS, accessToken);
-    //         console.log({ user });
     //         await dispatch(appActionCreators.setIsAuthenticated(true, false));
     //
     //     } catch (e) {
@@ -65,12 +64,16 @@ const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = 
                 const profileModule = await import('store/Profile');
                 
                 return [
-                    [
-                        {
-                            key: profileModule.default.name,
-                            reducer: profileModule.default.reducer,
-                        }
+                    [ //! asyncReducerOptions can by multiple
+                        [
+                            {
+                                key: profileModule.default.name,
+                                reducer: profileModule.default.reducer,
+                            },
+                        //* ...state
+                        ]
                     ],
+                    //! asyncActionCreators, key of this object needed to be in cb.key
                     { profile: profileModule.profileActions }
                 ];
             },
@@ -80,12 +83,12 @@ const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = 
                         key: 'profile',
                         getAction: (profileActions) => (profileActions as TProfileActions).fetchData
                     },
+                    async: true,
                     canRefetch: true
                 }
             ]
         },
         [ERoutes.ABOUT]: {
-            authRequirement: false,
             actions: [
                 { cb: counterActions.increment, canRefetch: true },
                 { cb: counterActions.increment },

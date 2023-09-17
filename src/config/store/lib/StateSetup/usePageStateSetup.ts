@@ -27,7 +27,7 @@ const usePageStateSetup = (
         [ dispatch, checkAuthorization ]
     );
 
-    const { pathname, state: historyState }: Location<{redirected?: boolean; from?: string} | null> = useLocation();
+    const { pathname, state: historyState }: Location<{redirected?: boolean} | null> = useLocation();
     const [ searchParams ] = useSearchParams();
 
     useEffect(() => {
@@ -42,7 +42,6 @@ const usePageStateSetup = (
                     historyState: { ...historyState },
                     pathname,
                     redirected: historyState?.redirected,
-                    from: historyState?.from,
                     isAppReady
                 }
             );
@@ -50,21 +49,10 @@ const usePageStateSetup = (
         }
         if (historyState && isAppReady) {
             delete historyState?.redirected;
-            delete historyState?.from;
             window.history.replaceState({ ...historyState }, document.title);
         }
     });
 
-    console.log(
-        `%c HOOK:usePageStateSetUp: redirected from ${historyState?.from}`, 'color: #18a4bf',
-        {
-            historyState,
-            pathname,
-            redirected: historyState?.redirected,
-            from: historyState?.from, isAppReady
-        }
-    );
-    
     return pathname;
 };
 

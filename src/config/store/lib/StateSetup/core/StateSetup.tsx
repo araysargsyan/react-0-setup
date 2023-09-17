@@ -12,7 +12,6 @@ import {
 } from '@reduxjs/toolkit';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { type ActionCreator } from 'redux';
 
 import {
     type TStateSetupFn,
@@ -30,7 +29,9 @@ import {
     type TDispatch,
     type TInitAuth,
     type TCheckAuthorizationReturn,
-    type TAsyncReducer, type TAsyncReducersOptions, type TCb
+    type TAsyncReducer,
+    type TAsyncReducersOptions,
+    type TCb
 } from '../types';
 
 
@@ -174,7 +175,9 @@ class StateSetup {
                     state.isAppReady = payload;
                 })
                 .addCase(this.setIsPageReady, (state, { payload }) => {
-                    state.isPageReady = payload;
+                    if (this.isAuth !== false) {
+                        state.isPageReady = payload;
+                    }
                 });
         });
     }
@@ -208,7 +211,7 @@ class StateSetup {
         if (asyncReducerOptions) {
             if (typeof asyncReducerOptions === 'function') {
                 const [ options, actionCreators ] = await asyncReducerOptions();
-                console.log(4444, actionCreators);
+
                 if (method === 'add') {
                     actionCreatorsOption = actionCreators;
                 }
@@ -234,7 +237,6 @@ class StateSetup {
                 action.canRefetch = action.canRefetch(state);
             }
 
-            console.log(666, extraActionCreatorsOption, action);
             if (!action._fetched) {
                 if (isAsync) {
                     if (extraActionCreatorsOption && typeof action.cb === 'object' && extraActionCreatorsOption[action.cb.key]) {
@@ -328,7 +330,6 @@ class StateSetup {
                 }
                 
                 const actions = this.getPageOption(pathname, 'actions');
-                console.log(1111, { extraActionCreatorsOption, actions });
                 await this.callActions(actions, dispatch, getState(), extraActionCreatorsOption);
 
                 console.info({
@@ -348,7 +349,6 @@ class StateSetup {
             } finally {
                 console.log({ historyState: window.history.state.usr }, 'setUp::finally');
             }
-
         }
     );
 
@@ -361,37 +361,44 @@ class StateSetup {
         const [ searchParams ] = useSearchParams();
 
         useEffect(() => {
-
+            console.log('____ProtectedElement_____', {
+                pathname, prevRoute: this.prevRoute, isPageReady 
+            });
             if (isPageReady === null) {
-                console.log(111111111, { isPageReady, p: this.prevRoute });
+                if (this.isAuth !== false) {
+                    dispatch(this.checkAuthorization({
+                        pathname, searchParams, restart: false
+                    })).then((result) => {
+                        if (this.checkAuthorization.fulfilled.match(result)) {
+                            const path = result.payload.redirectTo || pathname;
 
-                dispatch(this.checkAuthorization({
-                    pathname, searchParams, restart: false 
-                })).then((result) => {
-                    if (this.checkAuthorization.fulfilled.match(result)) {
-                        const path = result.payload.redirectTo || pathname;
+                            this.prevRoute!.mustDestroy = this.prevRoute !== null && this.prevRoute.pathname !== path;
 
-                        this.prevRoute!.mustDestroy = this.prevRoute !== null && this.prevRoute.pathname !== path;
+                            dispatch(this.setup({
+                                pathname: path,
+                                restart: false,
+                            }));
+                        }
+                    });
+                } else {
+                    this.updateBasePageOptions(pathname, searchParams);
+                    const path = this.getRedirectTo(pathname) || pathname;
 
-                        dispatch(this.setup({
-                            pathname: path,
-                            restart: false,
-                        }));
-                    }
-                });
-            } else {
-                console.log(3333);
-                // if (this.prevRoute !== pathname) {
-                //     this.prevRoute = pathname;
-                // }
+                    this.prevRoute!.mustDestroy = this.prevRoute !== null && this.prevRoute.pathname !== path;
+
+                    dispatch(this.setup({
+                        pathname: path,
+                        restart: false,
+                    }));
+                }
             }
         });
 
         if (isPageReady === null) {
-            console.log(2222222);
-            return null;
+            return <h1>PAGE NOT READY</h1>;
         }
 
+        this.updateBasePageOptions(pathname, searchParams);
         const redirectTo = this.getRedirectTo(pathname);
 
         return !redirectTo ? children : (
@@ -400,9 +407,6 @@ class StateSetup {
                 //state={{ from: pathname, redirected: true }}
             />
         );
-  
-
-
     };
     public getStoreReducer() {
         return this.reducer;

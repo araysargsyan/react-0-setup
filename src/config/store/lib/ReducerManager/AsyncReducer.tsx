@@ -51,7 +51,7 @@ const AsyncReducer: FC<PropsWithChildren<IAsyncReducerProps>> = ({
                     removeOptions.current = getRemoveOptions(o);
                 }
                 store.reducerManager.add(...o);
-                dispatch(RMActionCreators.initReducers);
+                dispatch(RMActionCreators.initReducers());
             });
         } else {
             store.reducerManager.add(...options);
@@ -62,7 +62,7 @@ const AsyncReducer: FC<PropsWithChildren<IAsyncReducerProps>> = ({
         return () => {
             if (removeAfterUnmount && removeOptions.current) {
                 store.reducerManager.remove(removeOptions.current);
-                dispatch(RMActionCreators.destroyReducers);
+                dispatch(RMActionCreators.destroyReducers());
             }
         };
         // eslint-disable-next-line

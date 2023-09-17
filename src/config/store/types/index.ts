@@ -23,10 +23,11 @@ export interface IReduxStoreWithManager extends EnhancedStore<IStateSchema> {
 }
 export type TAddAsyncReducerParameters = Parameters<IReduxStoreWithManager['reducerManager']['add']>;
 export type TRemoveAsyncReducerParameters = Parameters<IReduxStoreWithManager['reducerManager']['remove']>;
-export type TAsyncReducerOptions = TAddAsyncReducerParameters
-    | ((state?: DeepPartial<IStateSchema>) => Promise<TAddAsyncReducerParameters>);
-// export type TAsyncReducerOptions = TAROptions<IStateSchema, INestedStateSchema, IReduxStoreWithManager>;
-
+// export type TAsyncReducerOptions = TAddAsyncReducerParameters
+//     | ((state?: DeepPartial<IStateSchema>) => Promise<TAddAsyncReducerParameters>);
+export type TAsyncReducerOptions<T extends boolean = false> = T extends false
+    ? TAddAsyncReducerParameters | ((state?: DeepPartial<IStateSchema>) => Promise<TAddAsyncReducerParameters>)
+    : (state?: DeepPartial<IStateSchema>) => Promise<TAddAsyncReducerParameters>;
 export interface IThunkExtraArg {
     api: AxiosInstance;
     navigate?: TAppNavigateFunction;

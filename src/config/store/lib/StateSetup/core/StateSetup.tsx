@@ -12,6 +12,7 @@ import {
 } from '@reduxjs/toolkit';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { type ActionCreator } from 'redux';
 
 import {
     type TStateSetupFn,
@@ -29,7 +30,7 @@ import {
     type TDispatch,
     type TInitAuth,
     type TCheckAuthorizationReturn,
-    type TAsyncReducer
+    type TAsyncReducer, type TAsyncReducersOptions, type TCb
 } from '../types';
 
 
@@ -190,8 +191,13 @@ class StateSetup {
         return this.pageOptionsMap[pathname][key];
     }
 
-    private async callReducerManager(method: 'add' | 'remove', asyncReducerOptions: IPageOptions['asyncReducerOptions'], dispatch: TDispatch) {
-        const callAction = async (options: unknown[])=> {
+    private async callReducerManager(
+        method: 'add' | 'remove',
+        asyncReducerOptions: IPageOptions['asyncReducerOptions'],
+        dispatch: TDispatch
+    ) {
+        let actionCreatorsOption: Awaited<ReturnType<TAsyncReducersOptions>>[1] = null;
+        const call = async (options: unknown[])=> {
             if (method === 'add') {
                 await this.asyncReducer!.add(dispatch, options);
             } else {
@@ -201,17 +207,24 @@ class StateSetup {
 
         if (asyncReducerOptions) {
             if (typeof asyncReducerOptions === 'function') {
-                const options = await asyncReducerOptions();
-                await callAction(options);
+                const [ options, actionCreators ] = await asyncReducerOptions();
+                console.log(4444, actionCreators);
+                if (method === 'add') {
+                    actionCreatorsOption = actionCreators;
+                }
+                await call(options);
             } else {
-                await callAction(asyncReducerOptions);
+                await call(asyncReducerOptions);
             }
         }
+
+        return actionCreatorsOption;
     }
     private async callActions(
         actions: IPageOptions['actions'],
         dispatch: TDispatch,
-        state: IStateSchema
+        state: IStateSchema,
+        extraActionCreatorsOption: Awaited<ReturnType<TAsyncReducersOptions>>[1]
     ) {
         for (let i = 0; i < actions.length; i++) {
             const action = actions[i];
@@ -221,11 +234,22 @@ class StateSetup {
                 action.canRefetch = action.canRefetch(state);
             }
 
+            console.log(666, extraActionCreatorsOption, action);
             if (!action._fetched) {
                 if (isAsync) {
-                    await (dispatch(action.cb()));
+                    if (extraActionCreatorsOption && typeof action.cb === 'object' && extraActionCreatorsOption[action.cb.key]) {
+                        const cb = action.cb.getAction(extraActionCreatorsOption[action.cb.key]);
+                        await (dispatch(cb()));
+                    } else {
+                        await dispatch((action.cb as TCb)());
+                    }
                 } else {
-                    dispatch(action.cb());
+                    if (extraActionCreatorsOption && typeof action.cb === 'object' && extraActionCreatorsOption[action.cb.key]) {
+                        const cb = action.cb.getAction(extraActionCreatorsOption[action.cb.key]);
+                        dispatch(cb());
+                    } else {
+                        dispatch((action.cb as TCb)());
+                    }
                 }
             }
 
@@ -273,6 +297,7 @@ class StateSetup {
             }
         ) => {
             try {
+                let extraActionCreatorsOption: Awaited<ReturnType<TAsyncReducersOptions>>[1] = null;
                 console.info({
                     pathname,
                     isAppReady: getState().app.isAppReady,
@@ -285,21 +310,26 @@ class StateSetup {
                 if (asyncReducer && this.asyncReducer === null) {
                     this.asyncReducer = asyncReducer;
                 }
-                if (this.asyncReducer && this.prevRoute?.pathname !== pathname) {
-                    if (this.prevRoute?.mustDestroy) {
-                        const asyncReducerOptions = this.getPageOption(this.prevRoute.pathname, 'asyncReducerOptions');
-                        await this.callReducerManager('remove', asyncReducerOptions, dispatch);
-                    }
-
+                if (this.asyncReducer) {
+                    const asyncReducerOptions = this.getPageOption(pathname, 'asyncReducerOptions');
 
                     if (this.prevRoute?.pathname !== pathname) {
-                        const asyncReducerOptions = this.getPageOption(pathname, 'asyncReducerOptions');
-                        await this.callReducerManager('add', asyncReducerOptions, dispatch);
+                        if (this.prevRoute?.mustDestroy) {
+                            const asyncReducerOptions = this.getPageOption(this.prevRoute.pathname, 'asyncReducerOptions');
+                            await this.callReducerManager('remove', asyncReducerOptions, dispatch);
+                        }
+
+                        extraActionCreatorsOption = await this.callReducerManager('add', asyncReducerOptions, dispatch);
+                    }
+
+                    if (asyncReducerOptions && !extraActionCreatorsOption) {
+                        extraActionCreatorsOption = (await asyncReducerOptions())[1];
                     }
                 }
-
+                
                 const actions = this.getPageOption(pathname, 'actions');
-                await this.callActions(actions, dispatch, getState());
+                console.log(1111, { extraActionCreatorsOption, actions });
+                await this.callActions(actions, dispatch, getState(), extraActionCreatorsOption);
 
                 console.info({
                     pathname, isAppReady:

@@ -31,3 +31,4 @@ type AnyFunction = (...args: any[]) => any;
 interface EmptyObject {}
 
 type ValueOf<T extends object> = T[keyof T];
+type PromiseReturnType<T extends Promise<any>> = T extends Promise<infer U> ? U : never;

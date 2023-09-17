@@ -2,8 +2,8 @@ import { ERoutes } from 'config/router';
 import { USER_LOCALSTORAGE_KEY } from 'shared/const';
 import { counterActions } from 'store/Counter';
 import { userActionCreators } from 'store/User';
-import { profileActions } from 'store/Profile';
 import until from 'app/dubag/util/wait';
+import { type TProfileActions } from 'store/Profile/reducer/slice';
 
 import {
     type TAsyncReducerOptions,
@@ -48,30 +48,40 @@ export const checkAuthorization: TCheckAuthorizationFn = async (
 };
 
 
-const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions> = (_) =>  {
+const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = (_) =>  {
     return {
         [ERoutes.LOGIN]: { authRequirement: false, },
         [ERoutes.MAIN]: {
-            // authRequirement: false,
+            authRequirement: null,
             actions: [
                 {
-                    cb: counterActions.increment, canRefetch: true, async: true
+                    cb: counterActions.increment.bind(null, 9), canRefetch: true, async: true,
                 }
             ]
         },
         [ERoutes.PROFILE]: {
             authRequirement: true,
-            asyncReducerOptions: async () => {
-                const profileReducer = (await import('store/Profile')).default;
-
-                const options = {
-                    key: profileReducer.name,
-                    reducer: profileReducer.reducer,
-                };
-                return [ options ];
+            asyncReducerOptions: async (_) => {
+                const profileModule = await import('store/Profile');
+                
+                return [
+                    [
+                        {
+                            key: profileModule.default.name,
+                            reducer: profileModule.default.reducer,
+                        }
+                    ],
+                    { profile: profileModule.profileActions }
+                ];
             },
             actions: [
-                { cb: profileActions.fetchData, canRefetch: true }
+                {
+                    cb: {
+                        key: 'profile',
+                        getAction: (profileActions) => (profileActions as TProfileActions).fetchData
+                    },
+                    canRefetch: true
+                }
             ]
         },
         [ERoutes.ABOUT]: {
@@ -81,23 +91,6 @@ const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions> = (_) =>
                 { cb: counterActions.increment },
                 { cb: counterActions.increment },
                 { cb: counterActions.increment },
-                    // {
-                    //     cb: calculateFormActionCreators.setHomePrice.bind(null, homePrice),
-                    // },
-                    // {
-                    //     cb: calculateFormActionCreators.setCashAvailable.bind(null, cashAvailable),
-                    // },
-                    // {
-                    //     cb: calculateFormActionCreators.setInterestRate.bind(null, interestRate),
-                    // },
-                    // {
-                    //     cb: calculateFormActionCreators.setRentalYield.bind(null, rentalYield),
-                    // },
-                    // {
-                    //     cb: calculateFormActionCreators.calculate,
-                    //     canRefetch: true,
-                    //     async: true
-                    // },
             ]
         }
     };

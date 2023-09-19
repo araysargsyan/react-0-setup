@@ -1,6 +1,8 @@
 import { useSelector } from 'react-redux';
 import _c from 'shared/helpers/classNames';
-import { type FC, memo } from 'react';
+import React, {
+    type FC, memo, Suspense 
+} from 'react';
 import ProfilePageHeader from 'pages/Profile/ProfilePageHeader';
 import EditProfile from 'features/forms/EditProfile';
 import { getProfileError, getProfileIsLoading, } from 'store/Profile';
@@ -14,9 +16,6 @@ import cls from './ProfileCard.module.scss';
 interface IProfileCardProps {
     className?: string;
 }
-// const EditProfile = lazyImport<FC<IEditProfileProps>>(() => {
-//     return import('features/forms/EditProfile');
-// });
 
 const ProfileCard: FC<IProfileCardProps> = ({ className }) => {
     const { t } = useTranslation('profile');
@@ -63,7 +62,9 @@ const ProfileCard: FC<IProfileCardProps> = ({ className }) => {
     return (
         <div className={ _c(cls['profile-card'],  [ className ]) }>
             <ProfilePageHeader />
-            <EditProfile />
+            <Suspense fallback={ <h1>EDIT PROFILE SKELETON</h1> }>
+                <EditProfile />
+            </Suspense>
         </div>
     );
 };

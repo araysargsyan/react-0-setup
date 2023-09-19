@@ -43,7 +43,7 @@ const AsyncReducer: FC<PropsWithChildren<IAsyncReducerProps>> = ({
         : null
     );
 
-    useRenderWatcher(AsyncReducer.name, JSON.stringify(options));
+    useRenderWatcher(AsyncReducer.name, JSON.stringify(removeOptions));
     useEffect(() => {
         if (typeof options === 'function') {
             options().then((o) => {
@@ -70,10 +70,7 @@ const AsyncReducer: FC<PropsWithChildren<IAsyncReducerProps>> = ({
 
     return (
         //! must be suspended before the reducers are initialized
-        <Suspense
-            fallback={ 'AsyncReducer' }
-            children={ children }
-        />
+        children
     );
 };
 

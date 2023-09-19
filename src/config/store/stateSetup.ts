@@ -8,7 +8,7 @@ import { type TProfileActions } from 'store/Profile/reducer/slice';
 import {
     type TAsyncReducerOptions,
     type TStateSetupFn,
-    type TCheckAuthorizationFn,
+    type TCheckAuthorizationFn, type IStateSchema,
 } from '.';
 
 
@@ -52,9 +52,12 @@ const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = 
         [ERoutes.LOGIN]: { authRequirement: false, },
         [ERoutes.MAIN]: {
             authRequirement: null,
-            actions: [
+            actions: [ //! if async is true this action call will wait in initial setup, by default false
                 {
-                    cb: counterActions.increment.bind(null, 9), canRefetch: true, async: true,
+                    cb: counterActions.increment.bind(null, 9),
+                    canRefetch: (state) => { //! Boolean or cb with state param and returned boolean
+                        return (state as IStateSchema).counter.value < 18;
+                    },
                 }
             ]
         },
@@ -77,7 +80,7 @@ const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = 
                     { profile: profileModule.profileActions }
                 ];
             },
-            actions: [
+            actions: [ //! async actions must be first
                 {
                     cb: {
                         key: 'profile',

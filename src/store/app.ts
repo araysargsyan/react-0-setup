@@ -20,6 +20,7 @@ const appReducer = stateSetupConfig.getStoreReducer();
 const {
     ProtectedElement,
     $stateSetup,
+    $checkAuthorization,
     actionCreators: appActionCreators,
 } = stateSetupConfig.getStoreCreatorsActions();
 
@@ -33,6 +34,7 @@ const getIsAuthenticated = ({ app }: IStateSchema) => app.isAuthenticated;
 export {
     ProtectedElement,
     $stateSetup,
+    $checkAuthorization,
     appActionCreators,
     getIsAuthenticated,
 };

@@ -42,7 +42,7 @@ const AppLink: FC<PropsWithChildren<IAppLinkProps>> = ({
             className={ _c(cls['app-link'], [ className, cls[theme] ]) }
             to={ to }
             //onClick={ () => setIsAppReady(null) }
-            onClick={ () => setIsPageReady(null) }
+            //onClick={ () => setIsPageReady(null) }
             { ...otherProps }
         >
             { children }

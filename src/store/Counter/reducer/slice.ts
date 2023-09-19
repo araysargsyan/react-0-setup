@@ -11,7 +11,7 @@ const counterSlice = createSlice({
     reducers: {
         increment: (state, { payload }: PayloadAction<number | undefined>) => {
             if (payload) {
-                state.value = payload;
+                state.value = state.value + payload;
             } else {
                 state.value += 1;
             }

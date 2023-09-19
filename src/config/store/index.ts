@@ -1,7 +1,9 @@
-export {
-    AsyncReducer,
-    RMActionCreators
-} from './lib/ReducerManager';
+import lazyImport from 'shared/helpers/lazyImport';
+
+
+export { RMActionCreators } from './lib/ReducerManager';
+export const AsyncReducer = lazyImport(() => import('./lib/ReducerManager/AsyncReducer'));
+
 
 export {
     default as StateSetup,

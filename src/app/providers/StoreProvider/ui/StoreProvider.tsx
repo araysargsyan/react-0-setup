@@ -14,7 +14,9 @@ import createStore, {
     StateSetupProvider
 } from 'config/store';
 import { useAppNavigate } from 'shared/hooks/redux';
-import { $stateSetup, appActionCreators } from 'store/app';
+import {
+    $checkAuthorization, $stateSetup, appActionCreators 
+} from 'store/app';
 
 
 interface IStoreProviderProps {
@@ -48,7 +50,7 @@ const StoreProvider:FC<IStoreProviderProps> = ({
         <Provider store={ store }>
             <StateSetupProvider
                 setUp={ $stateSetup }
-                checkAuthorization={ appActionCreators.checkAuthorization }
+                checkAuthorization={ $checkAuthorization }
                 asyncReducer={{
                     async add(dispatch, options) {
                         store.reducerManager.add(...options as TAddAsyncReducerParameters);

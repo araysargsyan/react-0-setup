@@ -106,7 +106,6 @@ class StateSetup {
 
             this.updateBasePageOptions(pathname, searchParams);
             const redirectTo = this.getRedirectTo(pathname);
-
             if (redirectTo) {
                 this.updateBasePageOptions(redirectTo, searchParams);
             }
@@ -175,9 +174,9 @@ class StateSetup {
                     state.isAppReady = payload;
                 })
                 .addCase(this.setIsPageReady, (state, { payload }) => {
-                    if (this.isAuth !== false) {
-                        state.isPageReady = payload;
-                    }
+                    // if (this.isAuth !== false) {
+                    state.isPageReady = payload;
+                    // }
                 });
         });
     }
@@ -199,7 +198,7 @@ class StateSetup {
         asyncReducerOptions: IPageOptions['asyncReducerOptions'],
         dispatch: TDispatch
     ) {
-        let actionCreatorsOption: Awaited<ReturnType<TAsyncReducersOptions>>[1] = null;
+        let asyncActionCreatorsOption: Awaited<ReturnType<TAsyncReducersOptions>>[1] = null;
         const call = async (options: unknown[])=> {
             if (method === 'add') {
                 await this.asyncReducer!.add(dispatch, options);
@@ -213,7 +212,7 @@ class StateSetup {
                 const [ options, actionCreators ] = await asyncReducerOptions();
 
                 if (method === 'add') {
-                    actionCreatorsOption = actionCreators;
+                    asyncActionCreatorsOption = actionCreators;
                 }
                 await call(options);
             } else {
@@ -221,34 +220,36 @@ class StateSetup {
             }
         }
 
-        return actionCreatorsOption;
+        return asyncActionCreatorsOption;
     }
     private async callActions(
         actions: IPageOptions['actions'],
         dispatch: TDispatch,
         state: IStateSchema,
-        extraActionCreatorsOption: Awaited<ReturnType<TAsyncReducersOptions>>[1]
+        asyncActionCreatorsOption: Awaited<ReturnType<TAsyncReducersOptions>>[1]
     ) {
         for (let i = 0; i < actions.length; i++) {
             const action = actions[i];
             const isAsync = action.async;
 
             if (typeof action.canRefetch === 'function') {
-                action.canRefetch = action.canRefetch(state);
+                action._fetched = !action.canRefetch(state);
             }
 
             if (!action._fetched) {
-                if (isAsync) {
-                    if (extraActionCreatorsOption && typeof action.cb === 'object' && extraActionCreatorsOption[action.cb.key]) {
-                        const cb = action.cb.getAction(extraActionCreatorsOption[action.cb.key]);
-                        await (dispatch(cb()));
+                if (asyncActionCreatorsOption
+                    && typeof action.cb === 'object'
+                    && asyncActionCreatorsOption[action.cb.key]
+                ) {
+                    const cb = action.cb.getAction(asyncActionCreatorsOption[action.cb.key]);
+                    if (isAsync) {
+                        await dispatch(cb());
                     } else {
-                        await dispatch((action.cb as TCb)());
+                        dispatch(cb());
                     }
                 } else {
-                    if (extraActionCreatorsOption && typeof action.cb === 'object' && extraActionCreatorsOption[action.cb.key]) {
-                        const cb = action.cb.getAction(extraActionCreatorsOption[action.cb.key]);
-                        dispatch(cb());
+                    if (isAsync) {
+                        await dispatch((action.cb as TCb)());
                     } else {
                         dispatch((action.cb as TCb)());
                     }
@@ -299,7 +300,7 @@ class StateSetup {
             }
         ) => {
             try {
-                let extraActionCreatorsOption: Awaited<ReturnType<TAsyncReducersOptions>>[1] = null;
+                let asyncActionCreatorsOption: Awaited<ReturnType<TAsyncReducersOptions>>[1] = null;
                 console.info({
                     pathname,
                     isAppReady: getState().app.isAppReady,
@@ -321,16 +322,16 @@ class StateSetup {
                             await this.callReducerManager('remove', asyncReducerOptions, dispatch);
                         }
 
-                        extraActionCreatorsOption = await this.callReducerManager('add', asyncReducerOptions, dispatch);
+                        asyncActionCreatorsOption = await this.callReducerManager('add', asyncReducerOptions, dispatch);
                     }
 
-                    if (asyncReducerOptions && !extraActionCreatorsOption) {
-                        extraActionCreatorsOption = (await asyncReducerOptions())[1];
+                    if (asyncReducerOptions && !asyncActionCreatorsOption) {
+                        asyncActionCreatorsOption = (await asyncReducerOptions())[1];
                     }
                 }
                 
                 const actions = this.getPageOption(pathname, 'actions');
-                await this.callActions(actions, dispatch, getState(), extraActionCreatorsOption);
+                await this.callActions(actions, dispatch, getState(), asyncActionCreatorsOption);
 
                 console.info({
                     pathname, isAppReady:
@@ -365,7 +366,7 @@ class StateSetup {
                 pathname, prevRoute: this.prevRoute, isPageReady 
             });
             if (isPageReady === null) {
-                if (this.isAuth !== false) {
+                if (this.isAuth !== false) { //! check auth then get redirectTo and call setup
                     dispatch(this.checkAuthorization({
                         pathname, searchParams, restart: false
                     })).then((result) => {
@@ -380,7 +381,7 @@ class StateSetup {
                             }));
                         }
                     });
-                } else {
+                } else { //! get redirectTo and call setup
                     this.updateBasePageOptions(pathname, searchParams);
                     const path = this.getRedirectTo(pathname) || pathname;
 
@@ -415,12 +416,12 @@ class StateSetup {
         return {
             ProtectedElement: this.ProtectedElement,
             actionCreators: {
-                checkAuthorization: this.checkAuthorization,
                 setIsAuthenticated: this.setIsAuthenticated,
                 setIsAppReady: this.setIsAppReady,
                 setIsPageReady: this.setIsPageReady,
             },
             $stateSetup: this.setup,
+            $checkAuthorization: this.checkAuthorization,
         };
     }
 }

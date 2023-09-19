@@ -1,6 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { type IProfile } from 'store/Profile';
 import { type IThunkConfig } from 'config/store';
+import until from 'app/dubag/util/wait';
 
 
 
@@ -14,6 +15,7 @@ const fetchData = createAsyncThunk<
         extra: { api }, rejectWithValue, fulfillWithValue 
     }) => {
         try {
+            await until(1000);
             const { data } = await api.get<IProfile>('/profile');
 
             if (!data) {

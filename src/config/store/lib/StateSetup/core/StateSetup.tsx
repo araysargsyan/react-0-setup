@@ -341,7 +341,6 @@ class StateSetup {
                 const actions = this.getPageOption(pathname, 'actions');
 
                 if (waitUntil === 'SETUP') {
-                    await until(5000);
                     await this.callActions(actions, dispatch, getState(), asyncActionCreatorsOption);
                 } else {
                     this.callActions(actions, dispatch, getState(), asyncActionCreatorsOption).catch((e) => {
@@ -382,11 +381,16 @@ class StateSetup {
         useEffect(() => {
             this.updateBasePageOptions(pathname, searchParams);
             // const { waitUntil } = this.getPageOption(pathname, 'onNavigate') || this.navigateOptions;
-            console.log('____ProtectedElement_____', {
-                pathname, prevRoute: this.prevRoute, isPageReady
+            console.log('____ProtectedElement_____: START', {
+                pathname, prevRoute: this.prevRoute, isPageReady, initiated: this.initiated
             });
+            if (!isPageReady) {
+                this.initiated = false;
+                dispatch(this.setIsPageReady(true));
+            }
 
             if (/*restartType === 'PAGE_RERENDER' &&*/ this.initiated && isPageReady) {
+                console.log('____ProtectedElement_____: checkAuth & setup');
                 if (this.isAuth !== false) { //! check auth then get redirectTo and call setup
                     dispatch(this.checkAuthorization({
                         pathname, searchParams, restart: false
@@ -402,7 +406,9 @@ class StateSetup {
                             }));
                         }
                     });
-                }  else { //! get redirectTo and call setup
+                } else { //! get redirectTo and call setup
+                    console.log(7777777);
+                    //this.initiated = false;
                     this.updateBasePageOptions(pathname, searchParams);
                     const path = this.getRedirectTo(pathname) || pathname;
 
@@ -415,8 +421,11 @@ class StateSetup {
                 }
             } else if (isPageReady) {
                 this.initiated = true;
-                //dispatch(this.setINITIATED());
             }
+
+            console.log('____ProtectedElement_____: END', {
+                isPageReady, redirectTo, initiated: this.initiated
+            });
         });
 
         if (isPageReady === null) {
@@ -425,8 +434,10 @@ class StateSetup {
 
         this.updateBasePageOptions(pathname, searchParams);
         const redirectTo = this.getRedirectTo(pathname);
-        //!here we must destroy reducers if needed
-        console.log(redirectTo, 66663333);
+
+        if (redirectTo) {
+            this.initiated = false;
+        }
 
         return !redirectTo ? children : (
             <Navigate

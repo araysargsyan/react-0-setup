@@ -12,7 +12,8 @@ const stateSetupConfig = new StateSetup(
         authProtectionConfig: {
             unAuthorized: ERoutes.MAIN,
             authorized: ERoutes.PROFILE
-        }
+        },
+        navigateOptions: { waitUntil: 'CHECK_AUTH' }
     }
 );
 const appReducer = stateSetupConfig.getStoreReducer();

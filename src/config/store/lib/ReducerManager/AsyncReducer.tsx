@@ -56,7 +56,7 @@ const AsyncReducer: FC<PropsWithChildren<IAsyncReducerProps>> = ({
             });
         } else {
             store.reducerManager.add(options, state);
-            dispatch(RMActionCreators.initReducers);
+            dispatch(RMActionCreators.initReducers());
         }
 
         return () => {
@@ -78,7 +78,7 @@ const AsyncReducer: FC<PropsWithChildren<IAsyncReducerProps>> = ({
 
 
     return (
-        //! must be suspended before the reducers are initialized
+        //? must be suspended before the reducers are initialized
         children
     );
 };

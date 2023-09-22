@@ -8,9 +8,68 @@ import { type TProfileActions } from 'store/Profile/reducer/slice';
 import {
     type TAsyncReducerOptions,
     type TStateSetupFn,
-    type TCheckAuthorizationFn, type IStateSchema,
+    type TCheckAuthorizationFn,
+    type IStateSchema,
 } from '.';
 
+
+const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = (_) =>  {
+    return {
+        [ERoutes.LOGIN]: { authRequirement: false, },
+        [ERoutes.MAIN]: {
+            authRequirement: null,
+            actions: [ //! if async is true this action call will wait in initial setup, by default false
+                {
+                    cb: counterActions.increment.bind(null, 9),
+                    canRefetch: (state) => { //! Boolean or cb with state param and returned boolean
+                        return (state as IStateSchema).counter.value < 18;
+                    },
+                }
+            ],
+            onNavigate: { waitUntil: 'CHECK_AUTH', } //! by default
+        },
+        [ERoutes.PROFILE]: {
+            authRequirement: true,
+            asyncReducerOptions: async (_) => {
+                const profileModule = await import('store/Profile');
+                console.log(7777, _);
+                return [
+                    [
+                        [ //! asyncReducerOptions can be multiple
+                            {
+                                key: profileModule.default.name,
+                                reducer: profileModule.default.reducer,
+                            },
+                        ],
+                        //* ...state
+                        { counter: { value: 4 } }
+                    ],
+                    //! asyncActionCreators, key of this object needed to be in cb.key
+                    { profile: profileModule.profileActions }
+                ];
+            },
+            actions: [ //! async actions must be first
+                {
+                    cb: {
+                        key: 'profile',
+                        getAction: (profileActions) => (profileActions as TProfileActions).fetchData
+                    },
+                    async: true,
+                    canRefetch: true
+                }
+            ],
+        },
+        [ERoutes.ABOUT]: {
+            actions: [
+                { cb: counterActions.increment, canRefetch: true },
+                { cb: counterActions.increment },
+                { cb: counterActions.increment },
+                { cb: counterActions.increment },
+            ],
+            onNavigate: { waitUntil: 'SETUP', }
+        }
+    };
+};
 
 export const checkAuthorization: TCheckAuthorizationFn = async (
     { isAuth },
@@ -44,62 +103,6 @@ export const checkAuthorization: TCheckAuthorizationFn = async (
         //! Not Authorized
     }
     return false;
-};
-
-
-const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = (_) =>  {
-    return {
-        [ERoutes.LOGIN]: { authRequirement: false, },
-        [ERoutes.MAIN]: {
-            authRequirement: null,
-            actions: [ //! if async is true this action call will wait in initial setup, by default false
-                {
-                    cb: counterActions.increment.bind(null, 9),
-                    canRefetch: (state) => { //! Boolean or cb with state param and returned boolean
-                        return (state as IStateSchema).counter.value < 18;
-                    },
-                }
-            ]
-        },
-        [ERoutes.PROFILE]: {
-            authRequirement: true,
-            asyncReducerOptions: async (_) => {
-                const profileModule = await import('store/Profile');
-                
-                return [
-                    [ //! asyncReducerOptions can by multiple
-                        [
-                            {
-                                key: profileModule.default.name,
-                                reducer: profileModule.default.reducer,
-                            },
-                        //* ...state
-                        ]
-                    ],
-                    //! asyncActionCreators, key of this object needed to be in cb.key
-                    { profile: profileModule.profileActions }
-                ];
-            },
-            actions: [ //! async actions must be first
-                {
-                    cb: {
-                        key: 'profile',
-                        getAction: (profileActions) => (profileActions as TProfileActions).fetchData
-                    },
-                    async: true,
-                    canRefetch: true
-                }
-            ]
-        },
-        [ERoutes.ABOUT]: {
-            actions: [
-                { cb: counterActions.increment, canRefetch: true },
-                { cb: counterActions.increment },
-                { cb: counterActions.increment },
-                { cb: counterActions.increment },
-            ]
-        }
-    };
 };
 
 export default getStateSetupConfig;

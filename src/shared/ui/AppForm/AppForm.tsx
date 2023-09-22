@@ -15,6 +15,7 @@ import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import Index from 'shared/ui/DynamicComponent';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
+import { type TAddAsyncReducerOp } from 'config/store/types';
 
 
 export enum EFormComponent {
@@ -26,9 +27,9 @@ interface IAppFormDefaultProps extends HTMLAttributes<HTMLFormElement | HTMLDivE
 
 interface IAppFormProps extends Omit<IAppFormDefaultProps, 'onSubmit'> {
     formComponent?: EFormComponent;
-    reducersOption?: TAsyncReducerOptions;
+    reducersOption?: TAddAsyncReducerOp;
     title?: string;
-    // state?: DeepPartial<IStateSchema>;
+    state?: DeepPartial<IStateSchema>;
     onSubmit?: (e: FormEvent<HTMLFormElement>) => Promise<void>;
     error?: string;
     errorSelector?: (state: IStateSchema) => string | undefined;
@@ -42,7 +43,7 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
     error,
     errorSelector,
     reducersOption,
-    //state,
+    state,
     ...defaultProps
 }) => {
     const { t } = useTranslation();
@@ -92,7 +93,7 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
         <AsyncReducer
             removeAfterUnmount
             options={ reducersOption as never }
-            // state={ state }
+            state={ state }
         >
             <Index
                 tagName={ formComponent }

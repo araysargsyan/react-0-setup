@@ -1,31 +1,34 @@
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
+import { shallowEqual, useSelector } from 'react-redux';
 import { getProfileData, getProfileReadonly } from 'store/Profile/selectors';
 import _c from 'shared/helpers/classNames';
-import { type FC, memo, } from 'react';
+import {
+    type FC, memo, useEffect, 
+} from 'react';
 import AppInput from 'shared/ui/AppInput';
 import AppForm, { EFormComponent } from 'shared/ui/AppForm';
 import { type TAsyncReducerOptions } from 'config/store';
-import { getEditProfileField } from 'features/forms/EditProfile/model/selectors';
+import { getEditProfileData, getEditProfileField } from 'features/forms/EditProfile/model/selectors';
 import { useDynamicActions } from 'shared/hooks/redux';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import AppSelect from 'shared/ui/AppSelect';
 import AppAvatar from 'shared/ui/AppAvatar';
 import { CountrySelectOptions, type ECountry } from 'features/Country';
 import { CurrencySelectOptions } from 'features/Currency';
+import { type TAddAsyncReducerOp } from 'config/store/types';
 
 import cls from './EditProfile.module.scss';
 import { type TEditProfileActions } from '../model';
 
 
-const asyncReducerOptions: TAsyncReducerOptions = async (state) => {
+const asyncReducerOptions: TAddAsyncReducerOp = async () => {
     const editProfileReducer = (await import('../model')).default;
 
     return [ {
         key: editProfileReducer.name,
         reducer: editProfileReducer.reducer,
         parentKey: 'forms'
-    }, state ];
+    } ];
 };
 export interface IEditProfileProps {
     className?: string;
@@ -34,7 +37,7 @@ export interface IEditProfileProps {
 const EditProfile: FC<IEditProfileProps> = ({ className }) => {
     const { t } = useTranslation('profile');
     const readonly = useSelector(getProfileReadonly);
-    const data = useSelector(getProfileData);
+    const data = useSelector(getProfileData, shallowEqual);
 
     const getAsyncAction = useDynamicActions<TEditProfileActions>(
         () => import('../model'),
@@ -45,11 +48,15 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
         }
     );
 
+    useEffect(() => {
+        console.log(data, 44444444);
+    }, [ data ]);
+
     useRenderWatcher(EditProfile.name, JSON.stringify({ ...data, readonly }));
     return (
         <AppForm
-            //state={ !readonly ? { forms: { editProfile: data } } : undefined }
-            reducersOption={ !readonly ? asyncReducerOptions.bind(null, { forms: { editProfile: data } }) : undefined }
+            state={ !readonly ? { forms: { editProfile: data } } : undefined }
+            reducersOption={ !readonly ? asyncReducerOptions : undefined }
             formComponent={ EFormComponent.DIV }
             className={ _c(cls['edit-profile-form'],  [ className ]) }
         >

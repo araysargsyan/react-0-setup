@@ -43,6 +43,14 @@ class ReducerManager {
         })
     );
 
+    public updateState = createAction(
+        '@UPDATE:state',
+        (payload) => {
+            this.state = payload;
+            return payload;
+        }
+    );
+
     create<S extends IState = IState, N extends INested = INested>(initialReducers: ReducersMapObject<IState>) {
         this.reducers = { ...initialReducers };
         this.combinedReducer = combineReducers(this.reducers);
@@ -50,7 +58,6 @@ class ReducerManager {
         return {
             getReducerMap: () => this.reducers,
             reduce: (state, action) => {
-                //console.log(action, '__reduce__');
                 const newState = {
                     ...state,
                     ...(this.state as IState),
@@ -169,6 +176,7 @@ const instance = new ReducerManager();
 
 export const RMActionCreators = {
     initReducers: instance.initReducers,
-    destroyReducers: instance.destroyReducers
+    destroyReducers: instance.destroyReducers,
+    updateState: instance.updateState
 };
 export default instance;

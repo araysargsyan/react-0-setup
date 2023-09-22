@@ -13,7 +13,6 @@ interface IAppSchema {
     isAppReady: boolean | null | string;
     isPageReady: boolean | null;
     isAuthenticated: boolean;
-    isReducersReady: boolean;
 }
 interface IStateSchema {
     app: IAppSchema;
@@ -57,6 +56,7 @@ interface IAuthProtection {
 interface IOptionsParameter {
     appReducerName: string;
     authProtectionConfig?: IAuthProtection;
+    navigateOptions?: IPageOptions['onNavigate'];
 }
 // type TAsyncReducersOptions = unknown[] | ((state?: IStateSchema) => Promise<unknown[]>);
 type TAsyncReducersOptionsReturn = (state?: IStateSchema) => Promise<unknown[]>;
@@ -71,6 +71,10 @@ interface IPageOptions<
     //* If true you know.
     authRequirement: null | boolean;
     asyncReducerOptions?: ARO;
+    onNavigate?: {
+        waitUntil: 'SETUP' | 'CHECK_AUTH';
+        //restartType: 'PAGE_RERENDER' | 'APP_RERENDER';
+    };
 }
 
 type TAsyncReducersOptions<

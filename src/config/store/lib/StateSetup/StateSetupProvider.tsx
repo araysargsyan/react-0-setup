@@ -32,7 +32,7 @@ const StateSetupProvider: FC<PropsWithChildren<{
     });
 
     if (isAppReady === null) {
-        return null;
+        return <h1>{ 'APP IS NOT READY' }</h1>;
     }
 
     if (typeof isAppReady === 'string') {
@@ -43,10 +43,10 @@ const StateSetupProvider: FC<PropsWithChildren<{
             />
         );
     }
+    return children;
 
-    if (isAppReady) {
-        return children;
-    }
+    // if (isAppReady) {
+    // }
 };
 
 export default StateSetupProvider;

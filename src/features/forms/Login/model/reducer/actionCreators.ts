@@ -31,7 +31,7 @@ export const login = createAsyncThunk<
             }
 
             dispatch(userActionCreators.setAuthData(data));
-            dispatch(appActionCreators.setIsAuthenticated(true));
+            dispatch(appActionCreators.setIsAuthenticated(true, true));
             localStorage.setItem(USER_LOCALSTORAGE_KEY, JSON.stringify(data));
 
             return fulfillWithValue(data);

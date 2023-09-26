@@ -3,4 +3,5 @@ export * from './selectors';
 
 export interface ICounterSchema {
     value: number;
+    testData?: any;
 }

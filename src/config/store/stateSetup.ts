@@ -24,6 +24,9 @@ const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = 
                     canRefetch: (state) => { //! Boolean or cb with state param and returned boolean
                         return (state as IStateSchema).counter.value < 18;
                     },
+                },
+                {
+                    cb: counterActions.fetchTest, async: true, canRefetch: true 
                 }
             ],
             onNavigate: { waitUntil: 'CHECK_AUTH', } //! by default
@@ -42,7 +45,7 @@ const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = 
                             },
                         ],
                         //* ...state
-                        { counter: { value: 4 } }
+                        { counter: { value: 4, testData: 'REPLACED TEST DATA' } }
                     ],
                     //! asyncActionCreators, key of this object needed to be in cb.key
                     { profile: profileModule.profileActions }
@@ -58,15 +61,17 @@ const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = 
                     canRefetch: true
                 }
             ],
+            onNavigate: { waitUntil: 'SETUP', }
         },
         [ERoutes.ABOUT]: {
+            authRequirement: false,
             actions: [
                 { cb: counterActions.increment, canRefetch: true },
                 { cb: counterActions.increment },
                 { cb: counterActions.increment },
                 { cb: counterActions.increment },
             ],
-            onNavigate: { waitUntil: 'SETUP', }
+            // onNavigate: { waitUntil: 'SETUP', }
         }
     };
 };

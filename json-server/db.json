@@ -1,4 +1,7 @@
 {
+  "test": {
+    "some": "SOME DATA"
+  },
   "posts": [
     {
       "id": "1",

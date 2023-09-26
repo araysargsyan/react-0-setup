@@ -1,9 +1,10 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { fetchTest } from 'store/Counter/reducer/actionCreators';
 
 import  { type ICounterSchema } from '..';
 
 
-const initialState: ICounterSchema = { value: 0, };
+const initialState: ICounterSchema = { value: 0, testData: {} };
 
 const counterSlice = createSlice({
     name: 'counter',
@@ -20,9 +21,15 @@ const counterSlice = createSlice({
             state.value -= 1;
         },
     },
+    extraReducers: (builder) => {
+        builder
+            .addCase(fetchTest.fulfilled, (state, { payload }) => {
+                state.testData = payload;
+            });
+    },
 });
 
-export const counterActions = { ...counterSlice.actions };
+export const counterActions = { ...counterSlice.actions, fetchTest };
 export default {
     name: counterSlice.name,
     reducer: counterSlice.reducer

@@ -7,11 +7,12 @@ import {
     type ThunkDispatch
 } from '@reduxjs/toolkit';
 import { type ActionCreator } from 'redux';
+import { type MutableRefObject } from 'react';
 
 
 interface IAppSchema {
     isAppReady: boolean | null | string;
-    isPageReady: boolean | null;
+    isPageReady: boolean | null | string;
     isAuthenticated: boolean;
 }
 interface IStateSchema {
@@ -27,6 +28,7 @@ interface IThunkConfig<R = string> {
 }
 
 type TCb = ActionCreator<any>; //| ThunkAction<any, any, any, AnyAction>;
+type TMode = 'APP' | 'PAGE';
 interface IActionCreatorsOptions<> {
     //* callback is action creator or returning action creator
     // cb: (<T = Record<string, TCb>>(module: T) => T[keyof T]) | TCb;
@@ -53,10 +55,14 @@ interface IAuthProtection {
     //* will redirect authorized user to this path.
     authorized: string;
 }
+interface INavigationOptions {
+    waitUntil: 'SETUP' | 'CHECK_AUTH';
+    //restartType: 'PAGE_RERENDER' | 'APP_RERENDER';
+}
 interface IOptionsParameter {
     appReducerName: string;
     authProtectionConfig?: IAuthProtection;
-    navigateOptions?: IPageOptions['onNavigate'];
+    navigateOptions?: INavigationOptions;
 }
 // type TAsyncReducersOptions = unknown[] | ((state?: IStateSchema) => Promise<unknown[]>);
 type TAsyncReducersOptionsReturn = (state?: IStateSchema) => Promise<unknown[]>;
@@ -71,10 +77,7 @@ interface IPageOptions<
     //* If true you know.
     authRequirement: null | boolean;
     asyncReducerOptions?: ARO;
-    onNavigate?: {
-        waitUntil: 'SETUP' | 'CHECK_AUTH';
-        //restartType: 'PAGE_RERENDER' | 'APP_RERENDER';
-    };
+    onNavigate?: INavigationOptions;
 }
 
 type TAsyncReducersOptions<
@@ -102,12 +105,12 @@ type TAsyncReducer = {
 };
 type TStateSetUpArgs = {
     pathname: string;
-    restart?: boolean;
+    mode: TMode;
     asyncReducer?: TAsyncReducer;
 };
 
 type TStateSetup = AsyncThunk<
-    { isAppReady: boolean | null; restart: boolean },
+    { isAppReady: boolean | null; mode: TMode },
     TStateSetUpArgs,
     IThunkConfig
 >;
@@ -123,13 +126,14 @@ type TCheckAuthorizationFn = AsyncThunkPayloadCreator<
     },
     IThunkConfig
 >;
-type TCheckAuthorizationReturn = { redirectTo: string | null; restart: boolean };
+type TCheckAuthorizationReturn = { redirectTo: string | null; mode: TMode; waitUntil: INavigationOptions['waitUntil'] };
 type TCheckAuthorizationAsyncThunk = AsyncThunk<
     TCheckAuthorizationReturn,
     {
         pathname: string;
         searchParams: URLSearchParams;
-        restart?: boolean;
+        mode: TMode;
+        redirectRef?: MutableRefObject<null | string>;
     },
     IThunkConfig
 >;
@@ -141,6 +145,7 @@ type TInitAuth = AsyncThunkPayloadCreator<
 
 export {
     TCb,
+    TMode,
     IAppSchema,
     IStateSchema,
 

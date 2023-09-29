@@ -48,10 +48,6 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
         }
     );
 
-    useEffect(() => {
-        console.log(data, 44444444);
-    }, [ data ]);
-
     useRenderWatcher(EditProfile.name, JSON.stringify({ ...data, readonly }));
     return (
         <AppForm

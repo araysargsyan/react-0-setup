@@ -14,9 +14,7 @@ import createStore, {
     StateSetupProvider
 } from 'config/store';
 import { useAppNavigate } from 'shared/hooks/redux';
-import {
-    $checkAuthorization, $stateSetup, appActionCreators 
-} from 'store/app';
+import { $checkAuthorization, $stateSetup } from 'store/app';
 
 
 interface IStoreProviderProps {

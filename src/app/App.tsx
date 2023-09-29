@@ -13,14 +13,15 @@ function App() {
 
     useRenderWatcher(App.name, JSON.stringify({ theme }));
     return (
+
         <div className={ _c('app', [ theme ]) }>
-            <Suspense fallback={ <h1>APP LOADING</h1> }>
-                <Navbar />
-                <div className="content-page">
-                    <Sidebar />
-                    <AppRouter />
-                </div>
-            </Suspense>
+            { /*<Suspense>*/ }
+            <Navbar />
+            <div className="content-page">
+                <Sidebar />
+                <AppRouter />
+            </div>
+            { /*</Suspense>*/ }
         </div>
     );
 }

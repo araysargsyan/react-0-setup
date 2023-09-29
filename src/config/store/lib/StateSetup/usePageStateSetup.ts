@@ -29,12 +29,12 @@ const usePageStateSetup = (
         [ dispatch, checkAuthorization ]
     );
 
-    const { pathname, state: historyState }: Location<{redirected?: boolean} | null> = useLocation();
+    const { pathname } = useLocation();
     const [ searchParams ] = useSearchParams();
     const redirectRef = useRef<null | string>(null);
 
     useEffect(() => {
-        if (isAppReady === null) {
+        if (!isAppReady) {
             checkAuth({
                 pathname, searchParams, redirectRef, mode: 'APP'
             }).then((result) => {
@@ -49,28 +49,13 @@ const usePageStateSetup = (
                         }
                     );
                     setup({
-                        pathname: result.payload.redirectTo || pathname, asyncReducer, mode: 'APP' 
+                        mode: 'APP',
+                        pathname: result.payload.redirectTo || pathname,
+                        asyncReducer
                     });
                 }
             });
         }
-
-        // if (/*isAppReady === false ||*/ (typeof isAppReady === 'string' && historyState?.redirected)) {
-        //     console.log(
-        //         '%cusePageStateSetUp22: watcher on change pathname', 'color: #ae54bf',
-        //         {
-        //             historyState: { ...historyState },
-        //             pathname,
-        //             redirected: historyState?.redirected,
-        //             isAppReady
-        //         }
-        //     );
-        //     setup({ pathname, asyncReducer });
-        // }
-        // if (historyState && isAppReady) {
-        //     delete historyState?.redirected;
-        //     window.history.replaceState({ ...historyState }, document.title);
-        // }
     });
 
     return { redirectRef, pathname };

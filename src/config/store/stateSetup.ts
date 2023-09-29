@@ -20,14 +20,16 @@ const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = 
             authRequirement: null,
             actions: [ //! if async is true this action call will wait in initial setup, by default false
                 {
-                    cb: counterActions.increment.bind(null, 9),
+                    cb: counterActions.increment.bind(null, 1),
                     canRefetch: (state) => { //! Boolean or cb with state param and returned boolean
                         return (state as IStateSchema).counter.value < 18;
                     },
                 },
                 {
-                    cb: counterActions.fetchTest, async: true, canRefetch: true 
-                }
+                    cb: counterActions.fetchTest,
+                    canRefetch: true,
+                    async: true
+                },
             ],
             onNavigate: { waitUntil: 'CHECK_AUTH', } //! by default
         },
@@ -35,7 +37,7 @@ const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = 
             authRequirement: true,
             asyncReducerOptions: async (_) => {
                 const profileModule = await import('store/Profile');
-                console.log(7777, _);
+
                 return [
                     [
                         [ //! asyncReducerOptions can be multiple
@@ -61,7 +63,7 @@ const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = 
                     canRefetch: true
                 }
             ],
-            onNavigate: { waitUntil: 'SETUP', }
+            //onNavigate: { waitUntil: 'SETUP', }
         },
         [ERoutes.ABOUT]: {
             authRequirement: false,
@@ -71,7 +73,7 @@ const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = 
                 { cb: counterActions.increment },
                 { cb: counterActions.increment },
             ],
-            // onNavigate: { waitUntil: 'SETUP', }
+            //onNavigate: { waitUntil: 'SETUP', }
         }
     };
 };
@@ -94,7 +96,8 @@ export const checkAuthorization: TCheckAuthorizationFn = async (
     //
     //     }
     // }
-    await until(1200);
+
+    // await until(1200);
 
     if (
         localStorage.getItem(USER_LOCALSTORAGE_KEY)

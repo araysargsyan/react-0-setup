@@ -65,11 +65,9 @@ const AppRouter: FC = () => {
     return (
         <div className="page-wrapper">
             <Suspense fallback={ <PageLoader /> }>
-                { /*  { isAppReady ? (*/ }
                 <Routes>
                     { routesConfig.map(renderWithWrapper) }
                 </Routes>
-                { /*) : <PageLoader /> }*/ }
             </Suspense>
         </div>
     );

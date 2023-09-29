@@ -58,9 +58,9 @@ class ReducerManager {
         return {
             getReducerMap: () => this.reducers,
             reduce: (state, action) => {
-                console.log(6666, {
-                    state, thisState: this.state, action 
-                });
+                // console.log(6666, {
+                //     state, thisState: this.state, action
+                // });
                 const newState = {
                     ...state,
                     ...(this.state as IState),

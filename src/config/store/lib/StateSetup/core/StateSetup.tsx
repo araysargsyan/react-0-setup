@@ -1,7 +1,8 @@
 import {
     type FC,
     type PropsWithChildren,
-    useEffect, useLayoutEffect, useState
+    useEffect, useRef,
+    useState
 } from 'react';
 import {
     createAsyncThunk,
@@ -12,7 +13,6 @@ import {
 } from '@reduxjs/toolkit';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import until from 'app/dubag/util/wait';
 
 import {
     type TStateSetupFn,
@@ -59,8 +59,8 @@ class StateSetup {
 
     private reducer!: Reducer;
     private setIsAuthenticated!: TSetIsAuthenticated;
-    private setIsAppReady!: ActionCreatorWithPayload<boolean | string | null>;
-    private setIsPageReady!: ActionCreatorWithPayload<boolean | null>;
+    private setIsAppReady!: ActionCreatorWithPayload<boolean>;
+    private setIsPageReady!: ActionCreatorWithPayload<boolean>;
 
     constructor(
         getStateSetupConfig: TStateSetupFn,
@@ -85,6 +85,7 @@ class StateSetup {
         >(
             '@@INIT:Authorization',
             async (args, thunkAPI) => {
+                console.log('%c@@INIT:Authorization', 'color: #076eab');
                 return this.initAuth({ ...args, checkAuthorization }, thunkAPI);
             }
         );
@@ -143,18 +144,18 @@ class StateSetup {
         );
         this.setIsAppReady = createAction(
             `${appReducerName}/setIsAppReady`,
-            (payload: boolean | string | null) => ({ payload })
+            (payload: boolean) => ({ payload })
         );
         this.setIsPageReady = createAction(
             `${appReducerName}/setIsPageReady`,
-            (payload: boolean | null) => ({ payload })
+            (payload: boolean) => ({ payload })
         );
     }
 
     private generateReducer() {
         this.reducer = createReducer<IAppSchema>({
-            isPageReady: null,
-            isAppReady: null,
+            isAppReady: false,
+            isPageReady: false,
             isAuthenticated: false,
         }, (builder) => {
             builder
@@ -174,7 +175,6 @@ class StateSetup {
                                 state.isPageReady = true;
                             }
                         } else {
-                            // state.isAppReady = redirectTo;
                             state.isAppReady = true;
                             if (waitUntil === 'CHECK_AUTH') {
                                 state.isPageReady = true;
@@ -183,20 +183,17 @@ class StateSetup {
                     } else {
                         if (redirectTo === null) {
                             if (waitUntil === 'CHECK_AUTH') {
-                                //state.isPageReady = false;
                             } else {
-                                //state.isPageReady = null;
                                 this.initiated = false;
                             }
                         } else {
-                            state.isPageReady = redirectTo;
                             this.initiated = false;
                         }
                     }
                 })
                 .addCase(this.setup.fulfilled, (state, { payload: { isAppReady, mode } }) => {
                     if (mode === 'APP') {
-                        console.log(666666, '__________FIRST RENDER____________');
+                        console.log('__________FIRST RENDER____________');
                         state.isAppReady = Boolean(isAppReady);
                         state.isPageReady = Boolean(isAppReady);
                     } else {
@@ -207,21 +204,18 @@ class StateSetup {
                     state,
                     { payload }
                 ) => {
-                    console.log(payload, 3333333);
                     state.isAuthenticated = payload.isAuthenticated;
                     this.isAuth = state.isAuthenticated;
                     if (payload.restart) {
                         this.restart = true;
-                        state.isPageReady = false;
+                        state.isPageReady = null;
                     }
                 })
                 .addCase(this.setIsAppReady, (state, { payload }) => {
                     state.isAppReady = payload;
                 })
                 .addCase(this.setIsPageReady, (state, { payload }) => {
-                    // if (this.isAuth !== false) {
                     state.isPageReady = payload;
-                    // }
                 });
         });
     }
@@ -376,19 +370,9 @@ class StateSetup {
                     }
                 }
 
-                const { waitUntil } = this.getPageOption(pathname, 'onNavigate') || this.navigateOptions;
                 const actions = this.getPageOption(pathname, 'actions');
 
                 await this.callActions(actions, dispatch, getState(), asyncActionCreatorsOption);
-
-                // if (waitUntil === 'SETUP') {
-                //     await this.callActions(actions, dispatch, getState(), asyncActionCreatorsOption);
-                // } else {
-                //     this.callActions(actions, dispatch, getState(), asyncActionCreatorsOption).catch((e) => {
-                //         throw new Error('setUp::callActions');
-                //     });
-                // }
-
 
                 console.info({
                     pathname, isAppReady:
@@ -405,7 +389,7 @@ class StateSetup {
                 console.error('setUp::catch', err);
                 return rejectWithValue('Something went wrong!');
             } finally {
-                console.log({ historyState: window.history.state.usr }, 'setUp::finally');
+                console.log('setUp::finally');
             }
         }
     );
@@ -416,6 +400,7 @@ class StateSetup {
     }) => {
         const isPageReady = useSelector(({ app }: IStateSchema) => app.isPageReady);
         const [ isReady, setIsReady ] = useState(false);
+        const shouldRerender = useRef(false);
         const dispatch = useDispatch<TDispatch>();
         const [ searchParams ] = useSearchParams();
 
@@ -425,64 +410,50 @@ class StateSetup {
                 prevRoute: this.prevRoute,
                 isPageReady,
                 initiated: this.initiated,
+                restart: this.restart,
             });
 
             if (
-                (this.initiated && isPageReady === true)
-                || (this.restart && isPageReady === false)
+                this.initiated && (
+                    isPageReady
+                    || (this.restart && !isPageReady)
+                )
             ) {
-                if (this.restart) {
-                    this.restart = false;
+                if (this.prevRoute?.redirectedFrom) {
+                    this.initiated = false;
                 }
-                console.log('____ProtectedElement_____: checkAuth & setup');
+                console.log('%c____ProtectedElement_____: checkAuth & setup', 'color: #ea4566');
                 if (this.isAuth !== false) { //! <AUTH> check auth then get redirectTo and call setup
-                    if (!this.prevRoute?.redirectedFrom) {
-                        dispatch(this.checkAuthorization({
-                            pathname, searchParams, mode: 'PAGE'
-                        })).then((result) => {
-                            if (this.checkAuthorization.fulfilled.match(result)) {
-                                const redirectTo = result.payload.redirectTo;
-                                const path = redirectTo || pathname;
-                                this.prevRoute!.mustDestroy = this.prevRoute !== null && this.prevRoute.pathname !== path;
+                    dispatch(this.checkAuthorization({
+                        mode: 'PAGE',
+                        pathname: this.prevRoute?.redirectedFrom || pathname,
+                        searchParams
+                    })).then((result) => {
+                        if (this.checkAuthorization.fulfilled.match(result)) {
+                            const redirectTo = result.payload.redirectTo;
+                            const path = this.prevRoute?.redirectedFrom || redirectTo || pathname;
+                            this.prevRoute!.mustDestroy = this.prevRoute !== null && this.prevRoute.pathname !== path;
+                            console.log(6666, {
+                                pathname, redirectTo, path,
+                                prevRoute: this.prevRoute,
+                                restart: this.restart,
+                            });
+                            dispatch(this.setup({
+                                pathname: path,
+                                mode: 'PAGE',
+                            })).then((_) => {
+                                // this.initiated = false;
 
-                                if (!redirectTo) {
-                                    dispatch(this.setup({
-                                        pathname: path,
-                                        mode: 'PAGE',
-                                    })).then((_) => {
-                                        console.log(5555, result);
-                                        if (result.payload.waitUntil === 'SETUP') {
-                                            setIsReady(!isReady);
-                                        }
-                                    });
-                                } else {
+                                if (this.prevRoute?.redirectedFrom) {
+                                    delete this.prevRoute?.redirectedFrom;
                                 }
-                            }
-                        });
-                    } else {
-                        this.initiated = false;
-                        dispatch(this.checkAuthorization({
-                            pathname: this.prevRoute.redirectedFrom, searchParams, mode: 'PAGE'
-                        })).then((result) => {
-                            if (this.checkAuthorization.fulfilled.match(result)) {
-                                const path = result.payload.redirectTo || this.prevRoute!.redirectedFrom;
-                                console.log(88888, path);
-
-                                dispatch(this.setup({
-                                    pathname: path as string,
-                                    mode: 'PAGE'
-                                })).then((_) => {
-                                    // this.initiated = true;
-                                    if (result.payload.waitUntil === 'SETUP') {
-                                        setIsReady(!isReady);
-                                    }
-                                });
-                            }
-
-                        });
-                        //delete this.prevRoute.redirectedFrom;
-                    }
-
+                                if (result.payload.waitUntil === 'SETUP') {
+                                    console.log(666666666);
+                                    setIsReady(!isReady);
+                                }
+                            });
+                        }
+                    });
                 } else { //! <NOT_AUTH> get redirectTo and call setup
                     this.updateBasePageOptions(pathname, searchParams);
                     const redirectTo = this.getRedirectTo(pathname);
@@ -493,17 +464,28 @@ class StateSetup {
                     dispatch(this.setup({
                         pathname: path,
                         mode: 'PAGE'
-                    }));
+                    })).then((_) => {
+                        if (shouldRerender.current) {
+                            console.log('RERENDER', 777);
+                            shouldRerender.current = false;
+                            this.initiated = false;
+                            setIsReady(!isReady);
+                        }
+                    });
                 }
-            } else if (isPageReady === true) {
+            } else if (isPageReady) {
                 this.initiated = true;
+                if (this.restart) {
+                    this.restart = false;
+                }
             }
 
-            console.log('____ProtectedElement_____: END', {
+            console.log('%c____ProtectedElement_____: END', 'color: #22af2c', {
                 pathname,
                 prevRoute: this.prevRoute,
                 isPageReady,
                 initiated: this.initiated,
+                restart: this.restart,
             });
         });
 
@@ -514,14 +496,12 @@ class StateSetup {
             this.updateBasePageOptions(redirectTo, searchParams);
         }
         const { waitUntil } = this.getPageOption(redirectTo || pathname, 'onNavigate') || this.navigateOptions;
-        console.log(11112222, { waitUntil });
-
-        // if (typeof isPageReady === 'string') {
-        //     this.initiated = false;
-        // }
+        if (waitUntil === 'SETUP') {
+            shouldRerender.current = true;
+        }
 
         if (redirectTo && this.prevRoute) {
-            console.log('00000000', redirectTo);
+            console.log('____ProtectedElement_____::redirecting');
             this.prevRoute.redirectedFrom = redirectTo;
             return (
                 <Navigate
@@ -530,7 +510,18 @@ class StateSetup {
             );
         }
 
-        if (isPageReady === null || ((this.prevRoute?.redirectedFrom || this.initiated) && waitUntil === 'SETUP')) {
+        console.log({
+            isPageReady, prevRoute: this.prevRoute, initiated: this.initiated, waitUntil 
+        });
+        if (
+            (isPageReady === null && !this.restart) ||
+            (
+                (
+                    this.prevRoute?.redirectedFrom
+                    || this.initiated
+                ) && waitUntil === 'SETUP'
+            )
+        ) {
             return <h1>PAGE NOT READY</h1>;
         }
 

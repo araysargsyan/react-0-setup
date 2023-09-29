@@ -3,7 +3,6 @@ import {
     type AnyAction,
     type AsyncThunk,
     type AsyncThunkPayloadCreator,
-    type ThunkAction,
     type ThunkDispatch
 } from '@reduxjs/toolkit';
 import { type ActionCreator } from 'redux';
@@ -11,8 +10,8 @@ import { type MutableRefObject } from 'react';
 
 
 interface IAppSchema {
-    isAppReady: boolean | null | string;
-    isPageReady: boolean | null | string;
+    isAppReady: boolean;
+    isPageReady: boolean | null;
     isAuthenticated: boolean;
 }
 interface IStateSchema {

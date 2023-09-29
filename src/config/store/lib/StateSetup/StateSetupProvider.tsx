@@ -3,11 +3,11 @@ import {
     type PropsWithChildren,
     useEffect
 } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAppSelector } from 'shared/hooks/redux';
-import { type Location } from 'history';
+import { Navigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 import {
+    type IStateSchema,
     type TAsyncReducer,
     type TCheckAuthorizationAsyncThunk,
     type TStateSetup
@@ -25,8 +25,8 @@ const StateSetupProvider: FC<PropsWithChildren<{
     checkAuthorization,
     asyncReducer
 }) => {
+    const isAppReady = useSelector(({ app }: IStateSchema) => app.isAppReady);
     const { redirectRef, pathname } = usePageStateSetup(setUp, checkAuthorization, asyncReducer);
-    const isAppReady = useAppSelector(({ app }) => app.isAppReady);
 
     useEffect(() => {
         console.log('%c StateSetupProvider::UPDATE', 'color: #a90d38', {
@@ -34,9 +34,10 @@ const StateSetupProvider: FC<PropsWithChildren<{
         });
     });
 
-    if (isAppReady === null) {
-        return <h1>{ 'APP IS NOT READY' }</h1>;
-    }
+    // if (!isAppReady) {
+    //     return null;
+    //     // return <h1>{ 'APP IS NOT READY' }</h1>;
+    // }
 
     if (redirectRef.current) {
         const navigateTo = redirectRef.current;
@@ -44,7 +45,7 @@ const StateSetupProvider: FC<PropsWithChildren<{
 
         return (
             <Navigate
-                to={ /*isAppReady*/ navigateTo }
+                to={ navigateTo }
                 state={{ redirected: true }}
             />
         );

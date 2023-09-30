@@ -34,10 +34,10 @@ const StateSetupProvider: FC<PropsWithChildren<{
         });
     });
 
-    // if (!isAppReady) {
-    //     return null;
-    //     // return <h1>{ 'APP IS NOT READY' }</h1>;
-    // }
+    if (!isAppReady) {
+        return null;
+        // return <h1>{ 'APP IS NOT READY' }</h1>;
+    }
 
     if (redirectRef.current) {
         const navigateTo = redirectRef.current;

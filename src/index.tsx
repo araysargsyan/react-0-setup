@@ -13,14 +13,14 @@ const root = createRoot(document.getElementById('root') as HTMLElement);
 
 root.render(
     <BrowserRouter>
-        <TranslationProvider>
-            <StoreProvider>
-                <ErrorBoundary>
-                    <ThemeProvider>
+        <ThemeProvider>
+            <TranslationProvider>
+                <StoreProvider>
+                    <ErrorBoundary>
                         <App />
-                    </ThemeProvider>
-                </ErrorBoundary>
-            </StoreProvider>
-        </TranslationProvider>
+                    </ErrorBoundary>
+                </StoreProvider>
+            </TranslationProvider>
+        </ThemeProvider>
     </BrowserRouter>
 );

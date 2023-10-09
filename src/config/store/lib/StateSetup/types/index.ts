@@ -11,6 +11,7 @@ import { type MutableRefObject } from 'react';
 
 interface IAppSchema {
     isAppReady: boolean;
+    loading: boolean;
     isPageReady: boolean | null;
     isAuthenticated: boolean;
 }
@@ -125,7 +126,7 @@ type TCheckAuthorizationFn = AsyncThunkPayloadCreator<
     },
     IThunkConfig
 >;
-type TCheckAuthorizationReturn = { redirectTo: string | null; mode: TMode; waitUntil: INavigationOptions['waitUntil'] };
+type TCheckAuthorizationReturn = { redirectTo: string | null; mode: TMode; waitUntil: INavigationOptions['waitUntil'] | null };
 type TCheckAuthorizationAsyncThunk = AsyncThunk<
     TCheckAuthorizationReturn,
     {

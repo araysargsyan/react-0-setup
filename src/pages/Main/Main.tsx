@@ -5,11 +5,12 @@ import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import { useAppSelector } from 'shared/hooks/redux';
 import { shallowEqual } from 'react-redux';
 
- 
+
 function Main() {
     const { t } = useTranslation('main');
-    const testData = useAppSelector(({ counter }) => counter.testData, shallowEqual);
+    // const testData = useAppSelector(({ counter }) => counter.testData, shallowEqual);
     const test = useAppSelector(({ counter }) => counter.value);
+    console.log(test, 222);
 
     useRenderWatcher(Main.name);
     return (

@@ -13,6 +13,8 @@ import {
 } from '@reduxjs/toolkit';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import Portal from 'shared/ui/Portal';
+import Modal from 'shared/ui/Modal';
 
 import {
     type TStateSetupFn,
@@ -48,6 +50,7 @@ class StateSetup {
 
     private isAuth: boolean | null = null;
     private initiated: boolean = false;
+    private redirectTo: null | string = null;
     private restart: boolean = false;
     private prevRoute: {
         pathname: string;
@@ -60,6 +63,7 @@ class StateSetup {
     private reducer!: Reducer;
     private setIsAuthenticated!: TSetIsAuthenticated;
     private setIsAppReady!: ActionCreatorWithPayload<boolean>;
+    private setLoading!: ActionCreatorWithPayload<boolean>;
     private setIsPageReady!: ActionCreatorWithPayload<boolean>;
 
     constructor(
@@ -122,10 +126,10 @@ class StateSetup {
                 redirectRef.current = redirectTo;
             }
 
-            const { waitUntil } = this.getPageOption(redirectTo || pathname, 'onNavigate') || this.navigateOptions;
+            const { waitUntil } = this.getPageOption(redirectTo || pathname, 'onNavigate') || {};
 
             return thunkAPI.fulfillWithValue({
-                redirectTo, mode, waitUntil
+                redirectTo, mode, waitUntil: waitUntil || null
             });
         } catch (e) {
             return thunkAPI.rejectWithValue('error');
@@ -146,6 +150,10 @@ class StateSetup {
             `${appReducerName}/setIsAppReady`,
             (payload: boolean) => ({ payload })
         );
+        this.setLoading = createAction(
+            `${appReducerName}/setLoading`,
+            (payload: boolean) => ({ payload })
+        );
         this.setIsPageReady = createAction(
             `${appReducerName}/setIsPageReady`,
             (payload: boolean) => ({ payload })
@@ -157,6 +165,7 @@ class StateSetup {
             isAppReady: false,
             isPageReady: false,
             isAuthenticated: false,
+            loading: false,
         }, (builder) => {
             builder
                 .addCase(this.checkAuthorization.fulfilled, (
@@ -164,7 +173,7 @@ class StateSetup {
                     {
                         payload: {
                             redirectTo, mode, waitUntil
-                        } 
+                        }
                     }
                 ) => {
                     if (mode === 'APP') {
@@ -173,18 +182,29 @@ class StateSetup {
 
                             if (waitUntil === 'CHECK_AUTH') {
                                 state.isPageReady = true;
+                                // state.loading = false;
                             }
+                            // if (!waitUntil) {
+                            //     state.loading = false;
+                            // }
                         } else {
+                            console.log(6666, this.initiated);
+                            this.redirectTo = redirectTo;
                             state.isAppReady = true;
                             if (waitUntil === 'CHECK_AUTH') {
                                 state.isPageReady = true;
+                                // state.loading = false;
                             }
+                            // if (!waitUntil) {
+                            //     state.loading = false;
+                            // }
                         }
                     } else {
                         if (redirectTo === null) {
                             if (waitUntil === 'CHECK_AUTH') {
-                            } else {
+                            } else if (waitUntil === 'SETUP') {
                                 this.initiated = false;
+                            } else {
                             }
                         } else {
                             this.initiated = false;
@@ -193,6 +213,10 @@ class StateSetup {
                 })
                 .addCase(this.setup.fulfilled, (state, { payload: { isAppReady, mode } }) => {
                     if (mode === 'APP') {
+                        // if (this.redirectTo === null) {
+                        //     this.redirectTo = '';
+                        // }
+                        // state.loading = false;
                         console.log('__________FIRST RENDER____________');
                         state.isAppReady = Boolean(isAppReady);
                         state.isPageReady = Boolean(isAppReady);
@@ -204,15 +228,27 @@ class StateSetup {
                     state,
                     { payload }
                 ) => {
-                    state.isAuthenticated = payload.isAuthenticated;
-                    this.isAuth = state.isAuthenticated;
+                    if (state.isAppReady && state.isAuthenticated && !payload.isAuthenticated) {
+                        state.isPageReady = null;
+                    }
                     if (payload.restart) {
                         this.restart = true;
                         state.isPageReady = null;
                     }
+                    state.isAuthenticated = payload.isAuthenticated;
+                    this.isAuth = state.isAuthenticated;
                 })
                 .addCase(this.setIsAppReady, (state, { payload }) => {
                     state.isAppReady = payload;
+                })
+                .addCase(this.setLoading, (state, { payload }) => {
+                    state.loading = payload;
+                    //
+                    // if (!state.loading && payload) {
+                    //     state.loading = payload;
+                    // } else if (!payload) {
+                    //     state.loading = payload;
+                    // }
                 })
                 .addCase(this.setIsPageReady, (state, { payload }) => {
                     state.isPageReady = payload;
@@ -401,6 +437,8 @@ class StateSetup {
         const isPageReady = useSelector(({ app }: IStateSchema) => app.isPageReady);
         const [ isReady, setIsReady ] = useState(false);
         const shouldRerender = useRef(false);
+        const bbbb = useRef(false);
+        const isModalShow = useRef(false);
         const dispatch = useDispatch<TDispatch>();
         const [ searchParams ] = useSearchParams();
 
@@ -411,10 +449,15 @@ class StateSetup {
                 isPageReady,
                 initiated: this.initiated,
                 restart: this.restart,
+                redirectTo: this.redirectTo,
             });
+            if (bbbb.current) {
+                bbbb.current = false;
+                dispatch(this.setLoading(true));
+            }
 
             if (
-                this.initiated && (
+                this.redirectTo === null && this.initiated && (
                     isPageReady
                     || (this.restart && !isPageReady)
                 )
@@ -442,7 +485,7 @@ class StateSetup {
                                 pathname: path,
                                 mode: 'PAGE',
                             })).then((_) => {
-                                // this.initiated = false;
+                                //this.initiated = false;
 
                                 if (this.prevRoute?.redirectedFrom) {
                                     delete this.prevRoute?.redirectedFrom;
@@ -474,9 +517,14 @@ class StateSetup {
                     });
                 }
             } else if (isPageReady) {
-                this.initiated = true;
                 if (this.restart) {
                     this.restart = false;
+                }
+                if (this.redirectTo === pathname || this.redirectTo === null) {
+                    window.history.replaceState({}, document.title);
+                    dispatch(this.setLoading(false));
+                    this.initiated = true;
+                    this.redirectTo = null;
                 }
             }
 
@@ -486,6 +534,7 @@ class StateSetup {
                 isPageReady,
                 initiated: this.initiated,
                 restart: this.restart,
+                redirectTo: this.redirectTo,
             });
         });
 
@@ -495,10 +544,11 @@ class StateSetup {
         if (redirectTo) {
             this.updateBasePageOptions(redirectTo, searchParams);
         }
-        const { waitUntil } = this.getPageOption(redirectTo || pathname, 'onNavigate') || this.navigateOptions;
+        const { waitUntil } = this.getPageOption(this.redirectTo || pathname, 'onNavigate') || {};
         if (waitUntil === 'SETUP') {
             shouldRerender.current = true;
         }
+        const authRequirement = this.getPageOption(this.redirectTo || pathname, 'authRequirement');
 
         if (redirectTo && this.prevRoute) {
             console.log('____ProtectedElement_____::redirecting');
@@ -510,10 +560,20 @@ class StateSetup {
             );
         }
 
-        console.log({
-            isPageReady, prevRoute: this.prevRoute, initiated: this.initiated, waitUntil 
+        const aa = authRequirement !== null && this.isAuth !== null
+            ? authRequirement === this.isAuth
+            : null;
+
+        console.log('___LAST___', {
+            aa,
+            authRequirement,
+            isAuth: this.isAuth,
+            isPageReady, prevRoute: this.prevRoute, initiated: this.initiated, waitUntil, pathname, redirectTo
         });
+
         if (
+            (isPageReady === false && waitUntil) ||
+            (redirectTo !== null && this.isAuth !== null) ||
             (isPageReady === null && !this.restart) ||
             (
                 (
@@ -522,10 +582,33 @@ class StateSetup {
                 ) && waitUntil === 'SETUP'
             )
         ) {
-            return <h1>PAGE NOT READY</h1>;
+            bbbb.current = true;
+            console.log('______PAGE NOT READY________');
+            // if (isPageReady === false && waitUntil) {
+            //     return null;
+            // }
+            return null;
+            //return <h1>PAGE NOT READY</h1>;
+        } /*else {
+            dispatch(this.setLoading(false));
+        }*/
+
+
+        if (this.redirectTo && !this.initiated) {
+            isModalShow.current = true;
         }
 
-        return children;
+        return (
+            <>
+                { /*                <Portal>
+                    <Aa
+                        ml={ 3000 }
+                        show={ isModalShow.current }
+                    />
+                </Portal>*/ }
+                { children }
+            </>
+        );
     };
     public getStoreReducer() {
         return this.reducer;

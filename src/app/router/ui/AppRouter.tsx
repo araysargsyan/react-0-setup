@@ -14,6 +14,7 @@ import PageLoader from 'components/PageLoader';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import { AsyncReducer, type TAsyncReducerOptions } from 'config/store';
 import { ProtectedElement } from 'store/app';
+import { useAppSelector } from 'shared/hooks/redux';
 
 
 interface IElementWithWrapper {
@@ -21,11 +22,25 @@ interface IElementWithWrapper {
     Element: ComponentType;
 }
 
+const As = ({ a }: {a: boolean}) => {
+    const loading = useAppSelector(({ app }) => app.loading);
+    if (a) {
+        return !loading ? <PageLoader /> : null;
+    } else {
+        return loading ? <PageLoader /> : null;
+    }
+};
+
 const ElementWithWrapper = memo<IElementWithWrapper>(function ElementWithWrapper(
     { asyncReducers, Element }
 ) {
+
     if (!asyncReducers) {
-        return <Element />;
+        return (
+            <>
+                <Element />
+            </>
+        );
     }
 
     return (
@@ -39,8 +54,6 @@ const ElementWithWrapper = memo<IElementWithWrapper>(function ElementWithWrapper
 });
 
 const AppRouter: FC = () => {
-    // const isAppReady = useAppSelector(({ app }) => app.isAppReady);
-
     const renderWithWrapper = useCallback(({
         asyncReducers, Element, path
     }: IRouterConfig) => {
@@ -64,11 +77,14 @@ const AppRouter: FC = () => {
 
     return (
         <div className="page-wrapper">
-            <Suspense fallback={ <PageLoader /> }>
-                <Routes>
-                    { routesConfig.map(renderWithWrapper) }
-                </Routes>
-            </Suspense>
+            <>
+                <As a={ false } />
+                <Suspense fallback={ <As a={ true } /> }>
+                    <Routes>
+                        { routesConfig.map(renderWithWrapper) }
+                    </Routes>
+                </Suspense>
+            </>
         </div>
     );
 };

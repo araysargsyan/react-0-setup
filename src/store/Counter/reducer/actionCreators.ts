@@ -9,9 +9,9 @@ export const fetchTest = createAsyncThunk<
     IThunkConfig<string>
 >('fetchTest', async (_, {
     fulfillWithValue,
-    extra: { api } 
+    extra: { api }
 }) => {
-    // await until(3100);
+    await until(600);
     const { data } = await api.get('/test');
 
     return fulfillWithValue(data);

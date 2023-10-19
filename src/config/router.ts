@@ -1,7 +1,11 @@
 import { type ComponentType, memo } from 'react';
 import  { type PathRouteProps } from 'react-router-dom';
 import { lazyImport } from 'app/router';
-import { type TAsyncReducerOptions } from 'config/store';
+import {
+    type IStateSchema, type TAddAsyncReducerParameters, type TAsyncReducerOptions
+} from 'config/store';
+import { type TAddAsyncReducerOp } from 'config/store/types';
+import { type DeepPartial } from '@reduxjs/toolkit';
 
 
 export const enum ERoutes {
@@ -23,7 +27,8 @@ export const enum ERoutes {
 export interface IRouterConfig {
     Element: ComponentType;
     path: ERoutes;
-    asyncReducers?: TAsyncReducerOptions;
+    asyncReducers?: TAddAsyncReducerOp;
+    state?: TAddAsyncReducerParameters[1];
 }
 export const routesConfig: Array<PathRouteProps & IRouterConfig> = [
     {
@@ -37,15 +42,16 @@ export const routesConfig: Array<PathRouteProps & IRouterConfig> = [
     {
         path: ERoutes.PROFILE,
         Element: memo(lazyImport(() => import('pages/Profile'))),
-        // asyncReducers: async () => {
-        //     const profileReducer = (await import('store/Profile')).default;
-        //
-        //     return [ {
-        //         key: profileReducer.name,
-        //         reducer: profileReducer.reducer,
-        //     } ];
-        // },
     },
+    //     // asyncReducers: async () => {
+    //     //     const profileReducer = (await import('store/Profile')).default;
+    //     //
+    //     //     return [ {
+    //     //         key: profileReducer.name,
+    //     //         reducer: profileReducer.reducer,
+    //     //     } ];
+    //     // },
+    // },
     //! must be last
     {
         path: ERoutes.NOT_FOUND,
@@ -53,4 +59,4 @@ export const routesConfig: Array<PathRouteProps & IRouterConfig> = [
     },
 ];
 
- 
+

@@ -4,7 +4,7 @@ import { fetchTest } from 'store/Counter/reducer/actionCreators';
 import  { type ICounterSchema } from '..';
 
 
-const initialState: ICounterSchema = { value: 0, testData: {} };
+const initialState: ICounterSchema = { value: 0 };
 
 const counterSlice = createSlice({
     name: 'counter',

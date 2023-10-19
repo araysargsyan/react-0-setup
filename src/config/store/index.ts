@@ -11,7 +11,6 @@ export {
     TCheckAuthorizationFn,
     IAppSchema,
     StateSetupProvider,
-    usePageStateSetup
 } from './lib/StateSetup';
 
 

@@ -11,6 +11,7 @@ import { type MutableRefObject } from 'react';
 
 interface IAppSchema {
     isAppReady: boolean;
+    loadingCount: number;
     loading: boolean;
     isPageReady: boolean | null;
     isAuthenticated: boolean;

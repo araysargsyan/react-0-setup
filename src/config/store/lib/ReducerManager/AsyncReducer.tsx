@@ -1,7 +1,6 @@
 import {
     type FC,
     type PropsWithChildren,
-    Suspense,
     useCallback,
     useEffect,
     useRef
@@ -15,7 +14,7 @@ import { RMActionCreators } from '.';
 
 
 type TAddAsyncReducerParameters = Parameters<IStore['reducerManager']['add']>;
-type TAsyncReducerOptions = TAddAsyncReducerParameters[0] | ((state?: DeepPartial<IState>) => Promise<TAddAsyncReducerParameters[0]>);
+type TAsyncReducerOptions = TAddAsyncReducerParameters[0] | ((state?: IState) => Promise<TAddAsyncReducerParameters[0]>);
 
 interface IAsyncReducerProps {
     options: TAsyncReducerOptions;
@@ -31,7 +30,7 @@ const AsyncReducer: FC<PropsWithChildren<IAsyncReducerProps>> = ({
 }) => {
     const store = useStore() as IStore;
     const dispatch = useDispatch();
-    const isInitieted = useRef(false);
+    const isInitiated = useRef(false);
 
     const getRemoveOptions = useCallback((o: TAddAsyncReducerParameters[0]) => {
         return Array.isArray(o)
@@ -69,10 +68,10 @@ const AsyncReducer: FC<PropsWithChildren<IAsyncReducerProps>> = ({
     }, []);
 
     useEffect(() => {
-        if (isInitieted.current) {
+        if (isInitiated.current) {
             dispatch(RMActionCreators.updateState(state));
         } else {
-            isInitieted.current = true;
+            isInitiated.current = true;
         }
     }, [ state, dispatch ]);
 

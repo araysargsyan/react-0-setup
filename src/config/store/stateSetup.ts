@@ -68,7 +68,7 @@ const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = 
         [ERoutes.ABOUT]: {
             authRequirement: false,
             actions: [
-                { cb: counterActions.increment, canRefetch: true },
+                { cb: counterActions.decrement, canRefetch: true },
                 { cb: counterActions.increment },
                 { cb: counterActions.increment },
                 { cb: counterActions.increment },

@@ -8,16 +8,39 @@ import { shallowEqual } from 'react-redux';
 
 function Main() {
     const { t } = useTranslation('main');
-    // const testData = useAppSelector(({ counter }) => counter.testData, shallowEqual);
+    const testData = useAppSelector(({ counter }) => counter.testData, shallowEqual) || { some: 0 };
     const test = useAppSelector(({ counter }) => counter.value);
-    console.log(test, 222);
+    console.log({
+        test,
+        testData
+    }, 222);
 
     useRenderWatcher(Main.name);
     return (
         <div>
             { t('Main page') }
             <BugButton />
-            <h1>{ test }</h1>
+            <BugButton />
+            <BugButton />
+            <BugButton />
+            <h1>{ JSON.stringify(testData) }</h1>
+            <h1>{ JSON.stringify(testData) }</h1>
+            <h1>{ JSON.stringify(testData) }</h1>
+            <div>{ test }</div>
+            <p>{ test }</p>
+            <a>{ test }</a>
+            <div>
+                <BugButton />
+                <BugButton />
+                <BugButton />
+                <BugButton />
+                <h1>{ test }</h1>
+                <h1>{ test }</h1>
+                <h1>{ test }</h1>
+                <div>{ test }</div>
+                <p>{ test }</p>
+                <a>{ test }</a>
+            </div>
         </div>
     );
 }

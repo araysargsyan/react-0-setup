@@ -23,7 +23,7 @@ export interface IReduxStoreWithManager extends EnhancedStore<IStateSchema> {
 }
 export type TAddAsyncReducerParameters = Parameters<IReduxStoreWithManager['reducerManager']['add']>;
 export type TRemoveAsyncReducerParameters = Parameters<IReduxStoreWithManager['reducerManager']['remove']>;
-export type TAddAsyncReducerOp = TAddAsyncReducerParameters[0] | ((state?: DeepPartial<IStateSchema>) => Promise<TAddAsyncReducerParameters[0]>);
+export type TAddAsyncReducerOp = TAddAsyncReducerParameters[0] | ((state?: IStateSchema) => Promise<TAddAsyncReducerParameters[0]>);
 // export type TAsyncReducerOptions = TAddAsyncReducerParameters
 //     | ((state?: DeepPartial<IStateSchema>) => Promise<TAddAsyncReducerParameters>);
 export type TAsyncReducerOptions<T extends boolean = false> = T extends false

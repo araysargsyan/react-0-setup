@@ -14,7 +14,7 @@ import createStore, {
     StateSetupProvider
 } from 'config/store';
 import { useAppNavigate } from 'shared/hooks/redux';
-import { $checkAuthorization, $stateSetup } from 'store/app';
+import { usePageStateSetup } from 'store/app';
 import Modal from 'shared/ui/Modal';
 import Portal from 'shared/ui/Portal';
 
@@ -85,8 +85,7 @@ const StoreProvider:FC<IStoreProviderProps> = ({
     return (
         <Provider store={ store }>
             <StateSetupProvider
-                setUp={ $stateSetup }
-                checkAuthorization={ $checkAuthorization }
+                usePageStateSetup={ usePageStateSetup }
                 RedirectionModal={ Aa }
                 asyncReducer={{
                     async add(dispatch, options) {

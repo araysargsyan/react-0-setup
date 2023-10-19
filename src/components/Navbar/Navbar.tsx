@@ -4,12 +4,14 @@ import {
 import _c from 'shared/helpers/classNames';
 import { useTranslation } from 'react-i18next';
 import AppButton, { EAppButtonTheme } from 'shared/ui/AppButton';
-import { useSelector } from 'react-redux';
+import { useSelector, useStore } from 'react-redux';
 import { userActionCreators } from 'store/User';
 import LoginModal from 'features/forms/Login';
 import { useActions } from 'shared/hooks/redux';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import { getIsAuthenticated } from 'store/app';
+import loginReducer, { loginActions } from 'features/forms/Login/model';
+import { type IReduxStoreWithManager } from 'config/store';
 
 import cls from './Navbar.module.scss';
 
@@ -21,7 +23,27 @@ const Navbar: FC<INavbarProps> = ({ className }) => {
     const { t } = useTranslation();
     const [ isAuthModal, setIsAuthModal ] = useState(false);
     const isAuthenticated = useSelector(getIsAuthenticated);
-    const { logout } = useActions(userActionCreators, [ 'logout' ]);
+    const { logout } = useActions(userActionCreators, [ 'logout', 'setAuthData' ]);
+    const { login } = useActions(loginActions);
+    const store = useStore() as IReduxStoreWithManager;
+
+
+    function fastLogin() {
+        store.reducerManager.add({
+            parentKey: 'forms',
+            key: loginReducer.name,
+            reducer: loginReducer.reducer
+        }, {
+            forms: {
+                login: {
+                    isLoading: false,
+                    username: 'admin',
+                    password: '123',
+                }
+            }
+        });
+        login();
+    }
 
     const onCloseModal = useCallback(() => {
         setIsAuthModal(false);
@@ -30,7 +52,7 @@ const Navbar: FC<INavbarProps> = ({ className }) => {
     const onShowModal = useCallback(() => {
         setIsAuthModal(true);
     }, []);
-    
+
     useRenderWatcher(Navbar.name, JSON.stringify({ isAuthenticated }));
 
     if (isAuthenticated) {
@@ -49,6 +71,13 @@ const Navbar: FC<INavbarProps> = ({ className }) => {
 
     return (
         <div className={ _c(cls.navbar, [ className ]) }>
+            <AppButton
+                className={ _c(cls.links) }
+                theme={ EAppButtonTheme.CLEAR_INVERTED }
+                onClick={ fastLogin }
+            >
+                { 'loginnn' }
+            </AppButton>
             <AppButton
                 className={ _c(cls.links) }
                 theme={ EAppButtonTheme.CLEAR_INVERTED }

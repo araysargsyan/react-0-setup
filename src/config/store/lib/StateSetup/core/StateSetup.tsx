@@ -1,20 +1,23 @@
 import {
+    createContext,
     type FC,
-    type PropsWithChildren,
-    useEffect, useRef,
-    useState
+    type PropsWithChildren, Suspense, useCallback, useContext,
+    useEffect, useLayoutEffect, useRef,
+    useState, useTransition
 } from 'react';
 import {
     createAsyncThunk,
     createAction,
     createReducer,
     type ActionCreatorWithPayload,
-    type Reducer,
+    type Reducer, type ThunkDispatch, type AnyAction, createSelector,
 } from '@reduxjs/toolkit';
-import { Navigate, useSearchParams } from 'react-router-dom';
+import {
+    Navigate, useLocation, useNavigate, useSearchParams
+} from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import Portal from 'shared/ui/Portal';
-import Modal from 'shared/ui/Modal';
+import PageLoader from 'components/PageLoader/PageLoader';
+import { useAppSelector } from 'shared/hooks/redux';
 
 import {
     type TStateSetupFn,
@@ -34,7 +37,7 @@ import {
     type TCheckAuthorizationReturn,
     type TAsyncReducer,
     type TAsyncReducersOptions,
-    type TCb, type TMode
+    type TCb, type TMode, type TStateSetup
 } from '../types';
 
 
@@ -51,6 +54,9 @@ class StateSetup {
     private isAuth: boolean | null = null;
     private initiated: boolean = false;
     private redirectTo: null | string = null;
+    private isPageFirstRender = true;
+    private loading: boolean = false;
+    private waitUntil = false; //* for not lazy loaded components
     private restart: boolean = false;
     private prevRoute: {
         pathname: string;
@@ -111,13 +117,17 @@ class StateSetup {
             const isAuth = await checkAuthorization({ isAuth: this.isAuth }, thunkAPI);
 
             if (typeof isAuth === 'boolean') {
+                if (this.isAuth && isAuth !== this.isAuth) {
+                    console.log(111111111);
+                    this.restart = true;
+                }
                 this.isAuth = isAuth;
                 thunkAPI.dispatch(this.setIsAuthenticated(isAuth));
             } else {
                 throw new Error('checkAuthorization');
             }
 
-            this.updateBasePageOptions(pathname, searchParams);
+            // this.updateBasePageOptions(pathname, searchParams);
             const redirectTo = this.getRedirectTo(pathname);
             if (redirectTo) {
                 this.updateBasePageOptions(redirectTo, searchParams);
@@ -132,6 +142,7 @@ class StateSetup {
                 redirectTo, mode, waitUntil: waitUntil || null
             });
         } catch (e) {
+            console.log(e);
             return thunkAPI.rejectWithValue('error');
         }
     };
@@ -165,7 +176,8 @@ class StateSetup {
             isAppReady: false,
             isPageReady: false,
             isAuthenticated: false,
-            loading: false,
+            loadingCount: 0,
+            loading: false
         }, (builder) => {
             builder
                 .addCase(this.checkAuthorization.fulfilled, (
@@ -177,27 +189,34 @@ class StateSetup {
                     }
                 ) => {
                     if (mode === 'APP') {
-                        if (redirectTo === null) {
+                        if (this.restart) {
+                            state.isPageReady = false;
+                            this.redirectTo = redirectTo;
+                            console.log(66666666666);
+                        } else {
+                            console.log(77777);
+                            if (this.waitUntil) {
+                                this.waitUntil = false;
+                                this.loading = false;
+                                state.loading = false;
+                                state.loadingCount = state.loadingCount + 0.5;
+                            }
                             state.isAppReady = true;
 
-                            if (waitUntil === 'CHECK_AUTH') {
+                            if (redirectTo === null) {
                                 state.isPageReady = true;
-                                // state.loading = false;
-                            }
-                            // if (!waitUntil) {
-                            //     state.loading = false;
-                            // }
-                        } else {
-                            console.log(6666, this.initiated);
-                            this.redirectTo = redirectTo;
-                            state.isAppReady = true;
-                            if (waitUntil === 'CHECK_AUTH') {
+
+                                if (waitUntil === 'CHECK_AUTH') {
+                                    this.isPageFirstRender = false;
+                                }
+                            } else {
+                                this.redirectTo = redirectTo;
                                 state.isPageReady = true;
-                                // state.loading = false;
+
+                                if (waitUntil === 'CHECK_AUTH') {
+                                    this.isPageFirstRender = false;
+                                }
                             }
-                            // if (!waitUntil) {
-                            //     state.loading = false;
-                            // }
                         }
                     } else {
                         if (redirectTo === null) {
@@ -213,11 +232,12 @@ class StateSetup {
                 })
                 .addCase(this.setup.fulfilled, (state, { payload: { isAppReady, mode } }) => {
                     if (mode === 'APP') {
-                        // if (this.redirectTo === null) {
-                        //     this.redirectTo = '';
-                        // }
+                        this.isPageFirstRender = false;
                         // state.loading = false;
-                        console.log('__________FIRST RENDER____________');
+                        console.log('__________FIRST RENDER____________', {
+                            isPageFirstRender: this.isPageFirstRender,
+                            restart: this.restart,
+                        });
                         state.isAppReady = Boolean(isAppReady);
                         state.isPageReady = Boolean(isAppReady);
                     } else {
@@ -230,25 +250,39 @@ class StateSetup {
                 ) => {
                     if (state.isAppReady && state.isAuthenticated && !payload.isAuthenticated) {
                         state.isPageReady = null;
-                    }
-                    if (payload.restart) {
-                        this.restart = true;
-                        state.isPageReady = null;
-                    }
+                    } //?
                     state.isAuthenticated = payload.isAuthenticated;
                     this.isAuth = state.isAuthenticated;
+                    if (payload.restart) {
+                        const redirectTo = this.getRedirectTo(this.prevRoute!.pathname);
+                        console.log('RESTART::this.setIsAuthenticated', {
+                            redirectTo,
+                            prevRoute: this.prevRoute
+                        });
+                        if (redirectTo) {
+                            this.restart = true;
+                            state.isPageReady = false;
+                        }
+                        // const destroyPath = payload.isAuthenticated
+                        //     ? this.authProtectionConfig.authorized
+                        //     : this.authProtectionConfig.unAuthorized;
+                        // console.log(333, {
+                        //     destroyPath, 'this.prevRoute': this.prevRoute, aa: this.pageOptionsMap[destroyPath]
+                        // });
+                        // this.prevRoute?.pathname !== destroyPath
+                        //     && this.isPageLoaded(destroyPath)
+                        //     && delete this.pageOptionsMap[destroyPath];
+                        // this.prevRoute = null;
+
+                    }
                 })
                 .addCase(this.setIsAppReady, (state, { payload }) => {
                     state.isAppReady = payload;
                 })
                 .addCase(this.setLoading, (state, { payload }) => {
+                    console.log('..........this.setLoading', payload);
                     state.loading = payload;
-                    //
-                    // if (!state.loading && payload) {
-                    //     state.loading = payload;
-                    // } else if (!payload) {
-                    //     state.loading = payload;
-                    // }
+                    state.loadingCount = state.loadingCount + 0.5;
                 })
                 .addCase(this.setIsPageReady, (state, { payload }) => {
                     state.isPageReady = payload;
@@ -356,6 +390,18 @@ class StateSetup {
         return redirectTo;
     };
 
+    private isPageLoaded = (pathname: string) => Boolean(this.pageOptionsMap[pathname]);
+    private isElementLazyLoaded(Element: any) {
+        let element = Element;
+
+        while (Boolean(element.type)) {
+            element = element.type;
+        };
+
+        return element.$$typeof === Symbol.for('react.lazy');
+    }
+
+
     private setup = createAsyncThunk<
         { isAppReady: boolean | null; mode: TMode },
         TStateSetUpArgs,
@@ -430,195 +476,523 @@ class StateSetup {
         }
     );
 
-    public ProtectedElement: FC<PropsWithChildren<{ pathname: string }>> = ({
-        children,
-        pathname
-    }) => {
-        const isPageReady = useSelector(({ app }: IStateSchema) => app.isPageReady);
-        const [ isReady, setIsReady ] = useState(false);
-        const shouldRerender = useRef(false);
-        const bbbb = useRef(false);
-        const isModalShow = useRef(false);
-        const dispatch = useDispatch<TDispatch>();
-        const [ searchParams ] = useSearchParams();
+    private usePageStateSetup = (
+        asyncReducer?: TAsyncReducer
+    ) => {
+        const dispatch = useDispatch<ThunkDispatch<IStateSchema, unknown, AnyAction>>();
+        const setup = useCallback(
+            (...args: Parameters<TStateSetup>) => dispatch(this.setup(...args)),
+            [ dispatch ]
+        );
+        const checkAuth = useCallback(
+            (...args: Parameters<TCheckAuthorizationAsyncThunk>) => dispatch(this.checkAuthorization(...args)),
+            [ dispatch ]
+        );
 
-        useEffect(() => {
-            console.log('%c____ProtectedElement_____: START', 'color: #22af2c', {
-                pathname,
-                prevRoute: this.prevRoute,
-                isPageReady,
-                initiated: this.initiated,
-                restart: this.restart,
-                redirectTo: this.redirectTo,
-            });
-            if (bbbb.current) {
-                bbbb.current = false;
+        const { pathname, state } = useLocation();
+        const [ searchParams ] = useSearchParams();
+        const navigate = useNavigate();
+        const redirectRef = useRef<null | string>(null);
+
+        console.log('%c______usePageStateSetUp______', 'color: #ae54bf', '::START', {
+            pathname,
+            from: state?.from,
+            isPageFirstRender: this.isPageFirstRender,
+            prevRoute: this.prevRoute,
+            isAuth: this.isAuth,
+            restart: this.restart,
+            'this.redirectTo': this.redirectTo,
+            redirectRef: { ...redirectRef }
+        });
+
+        if (!this.isPageLoaded(pathname)) {
+            this.isPageFirstRender = true;
+            this.updateBasePageOptions(pathname, searchParams);
+        } else if (this.restart && this.isPageFirstRender) {
+            this.isPageFirstRender = false;
+        }
+        const { waitUntil } = this.getPageOption(pathname, 'onNavigate') || {};
+        const redirectTo = this.getRedirectTo(pathname);
+        if (redirectTo) {
+            if (!this.isPageLoaded(redirectTo)) {
+                this.isPageFirstRender = true;
+                this.updateBasePageOptions(redirectTo, searchParams);
+            }
+        }
+        const mustRedirect = redirectTo && Boolean(this.prevRoute);
+
+        if (
+            this.isPageFirstRender
+            // && !mustRedirect
+            && this.prevRoute?.pathname !== redirectTo
+            && !this.loading
+            && waitUntil
+            && !state?.from
+            // && !this.prevRoute?.redirectedFrom
+        ) {
+            this.loading = true;
+            console.log('%c______usePageStateSetUp______', 'color: #ae54bf', 'PRE-SET_LOADING');
+        }
+
+        if (this.prevRoute && this.prevRoute.pathname !== pathname) {
+            this.prevRoute.mustDestroy = true;
+            console.log('%c______usePageStateSetUp______', 'color: #ae54bf', 'mustDestroy', this.prevRoute);
+        }
+
+        // if (this.restart /*&& state?.from*/) {
+        //     this.redirectTo = pathname;
+        // }
+        // if (state?.from && this.prevRoute) {
+        //     this.prevRoute.redirectedFrom = this.prevRoute.pathname;
+        //     this.prevRoute.pathname = state.from;
+        // }
+
+        useLayoutEffect(() => {
+            if (mustRedirect) {
+                console.log('%c______usePageStateSetUp______', 'color: #ae54bf', 'useLayoutEffect', 'REDIRECT');
+
+                navigate(redirectTo, { state: { from: pathname } });
+                // this.prevRoute!.pathname = pathname;
+                // delete this.prevRoute!.redirectedFrom;
+            }
+            if (this.loading && !this.redirectTo && !state?.from) {
+                console.log('%c______usePageStateSetUp______', 'color: #ae54bf', 'useLayoutEffect', 'SET_LOADING');
                 dispatch(this.setLoading(true));
             }
+        });
 
-            if (
-                this.redirectTo === null && this.initiated && (
-                    isPageReady
-                    || (this.restart && !isPageReady)
-                )
-            ) {
-                if (this.prevRoute?.redirectedFrom) {
-                    this.initiated = false;
-                }
-                console.log('%c____ProtectedElement_____: checkAuth & setup', 'color: #ea4566');
-                if (this.isAuth !== false) { //! <AUTH> check auth then get redirectTo and call setup
-                    dispatch(this.checkAuthorization({
-                        mode: 'PAGE',
-                        pathname: this.prevRoute?.redirectedFrom || pathname,
-                        searchParams
-                    })).then((result) => {
-                        if (this.checkAuthorization.fulfilled.match(result)) {
-                            const redirectTo = result.payload.redirectTo;
-                            const path = this.prevRoute?.redirectedFrom || redirectTo || pathname;
-                            this.prevRoute!.mustDestroy = this.prevRoute !== null && this.prevRoute.pathname !== path;
-                            console.log(6666, {
-                                pathname, redirectTo, path,
-                                prevRoute: this.prevRoute,
-                                restart: this.restart,
-                            });
-                            dispatch(this.setup({
-                                pathname: path,
-                                mode: 'PAGE',
-                            })).then((_) => {
-                                //this.initiated = false;
+        useEffect(() => {
+            if (!this.redirectTo) {
+                if (!state?.from || this.restart) {
+                    const mustCheckAuth = this.isAuth === null || this.isAuth;
 
-                                if (this.prevRoute?.redirectedFrom) {
-                                    delete this.prevRoute?.redirectedFrom;
+                    if (mustCheckAuth) {
+                        console.log('%c______usePageStateSetUp______', 'color: #ae54bf', '============CheckAuth=============');
+
+                        checkAuth({
+                            pathname, searchParams, redirectRef, mode: 'APP'
+                        }).then((result) => {
+                            if (this.checkAuthorization.fulfilled.match(result) && waitUntil/* && result.payload.waitUntil === 'SETUP'*/) {
+                                console.log('%c______usePageStateSetUp______', 'color: #ae54bf', '============SetUp>>>CheckAuth=============');
+
+                                console.log(
+                                    '%c______usePageStateSetUp______', 'color: #ae54bf',
+                                    {
+                                        pathname,
+                                        navigateTo: redirectRef.current,
+                                        // isAppReady,
+                                        result
+                                    }
+                                );
+                                setup({
+                                    mode: 'APP',
+                                    pathname: result.payload.redirectTo || pathname,
+                                    asyncReducer
+                                });
+
+                                if (result.payload.redirectTo && !mustRedirect) {
+                                    console.log('%c______usePageStateSetUp______', 'color: #ae54bf', 'REDIRECT');
+                                    navigate(result.payload.redirectTo, { state: { from: pathname } });
                                 }
-                                if (result.payload.waitUntil === 'SETUP') {
-                                    console.log(666666666);
-                                    setIsReady(!isReady);
-                                }
-                            });
-                        }
-                    });
-                } else { //! <NOT_AUTH> get redirectTo and call setup
-                    this.updateBasePageOptions(pathname, searchParams);
-                    const redirectTo = this.getRedirectTo(pathname);
-                    const path = redirectTo || pathname;
-
-                    this.prevRoute!.mustDestroy = this.prevRoute !== null && this.prevRoute.pathname !== path;
-
-                    dispatch(this.setup({
-                        pathname: path,
-                        mode: 'PAGE'
-                    })).then((_) => {
-                        if (shouldRerender.current) {
-                            console.log('RERENDER', 777);
-                            shouldRerender.current = false;
-                            this.initiated = false;
-                            setIsReady(!isReady);
-                        }
-                    });
+                            }
+                        });
+                    }
+                    if (!waitUntil || !mustCheckAuth) {
+                        console.log('%c______usePageStateSetUp______', 'color: #ae54bf', '============SetUp=============');
+                        setup({
+                            mode: 'APP',
+                            pathname: redirectTo || pathname,
+                            asyncReducer
+                        });
+                    }
                 }
-            } else if (isPageReady) {
-                if (this.restart) {
-                    this.restart = false;
-                }
-                if (this.redirectTo === pathname || this.redirectTo === null) {
-                    window.history.replaceState({}, document.title);
-                    dispatch(this.setLoading(false));
-                    this.initiated = true;
-                    this.redirectTo = null;
-                }
+            } else {
+                console.log('%c______usePageStateSetUp______', 'color: #ae54bf', 'CLEAN_REDIRECTION');
+                this.redirectTo = null;
             }
 
-            console.log('%c____ProtectedElement_____: END', 'color: #22af2c', {
-                pathname,
-                prevRoute: this.prevRoute,
-                isPageReady,
-                initiated: this.initiated,
-                restart: this.restart,
-                redirectTo: this.redirectTo,
+            if (this.restart) {
+                this.restart = false;
+            }
+
+            if (state?.from /*|| this.redirectTo*/) {
+                console.log('%c______usePageStateSetUp______', 'color: #ae54bf', 'CLEAN_STATE>FROM');
+
+                window.history.replaceState({}, document.title);
+                // this.redirectTo = null;
+            }
+
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+        });
+        console.log('%c______usePageStateSetUp______', 'color: #ae54bf', '::END', {
+            redirectTo,
+            waitUntil,
+            pathname,
+            from: state?.from,
+            isPageFirstRender: this.isPageFirstRender,
+            prevRoute: this.prevRoute,
+            isAuth: this.isAuth,
+            restart: this.restart,
+            'this.redirectTo': this.redirectTo,
+            redirectRef: { ...redirectRef },
+        });
+        return {
+            redirectTo: !this.prevRoute && this.redirectTo,
+            pathname,
+            from: state?.from || null
+        };
+    };
+
+    public getLoading = (type?: 'SUSPENSE', waitUntil?: Exclude<IPageOptions['onNavigate'], undefined>['waitUntil']) => createSelector(
+        ({ app }: IStateSchema) => app.loadingCount,
+        (loadingCount) => {
+            let loading = false;
+
+            if (type === 'SUSPENSE' && !waitUntil && !this.loading) {
+                loading = true;
+            } else if (!type /*&& this.isPageFirstRender */&& this.loading /*&& waitUntil*/) {
+                loading = true;
+            }
+
+            console.log('$$$getLoading$$$', {
+                type,
+                waitUntil,
+                loadingCount,
+                loading,
+                isPageFirstRender: this.isPageFirstRender,
+                'THIS:loading': this.loading
+            });
+            return loading;
+        });
+    public Loader = ({ type, pathname }: {type?: 'SUSPENSE'; pathname: string}) => {
+        const dispatch = useDispatch();
+        const { waitUntil } = this.getPageOption(pathname, 'onNavigate') || {};
+        const loading = useSelector(this.getLoading(type, waitUntil));
+
+        useEffect(() => {
+            console.log('%c____LLLLLLLLLLLLLLLLLLLLL_____', 'color: #dbd518', 'UPDATE', {
+                type,
+                waitUntil,
+                'this.loading': this.loading,
+                loading,
             });
         });
 
+        useLayoutEffect(() => {
+            if (type === 'SUSPENSE' && loading) {
+                console.log('%c____LLLLLLLLLLLLLLLLLLLLL_____', 'color: #dbd518', 'useLayoutEffect');
+                dispatch(this.setLoading(true));
+            }
 
-        this.updateBasePageOptions(pathname, searchParams);
+            return () => {
+                console.log('%c____LLLLLLLLLLLLLLLLLLLLL_____', 'color: #dbd518', 'useLayoutEffect', 'UNMOUNT', {
+                    type,
+                    loading,
+                    'this.loading': this.loading
+                });
+
+                if (type === 'SUSPENSE') {
+                    console.log('%c____LLLLLLLLLLLLLLLLLLLLL_____', 'color: #dbd518', 'useLayoutEffect', 'UNMOUNT', '+++Clear+++');
+                    this.isPageFirstRender = false;
+                    this.loading = false;
+                    dispatch(this.setLoading(false));
+                }
+            };
+        }, [ loading, dispatch, type ]);
+
+        console.log('%c____LLLLLLLLLLLLLLLLLLLLL_____', 'color: #dbd518', type || 'LOADING', {
+            'this.loading': this.loading,
+            loading
+        });
+
+        return loading ? <PageLoader /> : null;
+    };
+
+    public getIsPageReady = (pathname: string) => createSelector(
+        ({ app }: IStateSchema) => app.isPageReady,
+        (isPageReady) => {
+            const { waitUntil } = this.getPageOption(pathname, 'onNavigate') || {};
+            if (!waitUntil) {
+                return true;
+            }
+            return ((isPageReady || (!this.isPageFirstRender && !this.restart))
+                && (pathname === this.redirectTo || this.redirectTo === null));
+        });
+
+    public ProtectedElement: FC<PropsWithChildren<{ pathname: string }>> = ({
+        children,
+        pathname,
+    }) => {
+        const isPageReady = useSelector(this.getIsPageReady(pathname));
+        const lazy = this.isElementLazyLoaded(children);
+        const [ isReady, setIsReady ] = useState(false);
+        const shouldRerender = useRef(false);
+        const dispatch = useDispatch<TDispatch>();
+        const [ searchParams ] = useSearchParams();
+
+
+        // useEffect(() => {
+        //     console.log('%c____ProtectedElement_____: START', 'color: #22af2c', {
+        //         pathname,
+        //         prevRoute: this.prevRoute,
+        //         // isPageReady,
+        //         initiated: this.initiated,
+        //         restart: this.restart,
+        //         redirectTo: this.redirectTo,
+        //     });
+        //
+        //     if (
+        //         // this.redirectTo === null && this.initiated && (
+        //         //     isPageReady
+        //         //     || (this.restart && !isPageReady)
+        //         // )
+        //         // (this.redirectTo === null && this.initiated)
+        //         || this.restart
+        //
+        //     ) {
+        //         // if (this.prevRoute?.redirectedFrom) {
+        //         //     this.initiated = false;
+        //         // }
+        //         console.log('%c____ProtectedElement_____: checkAuth & setup', 'color: #ea4566');
+        //         if (this.isAuth !== false) { //! <AUTH> check auth then get redirectTo and call setup
+        //             dispatch(this.checkAuthorization({
+        //                 mode: 'PAGE',
+        //                 pathname: this.prevRoute?.redirectedFrom || pathname,
+        //                 searchParams
+        //             })).then((result) => {
+        //                 if (this.checkAuthorization.fulfilled.match(result)) {
+        //                     const redirectTo = result.payload.redirectTo;
+        //                     const path = this.prevRoute?.redirectedFrom || redirectTo || pathname;
+        //                     this.prevRoute!.mustDestroy = this.prevRoute !== null && this.prevRoute.pathname !== path;
+        //                     console.log(6666, {
+        //                         pathname, redirectTo, path,
+        //                         prevRoute: this.prevRoute,
+        //                         restart: this.restart,
+        //                     });
+        //                     dispatch(this.setup({
+        //                         pathname: path,
+        //                         mode: 'PAGE',
+        //                     })).then((_) => {
+        //                         // if (this.prevRoute?.redirectedFrom) {
+        //                         //     delete this.prevRoute?.redirectedFrom;
+        //                         // }
+        //                         if (result.payload.waitUntil === 'SETUP') {
+        //                             console.log(666666666);
+        //                             setIsReady(!isReady);
+        //                         }
+        //                     });
+        //                 }
+        //             });
+        //         } else { //! <NOT_AUTH> get redirectTo and call setup
+        //             this.updateBasePageOptions(pathname, searchParams);
+        //             const redirectTo = this.getRedirectTo(pathname);
+        //             const path = redirectTo || pathname;
+        //
+        //             this.prevRoute!.mustDestroy = this.prevRoute !== null && this.prevRoute.pathname !== path;
+        //
+        //             dispatch(this.setup({
+        //                 pathname: path,
+        //                 mode: 'PAGE'
+        //             })).then((_) => {
+        //                 if (shouldRerender.current) {
+        //                     console.log('RERENDER', 777);
+        //                     shouldRerender.current = false;
+        //                     this.initiated = false;
+        //                     setIsReady(!isReady);
+        //                 }
+        //             });
+        //         }
+        //     } else if (!this.initiated) {
+        //         if (this.restart) {
+        //             this.restart = false;
+        //         }
+        //         console.log(4444);
+        //         if (this.redirectTo === pathname || this.redirectTo === null) {
+        //             console.log(5555);
+        //             // window.history.replaceState({}, document.title);
+        //             this.initiated = true;
+        //             this.redirectTo = null;
+        //         }
+        //
+        //     }
+        //     if (this.initiated && this.prevRoute?.redirectedFrom) {
+        //         delete this.prevRoute?.redirectedFrom;
+        //     }
+        //     console.log('%c____ProtectedElement_____: END', 'color: #22af2c', {
+        //         pathname,
+        //         prevRoute: this.prevRoute,
+        //         // isPageReady,
+        //         initiated: this.initiated,
+        //         restart: this.restart,
+        //         redirectTo: this.redirectTo,
+        //     });
+        // });
+        console.log('%c____ProtectedElement_____', 'color: #22af2c', '::START', {
+            lazy,
+            pathname,
+            prevRoute: this.prevRoute,
+            isPageFirstRender: this.isPageFirstRender,
+            isPageReady,
+            initiated: this.initiated,
+            restart: this.restart,
+            'this.redirectTo': this.redirectTo,
+            loading: this.loading,
+            isAuth: this.isAuth,
+        });
+
         const redirectTo = this.getRedirectTo(pathname);
-        if (redirectTo) {
-            this.updateBasePageOptions(redirectTo, searchParams);
-        }
         const { waitUntil } = this.getPageOption(this.redirectTo || pathname, 'onNavigate') || {};
         if (waitUntil === 'SETUP') {
             shouldRerender.current = true;
         }
-        const authRequirement = this.getPageOption(this.redirectTo || pathname, 'authRequirement');
 
-        if (redirectTo && this.prevRoute) {
-            console.log('____ProtectedElement_____::redirecting');
-            this.prevRoute.redirectedFrom = redirectTo;
-            return (
-                <Navigate
-                    to={ redirectTo }
-                />
-            );
-        }
 
-        const aa = authRequirement !== null && this.isAuth !== null
-            ? authRequirement === this.isAuth
-            : null;
-
-        console.log('___LAST___', {
-            aa,
-            authRequirement,
-            isAuth: this.isAuth,
-            isPageReady, prevRoute: this.prevRoute, initiated: this.initiated, waitUntil, pathname, redirectTo
+        useEffect(() => {
+            console.log('%c____ProtectedElement_____: UPDATE', 'color: #22af2c', {
+                pathname,
+                prevRoute: this.prevRoute,
+                isPageReady,
+                initiated: this.initiated,
+                restart: this.restart,
+                redirectTo: this.redirectTo,
+            });
         });
 
         if (
-            (isPageReady === false && waitUntil) ||
-            (redirectTo !== null && this.isAuth !== null) ||
-            (isPageReady === null && !this.restart) ||
+            // (!isPageLoaded && waitUntil) || //! first load scenario
+            // (/*isPageReady &&*/ redirectTo !== null) || //! redirection scenario
+            // (/*isPageReady === null &&*/ !this.restart) || //! restart scenario
             (
                 (
-                    this.prevRoute?.redirectedFrom
-                    || this.initiated
+                    // this.prevRoute?.redirectedFrom ||
+                    this.initiated
                 ) && waitUntil === 'SETUP'
             )
         ) {
-            bbbb.current = true;
-            console.log('______PAGE NOT READY________');
-            // if (isPageReady === false && waitUntil) {
+            // if (!this.loading) {
+            //     dispatch(this.setLoading(true));
+            // }
+            // this.loading = true;
+
+            console.log('%c____ProtectedElement_____', 'color: #22af2c', '______PAGE NOT READY________');
+            // return null;
+            //
+            // if (redirectTo !== null) {
             //     return null;
             // }
-            return null;
-            //return <h1>PAGE NOT READY</h1>;
-        } /*else {
-            dispatch(this.setLoading(false));
-        }*/
-
-
-        if (this.redirectTo && !this.initiated) {
-            isModalShow.current = true;
+        } else {
+            // console.log(666666);
         }
 
+        if (!lazy && this.loading) {
+            this.waitUntil = true;
+        }
+
+        useLayoutEffect(() => {
+            if (this.loading && this.restart && this.isPageFirstRender) {
+                console.log('%c____ProtectedElement_____', 'color: #22af2c', 'useLayoutEffect', 'SET-LOADING');
+                dispatch(this.setLoading(true));
+            }
+        }, [ isPageReady, dispatch ]);
+
+
+        const Loader = this.Loader;
+        if (redirectTo && this.restart) {
+            console.log('%c____ProtectedElement_____', 'color: #22af2c', 'redirecting', { isPageFirstRender: this.isPageFirstRender, loading: this.loading });
+
+            if (!this.isPageLoaded(redirectTo)) {
+                this.isPageFirstRender = true;
+                this.updateBasePageOptions(redirectTo, searchParams);
+            }
+            const { waitUntil } = this.getPageOption(redirectTo, 'onNavigate') || {};
+            if (!this.loading && this.isPageFirstRender) {
+                console.log('%c____ProtectedElement_____', 'color: #22af2c', 'PRE_SET-LOADING');
+                this.loading = true;
+            }
+
+            console.log('%c____ProtectedElement_____', 'color: #22af2c', '::END', {
+                lazy,
+                pathname,
+                prevRoute: this.prevRoute,
+                isPageFirstRender: this.isPageFirstRender,
+                isPageReady,
+                initiated: this.initiated,
+                restart: this.restart,
+                'this.redirectTo': this.redirectTo,
+                loading: this.loading,
+                isAuth: this.isAuth,
+                waitUntil,
+                redirectTo
+            });
+            return (
+                <>
+                    { this.loading ? <Loader pathname={ pathname } /> : children }
+                    <Navigate
+                        to={ redirectTo }
+                        state={{ from: pathname }}
+                    />
+                </>
+            );
+        }
+
+
+        console.log('%c____ProtectedElement_____', 'color: #22af2c', '::END', {
+            lazy,
+            pathname,
+            prevRoute: this.prevRoute,
+            isPageFirstRender: this.isPageFirstRender,
+            isPageReady,
+            initiated: this.initiated,
+            restart: this.restart,
+            'this.redirectTo': this.redirectTo,
+            loading: this.loading,
+            isAuth: this.isAuth,
+            waitUntil,
+            redirectTo
+        });
         return (
             <>
-                { /*                <Portal>
-                    <Aa
-                        ml={ 3000 }
-                        show={ isModalShow.current }
-                    />
-                </Portal>*/ }
-                { children }
+                { this.loading ? <Loader pathname={ pathname } /> : null }
+                {
+                    isPageReady && !redirectTo
+                        ? (
+                                !lazy && !waitUntil ?
+                                    children : (
+                                        <Suspense fallback={ (
+                                            <Loader
+                                                type={ 'SUSPENSE' }
+                                                pathname={ pathname }
+                                            />
+                                        ) }
+                                        >
+                                            { /*<EmptyComponent>*/ }
+                                            { children }
+                                            { /*</EmptyComponent>*/ }
+                                        </Suspense>
+                                    ) /*(
+                                    <EmptyComponent>
+                                        { children }
+                                    </EmptyComponent>
+                                )*/
+                            )
+                        : null
+                }
             </>
         );
     };
+
     public getStoreReducer() {
         return this.reducer;
     }
     public getStoreCreatorsActions() {
         return {
             ProtectedElement: this.ProtectedElement,
-            actionCreators: { setIsAuthenticated: this.setIsAuthenticated, },
-            $stateSetup: this.setup,
-            $checkAuthorization: this.checkAuthorization,
+            Loader: this.Loader,
+            actionCreators: {
+                setIsAuthenticated: this.setIsAuthenticated,
+                setLoading: this.setLoading,
+            },
+            usePageStateSetup: this.usePageStateSetup,
         };
     }
 }

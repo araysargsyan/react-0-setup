@@ -27,36 +27,46 @@ interface IStoreProviderProps {
 }
 
 const Aa:FC<{
-    show: boolean;
-    context: {
-        redirectTo: string | null;
-        from: string;
-    };
-}> = ({ show, context }) => {
-    const [ isOpen, setIsOpen ] = useState(false);
+    mustShow: any;
+    useContext: any;
+    // context: {
+    //     redirectTo: string | null;
+    //     from: string;
+    // };
+    // closeRedirectionModal: any;
+}> = ({ mustShow, useContext }) => {
+    const show = mustShow();
+    const { context, closeRedirectionModal } = useContext();
+    // const [ closed, close ] = useState(false);
+    // const [ _, rerender ] = useState(0);
 
     useEffect(() => {
         if (show) {
-            setIsOpen(true);
             setTimeout(() => {
-                setIsOpen(false);
+                console.log(6666);
+                // rerender((prevState) => prevState + 1);
+                closeRedirectionModal();
+                // close(true);
             }, 3000);
         }
-    }, [ show ]);
-    console.log({
-        isOpen, show, redirectTo: context.redirectTo, from: context.from
-    }, 66666);
+    }, [ closeRedirectionModal, show ]);
+    console.log('____RedirectModal_____', /*closed ||*/ !show ? 'NULL' : 'MODAL', { show, context }
+    );
 
-    if (!isOpen) {
+    useEffect(() => {
+        console.log('____RedirectModal_____: UPDATE', /*closed ||*/ !show ? 'NULL' : 'MODAL', { show, context });
+    });
+
+    if (/*closed ||*/ !show) {
         return null;
     }
 
     return (
         <Portal>
-            <Modal isOpen={ isOpen }>
+            <Modal isOpen={ show }>
                 <h1>REDIRECTING</h1>
-                <h2>redirectTo: { context.redirectTo }</h2>
-                <h2>from: { context.from }</h2>
+                <h2>redirectTo: { context?.redirectTo }</h2>
+                <h2>from: { context?.from }</h2>
             </Modal>
         </Portal>
     );

@@ -30,7 +30,7 @@ interface IThunkConfig<R = string> {
 
 type TCb = ActionCreator<any>; //| ThunkAction<any, any, any, AnyAction>;
 type TMode = 'APP' | 'PAGE';
-interface IActionCreatorsOptions<> {
+interface IActionCreatorsOptions {
     //* callback is action creator or returning action creator
     // cb: (<T = Record<string, TCb>>(module: T) => T[keyof T]) | TCb;
     // key?: string;

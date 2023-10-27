@@ -12,11 +12,8 @@ const StateSetupProvider: FC<PropsWithChildren<{
     usePageStateSetup: any;
     asyncReducer?: TAsyncReducer;
     RedirectionModal?: FC<{
-        show: boolean;
-        context: {
-            redirectTo: string | null;
-            from: string;
-        };
+        mustShow: any;
+        useContext: any;
     }>;
 }>> = ({
     children,
@@ -26,12 +23,12 @@ const StateSetupProvider: FC<PropsWithChildren<{
 }) => {
     // const isAppReady = useSelector(({ app }: IStateSchema) => app.isAppReady);
     const {
-        redirectTo, pathname, from
+        pathname, mustShow, useContext
     } = usePageStateSetup(asyncReducer);
 
     useEffect(() => {
         console.log('%c StateSetupProvider::UPDATE', 'color: #a90d38', {
-            redirectTo, pathname, asyncReducer
+            useContext, pathname, asyncReducer, mustShow
         });
     });
     // if (!isAppReady) {
@@ -53,11 +50,8 @@ const StateSetupProvider: FC<PropsWithChildren<{
         <>
             { RedirectionModal ? (
                 <RedirectionModal
-                    show={ Boolean(redirectTo) }
-                    context={{
-                        redirectTo,
-                        from
-                    }}
+                    mustShow={ mustShow }
+                    useContext={ useContext }
                 />
             ) : null }
             { children }

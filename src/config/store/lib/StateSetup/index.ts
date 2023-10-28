@@ -1,8 +1,8 @@
 export { default } from './core/StateSetup';
-export { default as StateSetupProvider } from './StateSetupProvider';
 
 export {
     TStateSetupFn,
     TCheckAuthorizationFn,
-    IAppSchema
+    IAppSchema,
+    TUseRedirectionContext
 } from './types';

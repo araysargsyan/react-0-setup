@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import _c from 'shared/helpers/classNames';
 import AppRouter from 'app/router';
 import Sidebar from 'components/SideBar';

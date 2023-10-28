@@ -1,7 +1,8 @@
 import {
     type FC,
-    type ReactNode, useEffect,
-    useMemo, useState
+    type ReactNode,
+    useEffect,
+    useMemo
 } from 'react';
 import { type ReducersMapObject } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
@@ -10,11 +11,11 @@ import createStore, {
     type IStateSchema,
     type TAddAsyncReducerParameters,
     type TRemoveAsyncReducerParameters,
+    type TUseRedirectionContext,
     RMActionCreators,
-    StateSetupProvider
 } from 'config/store';
 import { useAppNavigate } from 'shared/hooks/redux';
-import { usePageStateSetup } from 'store/app';
+import { StateSetupProvider } from 'store/app';
 import Modal from 'shared/ui/Modal';
 import Portal from 'shared/ui/Portal';
 
@@ -26,38 +27,31 @@ interface IStoreProviderProps {
     withStateSetup?: boolean;
 }
 
-const Aa:FC<{
-    mustShow: any;
-    useContext: any;
-    // context: {
-    //     redirectTo: string | null;
-    //     from: string;
-    // };
-    // closeRedirectionModal: any;
-}> = ({ mustShow, useContext }) => {
-    const show = mustShow();
-    const { context, closeRedirectionModal } = useContext();
-    // const [ closed, close ] = useState(false);
-    // const [ _, rerender ] = useState(0);
+const RedirectionModal:FC<{
+    useContext: TUseRedirectionContext;
+}> = ({ useContext }) => {
+    const {
+        show,
+        context,
+        closeRedirectionModal
+    } = useContext();
+    console.log('%c____RedirectModal_____', 'color:#0465cd', !show ? 'NULL' : 'MODAL', { show, context });
 
     useEffect(() => {
         if (show) {
             setTimeout(() => {
-                console.log(6666);
-                // rerender((prevState) => prevState + 1);
+                console.log('%c____RedirectModal_____', 'color:#0465cd', 'CLOSE', { show, context });
                 closeRedirectionModal();
-                // close(true);
-            }, 3000);
+            }, 3200);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ closeRedirectionModal, show ]);
-    console.log('____RedirectModal_____', /*closed ||*/ !show ? 'NULL' : 'MODAL', { show, context }
-    );
 
     useEffect(() => {
-        console.log('____RedirectModal_____: UPDATE', /*closed ||*/ !show ? 'NULL' : 'MODAL', { show, context });
+        console.log('%c____RedirectModal_____: UPDATE', 'color:#0465cd', !show ? 'NULL' : 'MODAL', { show, context });
     });
 
-    if (/*closed ||*/ !show) {
+    if (!show) {
         return null;
     }
 
@@ -67,6 +61,8 @@ const Aa:FC<{
                 <h1>REDIRECTING</h1>
                 <h2>redirectTo: { context?.redirectTo }</h2>
                 <h2>from: { context?.from }</h2>
+                <h2>type: { context?.type }</h2>
+                <h2>isPageLoaded: { String(context?.isPageLoaded) }</h2>
             </Modal>
         </Portal>
     );
@@ -95,8 +91,7 @@ const StoreProvider:FC<IStoreProviderProps> = ({
     return (
         <Provider store={ store }>
             <StateSetupProvider
-                usePageStateSetup={ usePageStateSetup }
-                RedirectionModal={ Aa }
+                RedirectionModal={ RedirectionModal }
                 asyncReducer={{
                     async add(dispatch, options) {
                         store.reducerManager.add(...options as TAddAsyncReducerParameters);

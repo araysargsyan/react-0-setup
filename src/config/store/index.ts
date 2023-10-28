@@ -9,8 +9,8 @@ export {
     default as StateSetup,
     TStateSetupFn,
     TCheckAuthorizationFn,
-    IAppSchema,
-    StateSetupProvider,
+    TUseRedirectionContext,
+    IAppSchema
 } from './lib/StateSetup';
 
 

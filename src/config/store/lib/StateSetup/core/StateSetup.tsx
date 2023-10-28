@@ -1,9 +1,13 @@
 import {
-    createContext,
-    type FC, memo,
-    type PropsWithChildren, Suspense, useCallback, useContext,
-    useEffect, useLayoutEffect, useMemo, useRef,
-    useState, useTransition
+    type FC,
+    type PropsWithChildren,
+    Suspense,
+    memo,
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState,
 } from 'react';
 import {
     createAsyncThunk,
@@ -17,7 +21,6 @@ import {
 } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import PageLoader from 'components/PageLoader/PageLoader';
-import { useAppSelector } from 'shared/hooks/redux';
 
 import {
     type TStateSetupFn,
@@ -37,7 +40,10 @@ import {
     type TCheckAuthorizationReturn,
     type TAsyncReducer,
     type TAsyncReducersOptions,
-    type TCb, type TMode, type TStateSetup
+    type TCb,
+    type TMode,
+    type TStateSetup,
+    type TUseRedirectionContext
 } from '../types';
 
 
@@ -50,15 +56,13 @@ class StateSetup {
     private readonly getStateSetupConfig: TGetStateSetupConfig;
     private readonly checkAuthorization: TCheckAuthorizationAsyncThunk;
     private readonly authProtectionConfig: IAuthProtection;
-    private readonly navigateOptions: Exclude<IPageOptions['onNavigate'], undefined>;
 
     private isAuth: boolean | null = null;
     private initiated: boolean = false;
     private redirectTo: null | string = null;
-    // private isPageFirstRender = true;
     private loading: boolean = false; //* when have waited
     private waitUntil = false; //* for not lazy loaded components
-    private restart: boolean = false;
+    private restart: 'AUTH' | 'AUTH_EXPIRED' | null = null;
     private prevRoute: {
         pathname: string;
         mustDestroy: boolean;
@@ -66,7 +70,7 @@ class StateSetup {
     } | null = null;
     private pageOptionsMap: Record<string, IPageOptions & {isPageLoaded: boolean}> = {};
     private asyncReducer: TAsyncReducer | null = null;
-    private redirectContext: null | {redirectTo: string; from: string} = null;
+    private redirectionContext: ReturnType<TUseRedirectionContext>['context'] = null;
 
     private get $AppState() {
         return {
@@ -78,8 +82,8 @@ class StateSetup {
             restart: this.restart,
             prevRoute: JSON.parse(JSON.stringify(this.prevRoute)),
             pageOptionsMap: JSON.parse(JSON.stringify(this.pageOptionsMap)),
+            redirectionContext: JSON.parse(JSON.stringify(this.redirectionContext)),
             asyncReducer: this.asyncReducer,
-            redirectContext: JSON.parse(JSON.stringify(this.redirectContext)),
         };
     };
 
@@ -88,6 +92,7 @@ class StateSetup {
     private setIsAppReady!: ActionCreatorWithPayload<boolean>;
     private setLoading!: ActionCreatorWithPayload<boolean>;
     private setIsPageReady!: ActionCreatorWithPayload<boolean>;
+    private setShowRedirectionModal!: ActionCreatorWithPayload<boolean>;
 
     constructor(
         getStateSetupConfig: TStateSetupFn,
@@ -98,13 +103,11 @@ class StateSetup {
                 unAuthorized: './login',
                 authorized: './'
             },
-            navigateOptions = { waitUntil: 'CHECK_AUTH' },
         }: IOptionsParameter
     ) {
         console.log('StateSetup::__constructor__', { getStateSetupConfig, options: { appReducerName, authProtectionConfig } });
         this.getStateSetupConfig = getStateSetupConfig as TGetStateSetupConfig;
         this.authProtectionConfig = authProtectionConfig;
-        this.navigateOptions = navigateOptions;
         this.checkAuthorization = createAsyncThunk<
             TCheckAuthorizationReturn,
             Parameters<TCheckAuthorizationAsyncThunk>[0],
@@ -125,8 +128,8 @@ class StateSetup {
             checkAuthorization,
             pathname,
             searchParams,
-            redirectRef,
             mode,
+            mustRedirectTo
         },
         thunkAPI
     ) => {
@@ -135,8 +138,8 @@ class StateSetup {
 
             if (typeof isAuth === 'boolean') {
                 if (this.isAuth && isAuth !== this.isAuth) {
-                    console.log(111111111);
-                    this.restart = true;
+                    console.log('++++AUTH_EXPIRED++++');
+                    this.restart = 'AUTH_EXPIRED';
                 }
                 this.isAuth = isAuth;
                 thunkAPI.dispatch(this.setIsAuthenticated(isAuth));
@@ -144,19 +147,21 @@ class StateSetup {
                 throw new Error('checkAuthorization');
             }
 
-            // this.updateBasePageOptions(pathname, searchParams);
-            const redirectTo = this.getRedirectTo(pathname);
+            const redirectTo = this.getRedirectTo(this.restart === 'AUTH_EXPIRED' ? mustRedirectTo || pathname : pathname);
             if (redirectTo) {
                 this.updateBasePageOptions(redirectTo, searchParams);
-            }
-            if (redirectRef) {
-                redirectRef.current = redirectTo;
             }
 
             const { waitUntil } = this.getPageOption(redirectTo || pathname, 'onNavigate') || {};
 
+            // console.log(3333, {
+            //     $AppState: this.$AppState, redirectTo, waitUntil, isAuth, pathname, mustRedirectTo
+            // });
+
             return thunkAPI.fulfillWithValue({
-                redirectTo, mode, waitUntil: waitUntil || null
+                redirectTo,
+                mode,
+                waitUntil: waitUntil || null
             });
         } catch (e) {
             console.log(e);
@@ -186,6 +191,10 @@ class StateSetup {
             `${appReducerName}/setIsPageReady`,
             (payload: boolean) => ({ payload })
         );
+        this.setShowRedirectionModal = createAction(
+            `${appReducerName}/setShowRedirectionModal`,
+            (payload: boolean) => ({ payload })
+        );
     }
 
     private generateReducer() {
@@ -194,7 +203,8 @@ class StateSetup {
             isPageReady: false,
             isAuthenticated: false,
             loadingCount: 0,
-            loading: false
+            loading: false,
+            showRedirectionModal: false,
         }, (builder) => {
             builder
                 .addCase(this.checkAuthorization.fulfilled, (
@@ -206,12 +216,11 @@ class StateSetup {
                     }
                 ) => {
                     if (mode === 'APP') {
-                        if (this.restart) {
+                        if (this.restart === 'AUTH_EXPIRED') {
                             state.isPageReady = false;
                             this.redirectTo = redirectTo;
-                            console.log(66666666666);
+                            // console.log(222222222, 'AUTH_EXPIRED');
                         } else {
-                            console.log(77777);
                             if (this.waitUntil) {
                                 this.waitUntil = false;
                                 this.loading = false;
@@ -222,17 +231,9 @@ class StateSetup {
 
                             if (redirectTo === null) {
                                 state.isPageReady = true;
-
-                                // if (waitUntil === 'CHECK_AUTH') {
-                                //     this.isPageFirstRender = false;
-                                // }
                             } else {
                                 this.redirectTo = redirectTo;
                                 state.isPageReady = true;
-
-                                // if (waitUntil === 'CHECK_AUTH') {
-                                //     this.isPageFirstRender = false;
-                                // }
                             }
                         }
                     } else {
@@ -249,7 +250,6 @@ class StateSetup {
                 })
                 .addCase(this.setup.fulfilled, (state, { payload: { isAppReady, mode } }) => {
                     if (mode === 'APP') {
-                        // this.isPageFirstRender = false;
                         state.isAppReady = Boolean(isAppReady);
                         state.isPageReady = Boolean(isAppReady);
                     } else {
@@ -260,15 +260,13 @@ class StateSetup {
                     state,
                     { payload }
                 ) => {
-                    // if (state.isAppReady && state.isAuthenticated && !payload.isAuthenticated) {
-                    //     state.isPageReady = null;
-                    // } //?
                     state.isAuthenticated = payload.isAuthenticated;
                     this.isAuth = state.isAuthenticated;
+
                     if (payload.restart) {
                         const redirectTo = this.getRedirectTo(this.prevRoute!.pathname);
                         if (redirectTo) {
-                            this.restart = true;
+                            this.restart = 'AUTH';
                             state.isPageReady = false;
                         }
 
@@ -289,6 +287,9 @@ class StateSetup {
                 })
                 .addCase(this.setIsPageReady, (state, { payload }) => {
                     state.isPageReady = payload;
+                })
+                .addCase(this.setShowRedirectionModal, (state, { payload }) => {
+                    state.showRedirectionModal = payload;
                 });
         });
     }
@@ -477,25 +478,54 @@ class StateSetup {
                 if (this.redirectTo) {
                     this.redirectTo = null;
                 }
-                // if (this.redirectContext) {
-                //     this.redirectContext = null;
-                // }
                 console.log('setUp::finally', { state: getState().app, $AppState: this.$AppState });
             }
         }
     );
 
     private useContext = () => {
-        const [ _, rerender ] = useState(0);
+        const show = useSelector(({ app }: IStateSchema) => app.showRedirectionModal);
+        const dispatch = useDispatch();
 
         return {
             closeRedirectionModal: () => {
-                this.redirectContext = null;
-                rerender((PS) => PS + 1);
+                if (this.redirectionContext) {
+                    this.redirectionContext = null;
+                    dispatch(this.setShowRedirectionModal(false));
+                }
             },
-            context: this.redirectContext
+            context: this.redirectionContext,
+            show
         };
     };
+
+    private StateSetupProvider: FC<PropsWithChildren<{
+        asyncReducer?: TAsyncReducer;
+        RedirectionModal?: FC<{ useContext: TUseRedirectionContext }>;
+    }>> = ({
+            children,
+            asyncReducer,
+            RedirectionModal
+        }) => {
+            const pathname = this.usePageStateSetup(asyncReducer);
+
+            useEffect(() => {
+                console.log('%c StateSetupProvider::UPDATE', 'color: #a90d38', {
+                    pathname, asyncReducer, $AppState: this.$AppState
+                });
+            });
+
+            return (
+                <>
+                    { RedirectionModal ? (
+                        <RedirectionModal
+                            useContext={ this.useContext }
+                        />
+                    ) : null }
+                    { children }
+                </>
+            );
+        };
 
     private usePageStateSetup = (
         asyncReducer?: TAsyncReducer
@@ -513,41 +543,26 @@ class StateSetup {
         const { pathname, state } = useLocation();
         const [ searchParams ] = useSearchParams();
         const navigate = useNavigate();
-        const redirectRef = useRef<null | string>(null);
 
         console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '::START', {
             pathname,
             from: state?.from,
             'this.$AppState': this.$AppState,
-            redirectRef: { ...redirectRef }
         });
 
         if (!this.pageOptionsMap[pathname]) {
-            /*this.isPageFirstRender = true;*/
             this.updateBasePageOptions(pathname, searchParams);
-        } else if (this.restart /*&& this.isPageFirstRender*/) {
-            // this.pageOptionsMap[pathname].isPageLoaded = false;
-            /*this.isPageFirstRender = false;*/
         }
         const { waitUntil } = this.getPageOption(pathname, 'onNavigate') || {};
         const redirectTo = this.getRedirectTo(pathname);
-        // if (redirectTo) {
-        //     if (!this.isPageLoaded(redirectTo)) {
-        //         this.isPageFirstRender = true;
-        //         this.updateBasePageOptions(redirectTo, searchParams);
-        //     }
-        // }
-        const mustRedirect = redirectTo && Boolean(this.prevRoute);
+        const mustRedirectTo = (Boolean(this.prevRoute) || null) && redirectTo;
 
         if (
-            /*this.isPageFirstRender*/
-            !this.pageOptionsMap[mustRedirect ? redirectTo : pathname]?.isPageLoaded
-            // && !mustRedirect
+            !this.pageOptionsMap[mustRedirectTo || pathname]?.isPageLoaded
             && this.prevRoute?.pathname !== redirectTo
             && !this.loading
             && waitUntil
             && !state?.from
-            // && !this.prevRoute?.redirectedFrom
         ) {
             this.loading = true;
             console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'PRE-SET_LOADING');
@@ -558,29 +573,14 @@ class StateSetup {
             console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'mustDestroy', this.prevRoute);
         }
 
-        // if (this.restart /*&& state?.from*/) {
-        //     this.redirectTo = pathname;
-        // }
-        // if (state?.from && this.prevRoute) {
-        //     this.prevRoute.redirectedFrom = this.prevRoute.pathname;
-        //     this.prevRoute.pathname = state.from;
-        // }
-
         useLayoutEffect(() => {
-            console.log(2222);
-            if (mustRedirect) {
+            if (mustRedirectTo) {
                 console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'useLayoutEffect', 'REDIRECT');
-                if (!this.isPageLoaded(redirectTo)) {
-                    /*this.isPageFirstRender = true;*/
+                if (!this.pageOptionsMap[redirectTo]) {
                     this.updateBasePageOptions(redirectTo, searchParams);
                 }
-                this.redirectContext = {
-                    redirectTo,
-                    from: pathname
-                };
+
                 navigate(redirectTo, { state: { from: pathname } });
-                // this.prevRoute!.pathname = pathname;
-                // delete this.prevRoute!.redirectedFrom;
             }
             if (this.loading && !this.redirectTo && !state?.from) {
                 console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'useLayoutEffect', 'SET_LOADING');
@@ -590,47 +590,61 @@ class StateSetup {
 
         useEffect(() => {
             console.log('%c____usePageStateSetUp____: UPDATE', 'color: #ae54bf', { pathname: pathname, $AppState: this.$AppState });
+            const mustCheckAuth = this.isAuth === null || this.isAuth;
+
+            if (state?.from && !this.redirectionContext) {
+                console.log('000000');
+                this.redirectionContext = {
+                    redirectTo: pathname,
+                    from: state.from,
+                    type: 'NOT_FIRST_RENDER',
+                    isPageLoaded: this.isPageLoaded(pathname)
+                };
+                if (!mustCheckAuth) {
+                    console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '=========SHOW_REDIRECTION_MODAL=========');
+                    dispatch(this.setShowRedirectionModal(true));
+                }
+            }
 
             if (!this.redirectTo) {
                 if (!state?.from || this.restart) {
-                    const mustCheckAuth = this.isAuth === null || this.isAuth;
 
                     if (mustCheckAuth) {
                         console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '============CheckAuth=============');
 
                         checkAuth({
-                            pathname, searchParams, redirectRef, mode: 'APP'
+                            pathname, searchParams, mustRedirectTo, mode: 'APP'
                         }).then((result) => {
                             if (this.checkAuthorization.fulfilled.match(result) && waitUntil/* && result.payload.waitUntil === 'SETUP'*/) {
-                                console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '============SetUp>>>CheckAuth=============');
+                                console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '============SetUp>>>CheckAuth=============', {
+                                    result, pathname, $AppState: this.$AppState
+                                });
 
-                                console.log(
-                                    '%c____usePageStateSetUp____', 'color: #ae54bf',
-                                    {
-                                        pathname,
-                                        navigateTo: redirectRef.current,
-                                        // isAppReady,
-                                        result
-                                    }
-                                );
                                 setup({
                                     mode: 'APP',
                                     pathname: result.payload.redirectTo || pathname,
                                     asyncReducer
                                 });
 
-                                if (result.payload.redirectTo && !mustRedirect) {
+                                if (result.payload.redirectTo && (!mustRedirectTo || this.restart === 'AUTH_EXPIRED')) {
                                     console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'REDIRECT');
                                     navigate(result.payload.redirectTo, { state: { from: pathname } });
-                                    this.redirectContext = {
+                                    this.redirectionContext = {
                                         redirectTo: result.payload.redirectTo,
-                                        from: pathname
+                                        from: pathname,
+                                        type: this.restart || 'FIRST_RENDER',
+                                        isPageLoaded: this.isPageLoaded(result.payload.redirectTo)
                                     };
+                                    dispatch(this.setShowRedirectionModal(true));
+                                    navigate(result.payload.redirectTo, { state: { from: pathname } });
+                                } else if (this.redirectionContext?.type === 'NOT_FIRST_RENDER') {
+                                    console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '=========SHOW_REDIRECTION_MODAL=========');
+                                    dispatch(this.setShowRedirectionModal(true));
                                 }
                             }
                         });
                     }
-                    if (!waitUntil || !mustCheckAuth) {
+                    if (this.restart !== 'AUTH_EXPIRED' && (!waitUntil || !mustCheckAuth)) {
                         console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '============SetUp=============');
                         setup({
                             mode: 'APP',
@@ -639,23 +653,18 @@ class StateSetup {
                         });
                     }
                 }
-            } else {
-                // console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'CLEAN_REDIRECTION');
-                // this.redirectTo = null;
             }
 
             if (this.restart) {
-                this.restart = false;
+                console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'CLEAN_STATE>RESTART');
+                this.restart = null;
             }
 
-            if (state?.from /*|| this.redirectTo*/) {
+            if (state?.from) {
                 console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'CLEAN_STATE>FROM');
-
-                window.history.replaceState({}, document.title);
-                // this.redirectTo = null;
+                delete state.from;
+                window.history.replaceState(state, document.title);
             }
-
-            // eslint-disable-next-line react-hooks/exhaustive-deps
         });
         console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '::END', {
             redirectTo,
@@ -663,17 +672,9 @@ class StateSetup {
             pathname,
             from: state?.from,
             'this.$AppState': this.$AppState,
-            redirectRef: { ...redirectRef },
         });
-        return {
-            useContext: this.useContext,
-            mustShow: () => Boolean(this.redirectContext),
-            // closeRedirectionModal: this.closeRedirectionModal,
-            pathname,
-            // show: Boolean(this.redirectTo || (this.prevRoute && redirectTo)),
-            // redirectTo: this.redirectTo || (this.prevRoute && redirectTo) || null,
-            // from: state?.from || (this.prevRoute && pathname) || null
-        };
+
+        return pathname;
     };
 
     public getLoading = (type?: 'SUSPENSE', waitUntil?: Exclude<IPageOptions['onNavigate'], undefined>['waitUntil']) => createSelector(
@@ -683,11 +684,11 @@ class StateSetup {
 
             if (type === 'SUSPENSE' && !waitUntil && !this.loading) {
                 loading = true;
-            } else if (!type /*&& this.isPageFirstRender */&& this.loading /*&& waitUntil*/) {
+            } else if (!type && this.loading) {
                 loading = true;
             }
 
-            console.log('$$$getLoading$$$', {
+            console.log('%c$$$getLoading$$$', 'color: #dbd518', {
                 type,
                 waitUntil,
                 loadingCount,
@@ -726,9 +727,9 @@ class StateSetup {
                     $AppState: this.$AppState
                 });
 
-                if (type === 'SUSPENSE' && !this.isPageLoaded(pathname)/*&& this.isPageFirstRender*/) {
+                if (type === 'SUSPENSE' && !this.isPageLoaded(pathname)) {
                     console.log('%c____LOADER_____', 'color: #dbd518', 'useLayoutEffect', 'UNMOUNT', '+++Clear+++');
-                    /*this.isPageFirstRender = false;*/
+
                     this.pageOptionsMap[pathname].isPageLoaded = true;
                     this.loading = false;
                     dispatch(this.setLoading(false));
@@ -745,25 +746,21 @@ class StateSetup {
         return loading ? <PageLoader /> : null;
     });
 
-    private EmptyComponent: FC<PropsWithChildren> = ({ children }) => {
-        return children;
-    };
     public getIsPageReady = (pathname: string) => createSelector(
         ({ app }: IStateSchema) => app.isPageReady,
         (isPageReady) => {
             const { waitUntil } = this.getPageOption(pathname, 'onNavigate') || {};
 
-            console.log('$$$getIsPageReady$$$', {
+            console.log('%c$$$getIsPageReady$$$', 'color: #22af2c', {
                 pathname,
                 isPageReady,
                 waitUntil,
                 $AppState: this.$AppState
             });
-            if (!waitUntil || (this.restart /*&& this.isPageLoaded(pathname)*/ && this.prevRoute?.pathname !== pathname)) {
+            if (!waitUntil || (this.restart && this.prevRoute?.pathname !== pathname)) {
                 return true;
             }
-            // return ((isPageReady || (!this.isPageFirstRender && !this.restart))
-            //     && (pathname === this.redirectTo || this.redirectTo === null));
+
             return isPageReady && (pathname === this.redirectTo || this.redirectTo === null);
         });
 
@@ -897,56 +894,45 @@ class StateSetup {
             });
         });
 
-        if (
-            // (!isPageLoaded && waitUntil) || //! first load scenario
-            // (/*isPageReady &&*/ redirectTo !== null) || //! redirection scenario
-            // (/*isPageReady === null &&*/ !this.restart) || //! restart scenario
-            (
-                (
-                    // this.prevRoute?.redirectedFrom ||
-                    this.initiated
-                ) && waitUntil === 'SETUP'
-            )
-        ) {
-            // if (!this.loading) {
-            //     dispatch(this.setLoading(true));
-            // }
-            // this.loading = true;
-
-            console.log('%c____ProtectedElement_____', 'color: #22af2c', '______PAGE NOT READY________');
-            // return null;
-            //
-            // if (redirectTo !== null) {
-            //     return null;
-            // }
-        } else {
-            // console.log(666666);
-        }
+        // if (
+        //     // (!isPageLoaded && waitUntil) || //! first load scenario
+        //     // (/*isPageReady &&*/ redirectTo !== null) || //! redirection scenario
+        //     // (/*isPageReady === null &&*/ !this.restart) || //! restart scenario
+        //     (
+        //         (
+        //             // this.prevRoute?.redirectedFrom ||
+        //             this.initiated
+        //         ) && waitUntil === 'SETUP'
+        //     )
+        // ) {
+        //     // if (!this.loading) {
+        //     //     dispatch(this.setLoading(true));
+        //     // }
+        //     // this.loading = true;
+        //
+        //     console.log('%c____ProtectedElement_____', 'color: #22af2c', '______PAGE NOT READY________');
+        //     // return null;
+        //     //
+        //     // if (redirectTo !== null) {
+        //     //     return null;
+        //     // }
+        // }
 
         if (!lazy && this.loading) {
             this.waitUntil = true;
         }
 
         useLayoutEffect(() => {
-            console.log(1111, {
-                $AppState: this.$AppState, pathname, redirectTo
-            });
-            if (this.loading && this.restart && redirectTo && !this.isPageLoaded(redirectTo)/*&& this.isPageFirstRender*/) {
+            if (this.loading && this.restart === 'AUTH' && redirectTo && !this.isPageLoaded(redirectTo)) {
                 console.log('%c____ProtectedElement_____', 'color: #22af2c', 'useLayoutEffect', 'SET-LOADING', { $AppState: this.$AppState, pathname });
                 dispatch(this.setLoading(true));
             }
         }, [ isPageReady, dispatch, pathname, redirectTo ]);
 
-
-        // const Loader = useMemo(() => {
-        //     console.log(99999);
-        //     return this.Loader;
-        // }, []);
-        if (redirectTo && this.restart) {
+        if (redirectTo && this.restart === 'AUTH') {
             console.log('%c____ProtectedElement_____', 'color: #22af2c', 'redirecting', { $AppState: this.$AppState });
 
             if (!this.pageOptionsMap[redirectTo]) {
-                /*this.isPageFirstRender = true;*/
                 this.updateBasePageOptions(redirectTo, searchParams);
             }
             const { waitUntil } = this.getPageOption(redirectTo, 'onNavigate') || {};
@@ -955,10 +941,13 @@ class StateSetup {
                 this.loading = true;
             }
 
-            this.redirectContext = {
+            this.redirectionContext = {
                 redirectTo,
-                from: pathname
+                from: pathname,
+                type: 'AUTH',
+                isPageLoaded: this.isPageLoaded(redirectTo)
             };
+            dispatch(this.setShowRedirectionModal(true));
 
             console.log('%c____ProtectedElement_____', 'color: #22af2c', '::END', {
                 lazy,
@@ -995,7 +984,6 @@ class StateSetup {
                     isPageReady && !redirectTo
                         ? (
                                 !lazy && !waitUntil ?
-                                // !this.isPageFirstRender ?
                                     children : (
                                         <Suspense fallback={ (
                                             <this.Loader
@@ -1004,15 +992,9 @@ class StateSetup {
                                             />
                                         ) }
                                         >
-                                            <this.EmptyComponent>
-                                                { children }
-                                            </this.EmptyComponent>
+                                            { children }
                                         </Suspense>
-                                    ) /*(
-                                    <EmptyComponent>
-                                        { children }
-                                    </EmptyComponent>
-                                )*/
+                                    )
                             )
                         : null
                 }
@@ -1026,12 +1008,11 @@ class StateSetup {
     public getStoreCreatorsActions() {
         return {
             ProtectedElement: this.ProtectedElement,
-            Loader: this.Loader,
+            StateSetupProvider: this.StateSetupProvider,
             actionCreators: {
                 setIsAuthenticated: this.setIsAuthenticated,
                 setLoading: this.setLoading,
             },
-            usePageStateSetup: this.usePageStateSetup,
         };
     }
 }
@@ -1134,7 +1115,7 @@ export default StateSetup;
             //* ____usePageStateSetUp____: 2,
             //* ____ProtectedElement_____: 2,
             //* ____LOADER_____: 0,
-            //* ____RedirectModal_____: NULL=2, MODAL=1
+            //* ____RedirectModal_____: NULL=3, MODAL=1
         //* }
 
 //! LOGIN +$
@@ -1206,3 +1187,10 @@ export default StateSetup;
             //* }
     //! NO_REDIRECT
         //* NOT_RENDERING
+
+//! AUTH_EXPIRED
+    // ! REDIRECT
+        //? FIRST_RENDER
+            // ? NO_WAIT(LAZY)
+        //? NOT_FIRST_RENDER
+

@@ -13,15 +13,14 @@ const stateSetupConfig = new StateSetup(
             unAuthorized: ERoutes.MAIN,
             authorized: ERoutes.PROFILE
         },
-        navigateOptions: { waitUntil: 'CHECK_AUTH' }
     }
 );
 const appReducer = stateSetupConfig.getStoreReducer();
 
 const {
     ProtectedElement,
-    usePageStateSetup,
     actionCreators: appActionCreators,
+    StateSetupProvider,
 } = stateSetupConfig.getStoreCreatorsActions();
 
 export default {
@@ -34,6 +33,6 @@ const getIsAuthenticated = ({ app }: IStateSchema) => app.isAuthenticated;
 export {
     ProtectedElement,
     appActionCreators,
-    usePageStateSetup,
     getIsAuthenticated,
+    StateSetupProvider
 };

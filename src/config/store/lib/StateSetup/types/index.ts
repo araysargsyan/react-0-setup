@@ -15,6 +15,7 @@ interface IAppSchema {
     loading: boolean;
     isPageReady: boolean | null;
     isAuthenticated: boolean;
+    showRedirectionModal: boolean;
 }
 interface IStateSchema {
     app: IAppSchema;
@@ -63,8 +64,19 @@ interface INavigationOptions {
 interface IOptionsParameter {
     appReducerName: string;
     authProtectionConfig?: IAuthProtection;
-    navigateOptions?: INavigationOptions;
 }
+
+interface IRedirectionContext {
+    redirectTo: string;
+    from: string;
+    type: 'AUTH' | 'AUTH_EXPIRED' | 'FIRST_RENDER' | 'NOT_FIRST_RENDER';
+    isPageLoaded: boolean;
+}
+type TUseRedirectionContext = () => {
+    closeRedirectionModal: () => void;
+    show: boolean;
+    context: IRedirectionContext | null;
+};
 // type TAsyncReducersOptions = unknown[] | ((state?: IStateSchema) => Promise<unknown[]>);
 type TAsyncReducersOptionsReturn = (state?: IStateSchema) => Promise<unknown[]>;
 interface IPageOptions<
@@ -134,7 +146,7 @@ type TCheckAuthorizationAsyncThunk = AsyncThunk<
         pathname: string;
         searchParams: URLSearchParams;
         mode: TMode;
-        redirectRef?: MutableRefObject<null | string>;
+        mustRedirectTo: string | null;
     },
     IThunkConfig
 >;
@@ -149,6 +161,7 @@ export {
     TMode,
     IAppSchema,
     IStateSchema,
+    TUseRedirectionContext,
 
     TDispatch,
     IThunkConfig,

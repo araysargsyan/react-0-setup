@@ -2,6 +2,7 @@ import { type IStateSchema, StateSetup } from 'config/store';
 import getStateSetupConfig, { checkAuthorization } from 'config/store/stateSetup';
 import { appReducerName } from 'shared/const';
 import { ERoutes } from 'config/router';
+// import PageLoader from 'components/PageLoader';
 
 
 const stateSetupConfig = new StateSetup(
@@ -13,26 +14,30 @@ const stateSetupConfig = new StateSetup(
             unAuthorized: ERoutes.MAIN,
             authorized: ERoutes.PROFILE
         },
+        // PageLoader
     }
 );
-const appReducer = stateSetupConfig.getStoreReducer();
-
+const {
+    reducer: appReducer,
+    actionCreators: appActionCreators,
+} = stateSetupConfig.getStore();
 const {
     ProtectedElement,
-    actionCreators: appActionCreators,
     StateSetupProvider,
-} = stateSetupConfig.getStoreCreatorsActions();
+    createRedirectionModal
+} = stateSetupConfig;
+const getIsAuthenticated = ({ app }: IStateSchema) => app.isAuthenticated;
+
 
 export default {
     name: appReducerName,
     reducer: appReducer
 };
 
-const getIsAuthenticated = ({ app }: IStateSchema) => app.isAuthenticated;
-
 export {
     ProtectedElement,
+    StateSetupProvider,
+    createRedirectionModal,
     appActionCreators,
     getIsAuthenticated,
-    StateSetupProvider
 };

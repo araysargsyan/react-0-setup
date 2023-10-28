@@ -1,6 +1,7 @@
 import {
     type FC,
     type PropsWithChildren,
+    type ComponentType,
     Suspense,
     memo,
     useCallback,
@@ -11,16 +12,21 @@ import {
 } from 'react';
 import {
     createAsyncThunk,
+    createSelector,
     createAction,
     createReducer,
     type ActionCreatorWithPayload,
-    type Reducer, type ThunkDispatch, type AnyAction, createSelector,
+    type Reducer,
+    type ThunkDispatch,
+    type AnyAction,
 } from '@reduxjs/toolkit';
 import {
-    Navigate, useLocation, useNavigate, useSearchParams
+    Navigate,
+    useLocation,
+    useNavigate,
+    useSearchParams
 } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import PageLoader from 'components/PageLoader/PageLoader';
 
 import {
     type TStateSetupFn,
@@ -56,6 +62,7 @@ class StateSetup {
     private readonly getStateSetupConfig: TGetStateSetupConfig;
     private readonly checkAuthorization: TCheckAuthorizationAsyncThunk;
     private readonly authProtectionConfig: IAuthProtection;
+    private readonly PageLoader: ComponentType | null;
 
     private isAuth: boolean | null = null;
     private initiated: boolean = false;
@@ -103,11 +110,13 @@ class StateSetup {
                 unAuthorized: './login',
                 authorized: './'
             },
+            PageLoader
         }: IOptionsParameter
     ) {
         console.log('StateSetup::__constructor__', { getStateSetupConfig, options: { appReducerName, authProtectionConfig } });
         this.getStateSetupConfig = getStateSetupConfig as TGetStateSetupConfig;
         this.authProtectionConfig = authProtectionConfig;
+        this.PageLoader = PageLoader || null;
         this.checkAuthorization = createAsyncThunk<
             TCheckAuthorizationReturn,
             Parameters<TCheckAuthorizationAsyncThunk>[0],
@@ -499,34 +508,6 @@ class StateSetup {
         };
     };
 
-    private StateSetupProvider: FC<PropsWithChildren<{
-        asyncReducer?: TAsyncReducer;
-        RedirectionModal?: FC<{ useContext: TUseRedirectionContext }>;
-    }>> = ({
-            children,
-            asyncReducer,
-            RedirectionModal
-        }) => {
-            const pathname = this.usePageStateSetup(asyncReducer);
-
-            useEffect(() => {
-                console.log('%c StateSetupProvider::UPDATE', 'color: #a90d38', {
-                    pathname, asyncReducer, $AppState: this.$AppState
-                });
-            });
-
-            return (
-                <>
-                    { RedirectionModal ? (
-                        <RedirectionModal
-                            useContext={ this.useContext }
-                        />
-                    ) : null }
-                    { children }
-                </>
-            );
-        };
-
     private usePageStateSetup = (
         asyncReducer?: TAsyncReducer
     ) => {
@@ -677,7 +658,39 @@ class StateSetup {
         return pathname;
     };
 
-    public getLoading = (type?: 'SUSPENSE', waitUntil?: Exclude<IPageOptions['onNavigate'], undefined>['waitUntil']) => createSelector(
+    public createRedirectionModal = (modal: FC<{ useContext: TUseRedirectionContext }>) => {
+        return memo(modal);
+    };
+
+    public StateSetupProvider: FC<PropsWithChildren<{
+        asyncReducer?: TAsyncReducer;
+        RedirectionModal?: FC<{ useContext: TUseRedirectionContext }>;
+    }>> = ({
+            children,
+            asyncReducer,
+            RedirectionModal
+        }) => {
+            const pathname = this.usePageStateSetup(asyncReducer);
+
+            useEffect(() => {
+                console.log('%c StateSetupProvider::UPDATE', 'color: #a90d38', {
+                    pathname, asyncReducer, $AppState: this.$AppState
+                });
+            });
+
+            return (
+                <>
+                    { RedirectionModal ? (
+                        <RedirectionModal
+                            useContext={ this.useContext }
+                        />
+                    ) : null }
+                    { children }
+                </>
+            );
+        };
+
+    private getLoading = (type?: 'SUSPENSE', waitUntil?: Exclude<IPageOptions['onNavigate'], undefined>['waitUntil']) => createSelector(
         ({ app }: IStateSchema) => app.loadingCount,
         (loadingCount) => {
             let loading = false;
@@ -699,7 +712,11 @@ class StateSetup {
         });
 
     // eslint-disable-next-line react/display-name
-    public Loader = memo<{type?: 'SUSPENSE'; pathname: string}>(({ type, pathname }) => {
+    private Loader = memo<{
+        type?: 'SUSPENSE'; pathname: string; PageLoader?: ComponentType;
+    }>(({
+        type, pathname, PageLoader
+    }) => {
         const dispatch = useDispatch();
         const { waitUntil } = this.getPageOption(pathname, 'onNavigate') || {};
         const loading = useSelector(this.getLoading(type, waitUntil));
@@ -742,11 +759,17 @@ class StateSetup {
             'this.loading': this.loading,
             loading
         });
-
-        return loading ? <PageLoader /> : null;
+        console.log(6666, PageLoader);
+        return loading
+            ? PageLoader
+                ? <PageLoader />
+                : this.PageLoader
+                    ? <this.PageLoader />
+                    : null
+            : null;
     });
 
-    public getIsPageReady = (pathname: string) => createSelector(
+    private getIsPageReady = (pathname: string) => createSelector(
         ({ app }: IStateSchema) => app.isPageReady,
         (isPageReady) => {
             const { waitUntil } = this.getPageOption(pathname, 'onNavigate') || {};
@@ -764,9 +787,10 @@ class StateSetup {
             return isPageReady && (pathname === this.redirectTo || this.redirectTo === null);
         });
 
-    public ProtectedElement: FC<PropsWithChildren<{ pathname: string }>> = ({
+    public ProtectedElement: FC<PropsWithChildren<{ pathname: string; PageLoader?: ComponentType }>> = ({
         children,
         pathname,
+        PageLoader
     }) => {
         const isPageReady = useSelector(this.getIsPageReady(pathname));
         const lazy = this.isElementLazyLoaded(children);
@@ -959,7 +983,12 @@ class StateSetup {
             });
             return (
                 <>
-                    { this.loading ? <this.Loader pathname={ pathname } /> : children }
+                    { this.loading ? (
+                        <this.Loader
+                            pathname={ pathname }
+                            PageLoader={ PageLoader }
+                        />
+                    ) : children }
                     <Navigate
                         to={ redirectTo }
                         state={{ from: pathname }}
@@ -979,7 +1008,12 @@ class StateSetup {
         });
         return (
             <>
-                { this.loading ? <this.Loader pathname={ pathname } /> : null }
+                { this.loading ? (
+                    <this.Loader
+                        pathname={ pathname }
+                        PageLoader={ PageLoader }
+                    />
+                ) : null }
                 {
                     isPageReady && !redirectTo
                         ? (
@@ -989,6 +1023,7 @@ class StateSetup {
                                             <this.Loader
                                                 type={ 'SUSPENSE' }
                                                 pathname={ pathname }
+                                                PageLoader={ PageLoader }
                                             />
                                         ) }
                                         >
@@ -1002,17 +1037,10 @@ class StateSetup {
         );
     };
 
-    public getStoreReducer() {
-        return this.reducer;
-    }
-    public getStoreCreatorsActions() {
+    public getStore() {
         return {
-            ProtectedElement: this.ProtectedElement,
-            StateSetupProvider: this.StateSetupProvider,
-            actionCreators: {
-                setIsAuthenticated: this.setIsAuthenticated,
-                setLoading: this.setLoading,
-            },
+            reducer: this.reducer,
+            actionCreators: { setIsAuthenticated: this.setIsAuthenticated, },
         };
     }
 }

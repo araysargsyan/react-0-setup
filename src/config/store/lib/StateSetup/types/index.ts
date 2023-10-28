@@ -6,7 +6,9 @@ import {
     type ThunkDispatch
 } from '@reduxjs/toolkit';
 import { type ActionCreator } from 'redux';
-import { type MutableRefObject } from 'react';
+import {
+    type ComponentType, type MutableRefObject, ReactElement, type ReactNode 
+} from 'react';
 
 
 interface IAppSchema {
@@ -64,6 +66,7 @@ interface INavigationOptions {
 interface IOptionsParameter {
     appReducerName: string;
     authProtectionConfig?: IAuthProtection;
+    PageLoader?: ComponentType;
 }
 
 interface IRedirectionContext {

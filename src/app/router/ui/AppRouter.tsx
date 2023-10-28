@@ -1,18 +1,10 @@
-import {
-    type ComponentType,
-    type FC, LazyExoticComponent,
-    memo, type PropsWithChildren, ReactComponentElement, type ReactElement,
-    Suspense,
-    useCallback, useEffect
-} from 'react';
-import {
-    Route,
-    Routes,
-} from 'react-router-dom';
+import { type FC, useCallback, } from 'react';
+import { Route, Routes, } from 'react-router-dom';
 import { type IRouterConfig, routesConfig } from 'config/router';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
-import { AsyncReducer, type TAsyncReducerOptions } from 'config/store';
+import { AsyncReducer } from 'config/store';
 import { ProtectedElement } from 'store/app';
+import PageLoader from 'components/PageLoader';
 
 
 const AppRouter: FC = () => {
@@ -25,7 +17,10 @@ const AppRouter: FC = () => {
                 path={ path }
                 element={ (
                     <>
-                        <ProtectedElement pathname={ path }>
+                        <ProtectedElement
+                            pathname={ path }
+                            PageLoader={ PageLoader }
+                        >
                             { asyncReducers ? (
                                 <AsyncReducer
                                     options={ asyncReducers as never }

@@ -11,11 +11,10 @@ import createStore, {
     type IStateSchema,
     type TAddAsyncReducerParameters,
     type TRemoveAsyncReducerParameters,
-    type TUseRedirectionContext,
     RMActionCreators,
 } from 'config/store';
 import { useAppNavigate } from 'shared/hooks/redux';
-import { StateSetupProvider } from 'store/app';
+import { createRedirectionModal, StateSetupProvider } from 'store/app';
 import Modal from 'shared/ui/Modal';
 import Portal from 'shared/ui/Portal';
 
@@ -27,9 +26,7 @@ interface IStoreProviderProps {
     withStateSetup?: boolean;
 }
 
-const RedirectionModal:FC<{
-    useContext: TUseRedirectionContext;
-}> = ({ useContext }) => {
+const RedirectionModal = createRedirectionModal(({ useContext }) => {
     const {
         show,
         context,
@@ -66,7 +63,7 @@ const RedirectionModal:FC<{
             </Modal>
         </Portal>
     );
-};
+});
 
 const StoreProvider:FC<IStoreProviderProps> = ({
     children,

@@ -8,7 +8,7 @@ import {
     useEffect,
     useLayoutEffect,
     useRef,
-    useState,
+    useState, useMemo,
 } from 'react';
 import {
     createAsyncThunk,
@@ -144,28 +144,26 @@ class StateSetup {
     ) => {
         try {
             const isAuth = await checkAuthorization({ isAuth: this.isAuth }, thunkAPI);
+            const isAuthExpired = typeof isAuth === 'boolean' && this.isAuth && isAuth !== this.isAuth;
 
             if (typeof isAuth === 'boolean') {
-                if (this.isAuth && isAuth !== this.isAuth) {
-                    console.log('++++AUTH_EXPIRED++++');
-                    this.restart = 'AUTH_EXPIRED';
-                }
                 this.isAuth = isAuth;
                 thunkAPI.dispatch(this.setIsAuthenticated(isAuth));
             } else {
                 throw new Error('checkAuthorization');
             }
 
-            const redirectTo = this.getRedirectTo(this.restart === 'AUTH_EXPIRED' ? mustRedirectTo || pathname : pathname);
+            const redirectTo = this.getRedirectTo(isAuthExpired ? mustRedirectTo || pathname : pathname);
             if (redirectTo) {
                 this.updateBasePageOptions(redirectTo, searchParams);
+
+                if (isAuthExpired) {
+                    console.log('++++AUTH_EXPIRED++++');
+                    this.restart = 'AUTH_EXPIRED';
+                }
             }
 
             const { waitUntil } = this.getPageOption(redirectTo || pathname, 'onNavigate') || {};
-
-            // console.log(3333, {
-            //     $AppState: this.$AppState, redirectTo, waitUntil, isAuth, pathname, mustRedirectTo
-            // });
 
             return thunkAPI.fulfillWithValue({
                 redirectTo,
@@ -228,7 +226,6 @@ class StateSetup {
                         if (this.restart === 'AUTH_EXPIRED') {
                             state.isPageReady = false;
                             this.redirectTo = redirectTo;
-                            // console.log(222222222, 'AUTH_EXPIRED');
                         } else {
                             if (this.waitUntil) {
                                 this.waitUntil = false;
@@ -245,7 +242,7 @@ class StateSetup {
                                 state.isPageReady = true;
                             }
                         }
-                    } else {
+                    } /*else {
                         if (redirectTo === null) {
                             if (waitUntil === 'CHECK_AUTH') {
                             } else if (waitUntil === 'SETUP') {
@@ -255,15 +252,15 @@ class StateSetup {
                         } else {
                             this.initiated = false;
                         }
-                    }
+                    }*/
                 })
                 .addCase(this.setup.fulfilled, (state, { payload: { isAppReady, mode } }) => {
                     if (mode === 'APP') {
                         state.isAppReady = Boolean(isAppReady);
                         state.isPageReady = Boolean(isAppReady);
-                    } else {
+                    } /*else {
                         state.isPageReady = Boolean(isAppReady);
-                    }
+                    }*/
                 })
                 .addCase(this.setIsAuthenticated, (
                     state,
@@ -617,11 +614,15 @@ class StateSetup {
                                         isPageLoaded: this.isPageLoaded(result.payload.redirectTo)
                                     };
                                     dispatch(this.setShowRedirectionModal(true));
-                                    navigate(result.payload.redirectTo, { state: { from: pathname } });
+                                    navigate(result.payload.redirectTo, { state: this.restart === 'AUTH_EXPIRED' ? state : { from: pathname } });
                                 } else if (this.redirectionContext?.type === 'NOT_FIRST_RENDER') {
                                     console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '=========SHOW_REDIRECTION_MODAL=========');
                                     dispatch(this.setShowRedirectionModal(true));
                                 }
+
+                                // if (!result.payload.redirectTo && this.restart === 'AUTH_EXPIRED') {
+                                //     this.restart = null;
+                                // }
                             }
                         });
                     }
@@ -755,11 +756,11 @@ class StateSetup {
             };
         }, [ loading, dispatch, type, pathname ]);
 
-        console.log(`%c____LOADER_____::${type || 'LOADING'}`, 'color: #dbd518', {
+        console.log(`%c____LOADER_____{${type || 'LOADING'}}`, 'color: #dbd518', {
             'this.loading': this.loading,
             loading
         });
-        console.log(6666, PageLoader);
+
         return loading
             ? PageLoader
                 ? <PageLoader />
@@ -951,6 +952,9 @@ class StateSetup {
                 console.log('%c____ProtectedElement_____', 'color: #22af2c', 'useLayoutEffect', 'SET-LOADING', { $AppState: this.$AppState, pathname });
                 dispatch(this.setLoading(true));
             }
+            if (this.restart && this.redirectionContext?.type === 'AUTH') {
+                dispatch(this.setShowRedirectionModal(true));
+            }
         }, [ isPageReady, dispatch, pathname, redirectTo ]);
 
         if (redirectTo && this.restart === 'AUTH') {
@@ -971,7 +975,6 @@ class StateSetup {
                 type: 'AUTH',
                 isPageLoaded: this.isPageLoaded(redirectTo)
             };
-            dispatch(this.setShowRedirectionModal(true));
 
             console.log('%c____ProtectedElement_____', 'color: #22af2c', '::END', {
                 lazy,
@@ -1045,180 +1048,3 @@ class StateSetup {
     }
 }
 export default StateSetup;
-
-//! NO_AUTH +$
-    //? FIRST_RENDER +
-        //? NO_WAIT(LAZY) +
-        //* {
-            //* ____usePageStateSetUp____: 1,
-            //* ____ProtectedElement_____: 1,
-            //* ____LOADER_____: SUSPENSE=1,
-            //* ____RedirectModal_____: NULL=1
-        //* }
-        //? WAIT_AUTH(LAZY) +
-        //! NO_REDIRECT
-        //* {
-            //* ____usePageStateSetUp____: 1,
-            //* ____ProtectedElement_____: 2,
-            //* ____LOADER_____: LOADING=2, SUSPENSE=1,
-            //* ____RedirectModal_____: NULL=1
-        //* }
-        //? WAIT_AUTH(LAZY) +
-        //! REDIRECT
-        //* {
-            //* ____usePageStateSetUp____: 2,
-            //* ____ProtectedElement_____: 2,
-            //* ____LOADER_____: LOADING=3, SUSPENSE=1,
-            //* ____RedirectModal_____: NULL=2, MODAL=1
-        //* }
-    //? NOT_FIRST_RENDER +
-        //? NO_WAIT(LAZY) +
-        //* {
-            //* ____usePageStateSetUp____: 1,
-            //* ____ProtectedElement_____: 1,
-            //* ____LOADER_____: SUSPENSE=1,
-            //* ____RedirectModal_____: NULL=1
-        //* }
-        //? WAIT_AUTH(LAZY) +
-        //! NO_REDIRECT
-        //* {
-            //* ____usePageStateSetUp____: 1,
-            //* ____ProtectedElement_____: 2,
-            //* ____LOADER_____: LOADING=2, SUSPENSE=1,
-            //* ____RedirectModal_____: NULL=1
-        //* }
-        //? WAIT_AUTH(LAZY) +
-        //! REDIRECT
-        //* {
-            //* ____usePageStateSetUp____: 2,
-            //* ____ProtectedElement_____: 2,
-            //* ____LOADER_____: LOADING=3, SUSPENSE=1,
-            //* ____RedirectModal_____: NULL=2, MODAL=1
-        //* }
-
-//! AUTH +$
-    //? FIRST_RENDER +
-        //? NO_WAIT(LAZY) +
-        //* {
-            //* ____usePageStateSetUp____: 1,
-            //* ____ProtectedElement_____: 1,
-            //* ____LOADER_____: SUSPENSE=1,
-            //* ____RedirectModal_____: NULL=1
-        //* }
-        //? WAIT_AUTH(LAZY) +
-        //! NO_REDIRECT
-        //* {
-            //* ____usePageStateSetUp____: 1,
-            //* ____ProtectedElement_____: 2,
-            //* ____LOADER_____: LOADING=2, SUSPENSE=1,
-            //* ____RedirectModal_____: NULL=1
-        //* }
-        //? WAIT_AUTH(LAZY) +
-        //! REDIRECT
-        //* {
-            //* ____usePageStateSetUp____: 2,
-            //* ____ProtectedElement_____: 2,
-            //* ____LOADER_____: LOADING=3, SUSPENSE=1,
-            //* ____RedirectModal_____: NULL=2, MODAL=1
-        //* }
-    //? NOT_FIRST_RENDER +
-        //? NO_WAIT(LAZY) +
-        //* {
-            //* ____usePageStateSetUp____: 1,
-            //* ____ProtectedElement_____: 1,
-            //* ____LOADER_____: SUSPENSE=1,
-            //* ____RedirectModal_____: NULL=1
-        //* }
-        //? WAIT_AUTH(LAZY) +
-        //! NO_REDIRECT
-        //* {
-            //* ____usePageStateSetUp____: 1,
-            //* ____ProtectedElement_____: 1,
-            //* ____LOADER_____: LOADING=2, SUSPENSE=1,
-            //* ____RedirectModal_____: NULL=1
-        //* }
-        //? WAIT_AUTH(LAZY) +
-        //! REDIRECT
-        //* {
-            //* ____usePageStateSetUp____: 2,
-            //* ____ProtectedElement_____: 2,
-            //* ____LOADER_____: 0,
-            //* ____RedirectModal_____: NULL=3, MODAL=1
-        //* }
-
-//! LOGIN +$
-    //! REDIRECT
-        //? FIRST_RENDER +
-            //? NO_WAIT(LAZY) +
-            //* {
-                //* ____usePageStateSetUp____: 1,
-                //* ____ProtectedElement_____: 2,
-                //* ____LOADER_____: SUSPENSE=1,
-                //* ____RedirectModal_____: MODAL=1, NULL=1
-            //* }
-            //? WAIT_AUTH(LAZY) +
-            //* {
-                //* ____usePageStateSetUp____: 1,
-                //* ____ProtectedElement_____: 2,
-                //* ____LOADER_____: LOADING=3, SUSPENSE=1,
-                //* ____RedirectModal_____: MODAL=1, NULL=1
-            //* }
-        //? NOT_FIRST_RENDER +
-            //? NO_WAIT(LAZY) +
-            //* {
-                //* ____usePageStateSetUp____: 1,
-                //* ____ProtectedElement_____: 2,
-                //* ____LOADER_____: 0,
-                //* ____RedirectModal_____: MODAL=1, NULL=1
-            //* }
-            //? WAIT_AUTH(LAZY) +
-            //* {
-                //* ____usePageStateSetUp____: 1,
-                //* ____ProtectedElement_____: 2,
-                //* ____LOADER_____: 0,
-                //* ____RedirectModal_____: MODAL=1, NULL=1
-            //* }
-    //! NO_REDIRECT
-        //* NOT_RENDERING
-
-//! LOGOUT +$
-    //! REDIRECT
-        //? FIRST_RENDER +
-            //? NO_WAIT(LAZY) +
-            //* {
-                //* ____usePageStateSetUp____: 1,
-                //* ____ProtectedElement_____: 2,
-                //* ____LOADER_____: SUSPENSE=1,
-                //* ____RedirectModal_____: MODAL=1, NULL=1
-            //* }
-            //? WAIT_AUTH(LAZY) +
-            //* {
-                //* ____usePageStateSetUp____: 1,
-                //* ____ProtectedElement_____: 2,
-                //* ____LOADER_____: LOADING=3, SUSPENSE=1,
-                //* ____RedirectModal_____: MODAL=1, NULL=1
-            //* }
-        //? NOT_FIRST_RENDER +
-            //? NO_WAIT(LAZY) +
-            //* {
-                //* ____usePageStateSetUp____: 1,
-                //* ____ProtectedElement_____: 2,
-                //* ____LOADER_____: 0,
-                //* ____RedirectModal_____: MODAL=1, NULL=1
-            //* }
-            //? WAIT_AUTH(LAZY) +
-            //* {
-                //* ____usePageStateSetUp____: 1,
-                //* ____ProtectedElement_____: 2,
-                //* ____LOADER_____: 0,
-                //* ____RedirectModal_____: MODAL=1, NULL=1
-            //* }
-    //! NO_REDIRECT
-        //* NOT_RENDERING
-
-//! AUTH_EXPIRED
-    // ! REDIRECT
-        //? FIRST_RENDER
-            // ? NO_WAIT(LAZY)
-        //? NOT_FIRST_RENDER
-

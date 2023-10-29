@@ -66,7 +66,7 @@ const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = 
             onNavigate: { waitUntil: 'CHECK_AUTH', }
         },
         [ERoutes.ABOUT]: {
-            authRequirement: false,
+            // authRequirement: false,
             actions: [
                 { cb: counterActions.decrement, canRefetch: true },
                 { cb: counterActions.increment },

@@ -11,7 +11,7 @@ const stateSetupConfig = new StateSetup(
     {
         appReducerName,
         authProtectionConfig: {
-            unAuthorized: ERoutes.ABOUT,
+            unAuthorized: ERoutes.MAIN,
             authorized: ERoutes.PROFILE
         },
         // PageLoader

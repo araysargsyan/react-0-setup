@@ -7,7 +7,7 @@ import {
 } from '@reduxjs/toolkit';
 import { type ActionCreator } from 'redux';
 import {
-    type ComponentType, type MutableRefObject, ReactElement, type ReactNode 
+    type ComponentType, type MutableRefObject, ReactElement, type ReactNode
 } from 'react';
 
 
@@ -121,6 +121,7 @@ type TAsyncReducer = {
 };
 type TStateSetUpArgs = {
     pathname: string;
+    type: 'SETUP' | 'SETUP_FIRST';
     mode: TMode;
     asyncReducer?: TAsyncReducer;
 };
@@ -149,7 +150,7 @@ type TCheckAuthorizationAsyncThunk = AsyncThunk<
         pathname: string;
         searchParams: URLSearchParams;
         mode: TMode;
-        mustRedirectTo: string | null;
+        // mustRedirectTo: string | null;
     },
     IThunkConfig
 >;

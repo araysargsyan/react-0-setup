@@ -1,15 +1,15 @@
 //UPDATE SCENARIOS
 
-//! NO_AUTH +$
-    //? FIRST_RENDER +
-        //? NO_WAIT(LAZY) +
+//! NO_AUTH ++
+    //? FIRST_RENDER ++
+        //? NO_WAIT(LAZY) ++
             //* {
             //* ____usePageStateSetUp____: 1,
             //* ____ProtectedElement_____: 1,
             //* ____LOADER_____: SUSPENSE=1,
             //* ____RedirectModal_____: NULL=1
             //* }
-        //? WAIT_AUTH(LAZY) +
+        //? WAIT_AUTH(LAZY) ++
         //! NO_REDIRECT
             //* {
             //* ____usePageStateSetUp____: 1,
@@ -17,7 +17,7 @@
             //* ____LOADER_____: LOADING=2, SUSPENSE=1,
             //* ____RedirectModal_____: NULL=1
             //* }
-        //? WAIT_AUTH(LAZY) +
+        //? WAIT_AUTH(LAZY) ++
         //! REDIRECT
             //* {
             //* ____usePageStateSetUp____: 2,
@@ -25,15 +25,15 @@
             //* ____LOADER_____: LOADING=3, SUSPENSE=1,
             //* ____RedirectModal_____: NULL=2, MODAL=1
             //* }
-    //? NOT_FIRST_RENDER +
-        //? NO_WAIT(LAZY) +
+    //? NOT_FIRST_RENDER ++
+        //? NO_WAIT(LAZY) ++
             //* {
             //* ____usePageStateSetUp____: 1,
             //* ____ProtectedElement_____: 1,
             //* ____LOADER_____: SUSPENSE=1 | 0,
             //* ____RedirectModal_____: 0
             //* }
-        //? WAIT_AUTH(LAZY) +
+        //? WAIT_AUTH(LAZY) ++
         //! NO_REDIRECT
             //* {
             //* ____usePageStateSetUp____: 1,
@@ -50,16 +50,16 @@
             //* ____RedirectModal_____: NULL=1, MODAL=1
             //* }
 
-//! AUTH +$
-    //? FIRST_RENDER +
-        //? NO_WAIT(LAZY) +
+//! AUTH ++
+    //? FIRST_RENDER ++
+        //? NO_WAIT(LAZY) ++
             //* {
             //* ____usePageStateSetUp____: 1,
             //* ____ProtectedElement_____: 1,
             //* ____LOADER_____: SUSPENSE=1,
             //* ____RedirectModal_____: NULL=1
             //* }
-        //? WAIT_AUTH(LAZY) +
+        //? WAIT_AUTH(LAZY) ++
         //! NO_REDIRECT
             //* {
             //* ____usePageStateSetUp____: 1,
@@ -67,7 +67,7 @@
             //* ____LOADER_____: LOADING=2, SUSPENSE=1,
             //* ____RedirectModal_____: NULL=1
             //* }
-        //? WAIT_AUTH(LAZY) +
+        //? WAIT_AUTH(LAZY) ++
         //! REDIRECT
             //* {
             //* ____usePageStateSetUp____: 2,
@@ -75,15 +75,15 @@
             //* ____LOADER_____: LOADING=3, SUSPENSE=1,
             //* ____RedirectModal_____: NULL=2, MODAL=1
             //* }
-    //? NOT_FIRST_RENDER +
-        //? NO_WAIT(LAZY) +
+    //? NOT_FIRST_RENDER ++
+        //? NO_WAIT(LAZY) ++
             //* {
             //* ____usePageStateSetUp____: 1,
             //* ____ProtectedElement_____: 1,
             //* ____LOADER_____: SUSPENSE=1 | 0,
             //* ____RedirectModal_____: 0
             //* }
-        //? WAIT_AUTH(LAZY) +
+        //? WAIT_AUTH(LAZY) ++
         //! NO_REDIRECT
             //* {
             //* ____usePageStateSetUp____: 1,
@@ -91,7 +91,7 @@
             //* ____LOADER_____: (LOADING=2, SUSPENSE=1) | 0,
             //* ____RedirectModal_____: 0
             //* }
-        //? WAIT_AUTH(LAZY) +
+        //? WAIT_AUTH(LAZY) ++
         //! REDIRECT
             //* {
             //* ____usePageStateSetUp____: 2,
@@ -177,14 +177,14 @@
         //* {
         //* ____usePageStateSetUp____: 2,
         //* ____ProtectedElement_____: 2,
-        //* ____LOADER_____: (LOADING=2, SUSPENSE=2, render=2) | (SUSPENSE=1, render=1)
+        //* ____LOADER_____: ({LOADING=2, SUSPENSE=1} & SUSPENSE=1) | SUSPENSE=1
         //* ____RedirectModal_____: MODAL=1, NULL=1
         //* }
     //? WAIT_AUTH(LAZY) +
         //* {
         //* ____usePageStateSetUp____: 2,
         //* ____ProtectedElement_____: 2,
-        //* ____LOADER_____: (LOADING=4, SUSPENSE=2, render=2) | (LOADING=2, SUSPENSE=1, render=1)
+        //* ____LOADER_____: ({LOADING=2, SUSPENSE=1} & {LOADING=2, SUSPENSE=1}) | {LOADING=2, SUSPENSE=1}
         //* ____RedirectModal_____: MODAL=1, NULL=1
         //* }
     //? NOT_FIRST_RENDER +
@@ -192,15 +192,52 @@
         //* {
         //* ____usePageStateSetUp____: 1,
         //* ____ProtectedElement_____: 2,
-        //* ____LOADER_____: (LOADING=2, SUSPENSE=1) | 0,
+        //* ____LOADER_____: {LOADING=2, SUSPENSE=1} | 0,
         //* ____RedirectModal_____: MODAL=1, NULL=1
         //* }
     //? WAIT_AUTH(LAZY) +
         //* {
         //* ____usePageStateSetUp____: 2,
         //* ____ProtectedElement_____: 2,
-        //* ____LOADER_____: (LOADING=2, SUSPENSE=1) | 0,
+        //* ____LOADER_____: {LOADING=2, SUSPENSE=1} | 0,
         //* ____RedirectModal_____: MODAL=1, NULL=1
         //* }
     //! NO_REDIRECT
         //* NOT_RENDERING
+
+//! BREAKING NAVIGATIONS
+    //! AUTH
+        //! UNTIL_CHECK_AUTH
+            //? WAIT_AUTH(LAZY) -> NO_WAIT(LAZY)
+                //* {
+                //* ____usePageStateSetUp____: 2,
+                //* ____ProtectedElement_____: 2,
+                //* ____LOADER_____: LOADING=4,
+                //* ____RedirectModal_____: NULL=1
+                //* }
+        //! AFTER_CHECK_AUTH
+            //! NO_REDIRECT
+                //? WAIT_AUTH(LAZY) -> NO_WAIT(LAZY)
+                    //* {
+                    //* ____usePageStateSetUp____: 2,
+                    //* ____ProtectedElement_____: 3,
+                    //* ____LOADER_____: {LOADING=3, SUSPENSE=2},
+                    //* ____RedirectModal_____: NULL=1
+                    //* }
+            //! REDIRECT
+                //? WAIT_AUTH(LAZY) -> NO_WAIT(LAZY)
+                    //* {
+                    //* ____usePageStateSetUp____: 3,
+                    //* ____ProtectedElement_____: 3,
+                    //* ____LOADER_____: {LOADING=4, SUSPENSE=2},
+                    //* ____RedirectModal_____: MODAL=1, NULL=2
+                    //* }
+
+
+//!NO_AUTH
+    //? WAIT_AUTH(LAZY) -> NO_WAIT(LAZY) : (SETUP:1) +
+    //? WAIT_AUTH(LAZY) -> WAIT_AUTH(LAZY) : (DIFFERENT_ROUTE), (SETUP:1) +
+    //? WAIT_AUTH(LAZY) -> WAIT_AUTH(LAZY) : (SAME_ROUTE), (SETUP:1) +
+    //? NO_WAIT(LAZY) -> WAIT_AUTH(LAZY) : (SETUP:1) +
+    //? NO_WAIT(LAZY) -> NO_WAIT(LAZY) : (DIFFERENT_ROUTE), (SETUP:2) +
+    //? NO_WAIT(LAZY) -> NO_WAIT(LAZY) : (SAME_ROUTE), (SETUP:1) +

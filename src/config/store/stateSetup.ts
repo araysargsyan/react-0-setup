@@ -20,15 +20,15 @@ const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = 
             authRequirement: null,
             actions: [ //! if async is true this action call will wait in initial setup, by default false
                 {
-                    cb: counterActions.increment.bind(null, 1),
+                    cb: counterActions.fetchTest,
+                    canRefetch: true,
+                    async: true,
+                },
+                {
+                    cb: counterActions.increment,
                     canRefetch: (state) => { //! Boolean or cb with state param and returned boolean
                         return (state as IStateSchema).counter.value < 18;
                     },
-                },
-                {
-                    cb: counterActions.fetchTest,
-                    canRefetch: true,
-                    async: true
                 },
             ],
             // onNavigate: { waitUntil: 'CHECK_AUTH', }
@@ -61,13 +61,19 @@ const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = 
                     },
                     async: true,
                     canRefetch: true
-                }
+                },
+                { cb: counterActions.decrement, canRefetch: true },
             ],
             onNavigate: { waitUntil: 'CHECK_AUTH', }
         },
         [ERoutes.ABOUT]: {
             authRequirement: false,
             actions: [
+                {
+                    cb: counterActions.fetchTest,
+                    canRefetch: true,
+                    async: true,
+                },
                 { cb: counterActions.decrement, canRefetch: true },
                 { cb: counterActions.increment },
                 { cb: counterActions.increment },

@@ -69,16 +69,16 @@ interface IOptionsParameter {
     PageLoader?: ComponentType;
 }
 
-interface IRedirectionContext {
+interface IRedirectionContext<T extends string> {
     redirectTo: string;
     from: string;
-    type: 'AUTH' | 'AUTH_EXPIRED' | 'FIRST_RENDER' | 'NOT_FIRST_RENDER';
+    type: T;
     isPageLoaded: boolean;
 }
-type TUseRedirectionContext = () => {
+type TUseRedirectionContext<T extends string> = () => {
     closeRedirectionModal: () => void;
     show: boolean;
-    context: IRedirectionContext | null;
+    context: IRedirectionContext<T> | null;
 };
 // type TAsyncReducersOptions = unknown[] | ((state?: IStateSchema) => Promise<unknown[]>);
 type TAsyncReducersOptionsReturn = (state?: IStateSchema) => Promise<unknown[]>;

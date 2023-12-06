@@ -8,7 +8,6 @@ import {
     useEffect,
     useLayoutEffect,
     useRef,
-    useState, useMemo,
 } from 'react';
 import {
     createAsyncThunk,
@@ -53,6 +52,57 @@ import {
 } from '../types';
 
 
+const LoadingTypes = {
+    Loading: 'LOADING',
+    Suspense: 'SUSPENSE',
+} as const;
+type TLoading = typeof LoadingTypes[keyof typeof LoadingTypes];
+const FlowStatuses = {
+    Start: 'START',
+    Setup: 'SETUP',
+    SetupFirst: 'SETUP_FIRST'
+} as const;
+type TFlowStatuses = typeof FlowStatuses[keyof typeof FlowStatuses];
+const RestartTypes = {
+    OnAuth: 'ON_AUTH',
+    AuthExpired: 'AUTH_EXPIRED',
+} as const;
+type TRestartTypes = typeof RestartTypes[keyof typeof RestartTypes];
+const RedirectionTypes = {
+    ...RestartTypes,
+    FirstRender: 'FIRST_RENDER',
+    NotFirstRender: 'NOT_FIRST_RENDER'
+} as const;
+type TRedirectionTypes = typeof RedirectionTypes[keyof typeof RedirectionTypes];
+
+const flowStateInitial = {
+    'useEffect: Update': {
+        ____usePageStateSetUp____: 0,
+        ____ProtectedElement_____: 0,
+        ____LOADER_____: {
+            SUSPENSE: 0,
+            LOADING: 0
+        },
+        ____RedirectModal_____: {
+            NULL: 0,
+            MODAL: 0
+        },
+    },
+    'cals': {
+        'SETUP': {
+            count: 0,
+            breakCount: 0
+        },
+        'SETUP_FIRST': {
+            count: 0,
+            breakCount: 0
+        },
+        'CHECK_AUTH': 0,
+        'BREAK': 0
+    }
+};
+export let flowState: typeof flowStateInitial = JSON.parse(JSON.stringify(flowStateInitial));
+
 class StateSetup {
     private readonly basePageOptions: IPageOptions & {isPageLoaded: boolean; isActionsCalling: boolean} = {
         actions: [],
@@ -66,12 +116,12 @@ class StateSetup {
     private readonly PageLoader: ComponentType | null;
 
     private isAuth: boolean | null = null;
-    private redirectTo: null | string = null;
+    private redirectTo: string | null = null;
     private hasRedirectionModal: boolean = false;
-    private loading: null | 'LOADING' | 'SUSPENSE' = null;
+    private loading: TLoading | null = null;
     private waitUntil = false; //* for not lazy loaded components
-    private restart: 'AUTH' | 'AUTH_EXPIRED' | null = null;
-    private flowStatus: null | 'START' | 'AUTH_CHECK' | 'AUTH_FIRST' | 'SETUP' | 'SETUP_FIRST' | 'BREAK_SETUP' = null;
+    private restart: TRestartTypes | null = null;
+    private flowStatus: TFlowStatuses | null = null;
     private currentRoute: string = '';
     private prevRoute: {
         pathname: string;
@@ -80,7 +130,7 @@ class StateSetup {
     } | null = null;
     private pageOptionsMap: Record<string, IPageOptions & {isPageLoaded: boolean; isActionsCalling: boolean; _break?: Record<number, boolean>}> = {};
     private asyncReducer: TAsyncReducer | null = null;
-    private redirectionContext: ReturnType<TUseRedirectionContext>['context'] = null;
+    private redirectionContext: ReturnType<TUseRedirectionContext<TRedirectionTypes>>['context'] = null;
     private pageCount = 0;
     private isAuthChecking = false;
 
@@ -141,9 +191,9 @@ class StateSetup {
     }
 
     private setBreakPageActions(pathname: string, pageCount: number) {
+        flowState.cals['BREAK'] = flowState.cals['BREAK'] + 1;
         console.log('setBreakPageActions', pathname, pageCount);
         this.redirectTo = null;
-        // this.flowStatus = 'BREAK_SETUP';
         if (this.pageOptionsMap[pathname]._break) {
             this.pageOptionsMap[pathname]._break![pageCount] = true;
         } else {
@@ -160,21 +210,16 @@ class StateSetup {
         },
         thunkAPI
     ) => {
+        flowState.cals['CHECK_AUTH'] = flowState.cals['CHECK_AUTH'] + 1;
         this.isAuthChecking = true;
         const pageCount = this.pageCount;
         const prevInitiated = this.flowStatus;
 
         try {
-            const prevRedirectTo = this.getRedirectTo(this.flowStatus === 'START' ? this.currentRoute : pathname);
-            // const prevRoute = this.prevRoute;
-            //
-            // this.prevRoute = {
-            //     pathname,
-            //     mustDestroy: false
-            // };
-
+            const prevRedirectTo = this.getRedirectTo(this.flowStatus === FlowStatuses.Start
+                ? this.currentRoute : pathname
+            );
             const isAuth = await checkAuthorization({ isAuth: this.isAuth }, thunkAPI);
-            // const mustRedirectTo = (Boolean(prevRoute) || null) && prevRedirectTo;
             const isAuthExpired = typeof isAuth === 'boolean' && this.isAuth && isAuth !== this.isAuth;
 
             if (typeof isAuth === 'boolean') {
@@ -184,7 +229,6 @@ class StateSetup {
                 throw new Error('checkAuthorization');
             }
 
-            // const redirectTo = this.getRedirectTo(isAuthExpired ? mustRedirectTo || this.currentRoute : this.currentRoute);
             const redirectTo = this.getRedirectTo(isAuthExpired
                 ? this.prevRoute?.pathname || this.currentRoute
                 : this.currentRoute
@@ -194,7 +238,7 @@ class StateSetup {
 
                 if (isAuthExpired) {
                     console.log('%cAuthorization', 'color: #076eab', 'AUTH_EXPIRED');
-                    this.restart = 'AUTH_EXPIRED';
+                    this.restart = RestartTypes.AuthExpired;
                 }
             }
 
@@ -215,7 +259,7 @@ class StateSetup {
             return thunkAPI.fulfillWithValue({
                 redirectTo,
                 mode,
-                waitUntil: waitUntil || null
+                waitUntil: waitUntil || null,
             });
         } catch (e) {
             console.log(e);
@@ -228,12 +272,12 @@ class StateSetup {
                 prevInitiated,
                 pageCount,
             });
-            if (this.currentRoute !== pathname) {
-                console.log('%cAuthorization', 'color: #076eab', 'SET_BREAK');
-                this.setBreakPageActions(pathname, pageCount);
-            } else if (prevInitiated === 'SETUP_FIRST' /*&& isAuthFirst*/) {
-                // this.flowStatus = null;
-            }
+            // if (this.currentRoute !== pathname) {
+            //     console.log('%cAuthorization', 'color: #076eab', 'SET_BREAK');
+            //     this.setBreakPageActions(pathname, pageCount);
+            // } else if (prevInitiated === FlowStatuses.SetupFirst /*&& isAuthFirst*/) {
+            //     // this.flowStatus = null;
+            // }
         }
     };
     private generateActions(appReducerName: string) {
@@ -277,14 +321,10 @@ class StateSetup {
             builder
                 .addCase(this.checkAuthorization.fulfilled, (
                     state,
-                    {
-                        payload: {
-                            redirectTo, mode, waitUntil
-                        }
-                    }
+                    { payload: { redirectTo, mode } }
                 ) => {
                     if (mode === 'APP') {
-                        if (this.restart === 'AUTH_EXPIRED') {
+                        if (this.restart === RestartTypes.AuthExpired) {
                             state.isPageReady = false;
                             this.redirectTo = redirectTo;
                         } else {
@@ -333,7 +373,7 @@ class StateSetup {
                     if (payload.restart) {
                         const redirectTo = this.getRedirectTo(this.prevRoute!.pathname);
                         if (redirectTo) {
-                            this.restart = 'AUTH';
+                            this.restart = RestartTypes.OnAuth;
                             state.isPageReady = false;
                         }
 
@@ -446,6 +486,7 @@ class StateSetup {
                     && asyncActionCreatorsOption[action.cb.key]
                 ) {
                     const cb = action.cb.getAction(asyncActionCreatorsOption[action.cb.key]);
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
                     console.log(`*************************ACTION: {${cb?.typePrefix || cb?.type}}`, pathname);
                     if (isAsync) {
@@ -454,6 +495,7 @@ class StateSetup {
                         dispatch(cb());
                     }
                 } else {
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
                     console.log(`*************************ACTION: {${action.cb?.typePrefix || action.cb?.type}}`, pathname);
                     if (isAsync) {
@@ -496,7 +538,7 @@ class StateSetup {
 
         while (Boolean(element.type)) {
             element = element.type;
-        };
+        }
 
         return element.$$typeof === Symbol.for('react.lazy');
     }
@@ -521,9 +563,8 @@ class StateSetup {
                 dispatch
             }
         ) => {
+            flowState.cals[type].count = flowState.cals[type].count + 1;
             console.log('%c@@INIT:STATE', 'color: #ed149a', { $AppState: this.$AppState });
-            let mustClearInitiated = false;
-
             try {
                 const prevRoute = this.prevRoute;
                 const prevInitiated = this.flowStatus;
@@ -564,6 +605,9 @@ class StateSetup {
                 }
 
                 const isBroken = await this.callActions(pathname, dispatch, getState(), asyncActionCreatorsOption);
+                if (isBroken) {
+                    flowState.cals[type].breakCount = flowState.cals[type].breakCount + 1;
+                }
 
                 console.info('%csetUp::end', 'color: #ed149a', {
                     pathname, isAppReady:
@@ -581,13 +625,12 @@ class StateSetup {
                     && this.currentRoute === pathname
                     && this.pageOptionsMap[this.currentRoute].isActionsCalling/*&& this.flowStatus === type*/
                 ) {
+                    console.log('%csetUp->PAGE_IS_READY', 'color: #ed149a', flowState);
+                    flowState = JSON.parse(JSON.stringify(flowStateInitial));
                     this.prevRoute = {
                         pathname,
                         mustDestroy: false
                     };
-                    console.log('%csetUp->PAGE_IS_READY', 'color: #ed149a');
-                    mustClearInitiated = true;
-                    console.log('%csetUp->ClearInitiated', 'color: #ed149a');
                     this.flowStatus = null;
                     this.pageOptionsMap[pathname].isActionsCalling = false;
                     return fulfillWithValue({ isAppReady: true, mode });
@@ -662,6 +705,7 @@ class StateSetup {
         const navigate = useNavigate();
         const prevRoute = this.currentRoute || pathname;
         const isLoadingActivated = useRef(false);
+        let stopActionsRecall = false;
         console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'INIT: START', {
             $AppState: this.$AppState,
             pathname
@@ -673,11 +717,16 @@ class StateSetup {
             this.currentRoute = pathname;
         }
         if (
-            (this.flowStatus === 'SETUP' || this.flowStatus === 'SETUP_FIRST')
-            && !this.isAuthChecking && prevRoute !== this.currentRoute
+            (this.flowStatus === FlowStatuses.Setup || this.flowStatus === FlowStatuses.SetupFirst)
+            && !this.isAuthChecking
+            && !state?.from
         ) {
-            console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'SET_BREAK');
-            this.setBreakPageActions(prevRoute, this.pageCount - 1 || 1);
+            if (prevRoute !== this.currentRoute) {
+                console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'SET_BREAK');
+                this.setBreakPageActions(prevRoute, this.pageCount - 1 || 1);
+            } else {
+                stopActionsRecall = true;
+            }
         }
         if (!this.pageOptionsMap[pathname]) {
             this.updateBasePageOptions(pathname, searchParams);
@@ -691,16 +740,16 @@ class StateSetup {
         const { waitUntil } = this.getPageOption(pathname, 'onNavigate') || {};
         const redirectTo = this.getRedirectTo(pathname);
         const mustRedirectTo = this.isAuth !== null && redirectTo;
-        const mustActivateLoading = this.loading !== 'LOADING'
+        const mustActivateLoading = this.loading !== LoadingTypes.Loading
             && waitUntil
             && !this.pageOptionsMap[mustRedirectTo || pathname]?.isPageLoaded
-            && (!state?.from || this.restart === 'AUTH_EXPIRED')
+            && (!state?.from || this.restart === RestartTypes.AuthExpired)
             && this.prevRoute?.pathname !== redirectTo;
 
         if (mustActivateLoading) {
             console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'PRE-SET_LOADING');
             isLoadingActivated.current = false;
-            this.loading = 'LOADING';
+            this.loading = LoadingTypes.Loading;
         }
         if (this.prevRoute && this.prevRoute.pathname !== pathname) {
             console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'mustDestroy', this.prevRoute);
@@ -718,7 +767,7 @@ class StateSetup {
         });
 
         useLayoutEffect(() => {
-            if (this.flowStatus === 'START') {
+            if (this.flowStatus === FlowStatuses.Start) {
                 if (mustRedirectTo) {
                     console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'useLayoutEffect', 'REDIRECT');
                     if (!this.pageOptionsMap[redirectTo]) {
@@ -727,7 +776,7 @@ class StateSetup {
 
                     navigate(redirectTo, { state: { from: pathname } });
                 }
-                if (this.loading === 'LOADING' && !isLoadingActivated.current /*&& !this.redirectTo && !state?.from*/) {
+                if (this.loading === LoadingTypes.Loading && !isLoadingActivated.current /*&& !this.redirectTo && !state?.from*/) {
                     isLoadingActivated.current = true;
                     console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'useLayoutEffect', 'SET_LOADING');
                     dispatch(this.setLoading(true));
@@ -736,17 +785,20 @@ class StateSetup {
         });
 
         useEffect(() => {
+            console.log(stopActionsRecall, 888);
             const mustCheckAuth = !this.isAuthChecking
-                && this.flowStatus === 'START'
+                && this.flowStatus === FlowStatuses.Start
                 && (this.isAuth === null || Boolean(this.isAuth));
-            const mustCallActions = !waitUntil
+            const mustCallActions = (!waitUntil || this.isAuth === false)
+                && !stopActionsRecall
                 && !this.redirectTo
-                && (!state?.from || this.restart !== 'AUTH_EXPIRED');
-            const mustShowRedirectionModal = this.flowStatus === 'START'
+                && (!state?.from || (this.restart && this.restart !== RestartTypes.AuthExpired));
+            const mustShowRedirectionModal = (this.flowStatus === FlowStatuses.Start || this.isAuth === false)
                 && this.hasRedirectionModal
                 && !this.redirectionContext
                 && state?.from
                 && !mustCheckAuth;
+            flowState['useEffect: Update'].____usePageStateSetUp____ = flowState['useEffect: Update'].____usePageStateSetUp____ + 1;
             console.log('%c____usePageStateSetUp____: UPDATE', 'color: #ae54bf', {
                 stateFrom: state?.from,
                 pathname,
@@ -762,7 +814,7 @@ class StateSetup {
                 this.redirectionContext = {
                     redirectTo: pathname,
                     from: state.from,
-                    type: 'NOT_FIRST_RENDER',
+                    type: RedirectionTypes.NotFirstRender,
                     isPageLoaded: this.isPageLoaded(pathname)
                 };
                 dispatch(this.setShowRedirectionModal(true));
@@ -774,7 +826,7 @@ class StateSetup {
                 );
                 setup({
                     mode: 'APP',
-                    type: 'SETUP_FIRST',
+                    type: FlowStatuses.SetupFirst,
                     pathname: mustRedirectTo || pathname,
                     asyncReducer
                 });
@@ -798,7 +850,7 @@ class StateSetup {
                                     $AppState: this.$AppState
                                 });
                                 setup({
-                                    type: 'SETUP',
+                                    type: FlowStatuses.Setup,
                                     mode: 'APP',
                                     pathname: result.payload.redirectTo || this.currentRoute,
                                     asyncReducer
@@ -808,17 +860,17 @@ class StateSetup {
                             delete this.pageOptionsMap[pathname]._break?.[currentPageCount];
                         }
 
-                        if (result.payload.redirectTo && (!mustRedirectTo || this.restart === 'AUTH_EXPIRED')) {
+                        if (result.payload.redirectTo && (!mustRedirectTo || this.restart === RestartTypes.AuthExpired)) {
                             console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'REDIRECT');
                             this.redirectionContext = {
                                 redirectTo: result.payload.redirectTo,
                                 from: this.currentRoute,
-                                type: this.restart || 'FIRST_RENDER',
+                                type: this.restart || RedirectionTypes.FirstRender,
                                 isPageLoaded: this.isPageLoaded(result.payload.redirectTo)
                             };
                             this.hasRedirectionModal && dispatch(this.setShowRedirectionModal(true));
                             navigate(result.payload.redirectTo, { state: { from: this.currentRoute } });
-                        } else if (this.hasRedirectionModal && this.redirectionContext?.type === 'NOT_FIRST_RENDER') {
+                        } else if (this.hasRedirectionModal && this.redirectionContext?.type === RedirectionTypes.NotFirstRender) {
                             console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '=========SHOW_REDIRECTION_MODAL=========');
                             dispatch(this.setShowRedirectionModal(true));
                         }
@@ -848,20 +900,20 @@ class StateSetup {
         return pathname;
     };
 
-    public createRedirectionModal = (modal: FC<{ useContext: TUseRedirectionContext }>) => {
+    public createRedirectionModal = (modal: FC<{ useContext: TUseRedirectionContext<TRedirectionTypes> }>) => {
         return memo(modal);
     };
 
     public StateSetupProvider: FC<PropsWithChildren<{
         asyncReducer?: TAsyncReducer;
-        RedirectionModal?: FC<{ useContext: TUseRedirectionContext }>;
+        RedirectionModal?: FC<{ useContext: TUseRedirectionContext<TRedirectionTypes> }>;
     }>> = ({
             children,
             asyncReducer,
             RedirectionModal
         }) => {
             if (this.flowStatus === null) {
-                this.flowStatus = 'START';
+                this.flowStatus = FlowStatuses.Start;
             }
 
             const pathname = this.usePageStateSetup(asyncReducer);
@@ -887,23 +939,26 @@ class StateSetup {
             );
         };
 
-    private getLoading = (type?: 'SUSPENSE', waitUntil?: Exclude<IPageOptions['onNavigate'], undefined>['waitUntil']) => createSelector(
+    private getLoading = (
+        type: TLoading,
+        waitUntil?: Exclude<IPageOptions['onNavigate'], undefined>['waitUntil']
+    ) => createSelector(
         ({ app }: IStateSchema) => app.loadingCount,
         (loadingCount) => {
             let loading = false;
-            console.log(888, this.isPageLoaded(this.currentRoute));
+
             if (
-                type === 'SUSPENSE'
+                type === LoadingTypes.Suspense
                 && !waitUntil
-                // && this.loading !== 'LOADING'
+                && this.loading !== LoadingTypes.Loading
                 && !this.isPageLoaded(this.currentRoute)
             ) {
                 loading = true;
-            } else if (!type && this.loading === 'LOADING') {
+            } else if (type === LoadingTypes.Loading && this.loading === LoadingTypes.Loading) {
                 loading = true;
             }
 
-            console.log(`%c$$$getLoading$$$-${this.pageCount}`, 'color: #dbd518', {
+            console.log(`%c$$$getLoading$$$-${this.currentRoute}`, 'color: #dbd518', {
                 type,
                 waitUntil,
                 loadingCount,
@@ -911,21 +966,25 @@ class StateSetup {
                 $AppState: this.$AppState
             });
             return loading;
-        });
+        }
+    );
 
     // eslint-disable-next-line react/display-name
     private Loader = memo<{
-        type?: 'SUSPENSE'; pathname: string; PageLoader?: ComponentType;
+        type?: TLoading;
+        pathname: string;
+        PageLoader?: ComponentType;
     }>(({
-        type, pathname, PageLoader
+        type = LoadingTypes.Loading, pathname, PageLoader
     }) => {
         const dispatch = useDispatch();
         const { waitUntil } = this.getPageOption(pathname, 'onNavigate') || {};
         const loading = useSelector(this.getLoading(type, waitUntil));
 
         useEffect(() => {
-            console.log('%c____LOADER_____: UPDATE', 'color: #dbd518', {
-                type: type || 'LOADING',
+            flowState['useEffect: Update'].____LOADER_____[type] = flowState['useEffect: Update'].____LOADER_____[type] + 1;
+            console.log(`%c____LOADER_____: UPDATE{${pathname}}`, 'color: #dbd518', {
+                type,
                 waitUntil,
                 loading,
                 pathname,
@@ -934,35 +993,37 @@ class StateSetup {
         });
 
         useLayoutEffect(() => {
-            if (type === 'SUSPENSE' && loading && this.loading !== 'SUSPENSE') {
-                this.loading = 'SUSPENSE';
-                console.log('%c____LOADER_____', 'color: #dbd518', 'useLayoutEffect');
-                if (this.loading === null) {
-                    dispatch(this.setLoading(true));
-                }
+            if (type === LoadingTypes.Suspense && loading && this.loading === null) {
+                console.log(`%c____LOADER_____{${pathname}}`, 'color: #dbd518', 'useLayoutEffect');
+                this.loading = LoadingTypes.Suspense;
+                dispatch(this.setLoading(true));
             }
 
             return () => {
-                console.log('%c____LOADER_____', 'color: #dbd518', 'useLayoutEffect', 'UNMOUNT', {
-                    type: type || 'LOADING',
+                console.log(`%c____LOADER_____{${pathname}}`, 'color: #dbd518', 'useLayoutEffect', 'UNMOUNT', {
+                    type,
                     loading,
                     pathname,
                     $AppState: this.$AppState
                 });
 
-                if (type === 'SUSPENSE' && (pathname === this.currentRoute /*|| this.loading === 'LOADING'*/) && !this.isPageLoaded(pathname)) {
-                    console.log('%c____LOADER_____', 'color: #dbd518', 'useLayoutEffect', 'UNMOUNT', '+++Clear+++');
+                if (
+                    type === LoadingTypes.Suspense
+                    && (pathname === this.currentRoute /*|| this.loading === 'LOADING'*/)
+                    && !this.isPageLoaded(pathname)
+                ) {
+                    console.log(`%c____LOADER_____{${pathname}}`, 'color: #dbd518', 'useLayoutEffect', 'UNMOUNT', '+++Clear+++');
                     if (pathname === this.currentRoute) {
                         this.pageOptionsMap[pathname].isPageLoaded = true;
                     }
                     this.loading = null;
                     dispatch(this.setLoading(false));
-                    console.log('__________FIRST RENDER____________', { $AppState: this.$AppState });
+                    console.log(`__________FIRST_RENDER____________{${pathname}}`, { $AppState: this.$AppState });
                 }
             };
         }, [ loading, dispatch, type, pathname ]);
 
-        console.log(`%c____LOADER_____{${type || 'LOADING'}}`, 'color: #dbd518', {
+        console.log(`%c____LOADER-${type}_____{${pathname}}`, 'color: #dbd518', {
             $AppState: this.$AppState,
             loading,
         });
@@ -992,7 +1053,8 @@ class StateSetup {
             }
 
             return isPageReady && (pathname === this.redirectTo || this.redirectTo === null);
-        });
+        }
+    );
 
     public ProtectedElement: FC<PropsWithChildren<{ pathname: string; PageLoader?: ComponentType }>> = ({
         children,
@@ -1014,12 +1076,12 @@ class StateSetup {
         const redirectTo = this.getRedirectTo(pathname);
         const { waitUntil } = this.getPageOption(this.redirectTo || pathname, 'onNavigate') || {};
 
-        if (!lazy && this.loading === 'LOADING') {
-            console.log(22222222222);
+        if (!lazy && this.loading === LoadingTypes.Loading) {
             this.waitUntil = true;
         }
 
         useEffect(() => {
+            flowState['useEffect: Update'].____ProtectedElement_____ = flowState['useEffect: Update'].____ProtectedElement_____ + 1;
             console.log('%c____ProtectedElement_____: UPDATE', 'color: #22af2c', {
                 pathname,
                 isPageReady,
@@ -1028,16 +1090,21 @@ class StateSetup {
         });
 
         useLayoutEffect(() => {
-            if (this.loading === 'LOADING' && this.restart === 'AUTH' && redirectTo && !this.isPageLoaded(redirectTo)) {
+            if (
+                this.loading === LoadingTypes.Loading
+                && this.restart === RestartTypes.OnAuth
+                && redirectTo
+                && !this.isPageLoaded(redirectTo)
+            ) {
                 console.log('%c____ProtectedElement_____', 'color: #22af2c', 'useLayoutEffect', 'SET-LOADING', { $AppState: this.$AppState, pathname });
                 dispatch(this.setLoading(true));
             }
-            if (this.hasRedirectionModal && this.restart && this.redirectionContext?.type === 'AUTH') {
+            if (this.hasRedirectionModal && this.restart && this.redirectionContext?.type === RedirectionTypes.OnAuth) {
                 dispatch(this.setShowRedirectionModal(true));
             }
         }, [ isPageReady, dispatch, pathname, redirectTo ]);
 
-        if (redirectTo && this.restart === 'AUTH') {
+        if (redirectTo && this.restart === RestartTypes.OnAuth) {
             console.log('%c____ProtectedElement_____', 'color: #22af2c', 'redirecting', { $AppState: this.$AppState });
 
             if (!this.pageOptionsMap[redirectTo]) {
@@ -1046,13 +1113,13 @@ class StateSetup {
             const { waitUntil } = this.getPageOption(redirectTo, 'onNavigate') || {};
             if (!this.loading && waitUntil && !this.isPageLoaded(redirectTo)) {
                 console.log('%c____ProtectedElement_____', 'color: #22af2c', 'PRE_SET-LOADING');
-                this.loading = 'LOADING';
+                this.loading = LoadingTypes.Loading;
             }
 
             this.redirectionContext = {
                 redirectTo,
                 from: pathname,
-                type: 'AUTH',
+                type: RedirectionTypes.OnAuth,
                 isPageLoaded: this.isPageLoaded(redirectTo)
             };
 
@@ -1066,7 +1133,7 @@ class StateSetup {
             });
             return (
                 <>
-                    { this.loading === 'LOADING' ? (
+                    { this.loading === LoadingTypes.Loading ? (
                         <this.Loader
                             pathname={ pathname }
                             PageLoader={ PageLoader }
@@ -1080,7 +1147,6 @@ class StateSetup {
             );
         }
 
-
         console.log('%c____ProtectedElement_____', 'color: #22af2c', '::END', {
             lazy,
             pathname,
@@ -1091,7 +1157,7 @@ class StateSetup {
         });
         return (
             <>
-                { this.loading === 'LOADING' ? (
+                { this.loading === LoadingTypes.Loading ? (
                     <this.Loader
                         pathname={ pathname }
                         PageLoader={ PageLoader }
@@ -1104,7 +1170,7 @@ class StateSetup {
                                     children : (
                                         <Suspense fallback={ (
                                             <this.Loader
-                                                type={ 'SUSPENSE' }
+                                                type={ LoadingTypes.Suspense }
                                                 pathname={ pathname }
                                                 PageLoader={ PageLoader }
                                             />

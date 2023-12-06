@@ -1,15 +1,15 @@
 //UPDATE SCENARIOS
 
-//! NO_AUTH ++
-    //? FIRST_RENDER ++
-        //? NO_WAIT(LAZY) ++
+//! NO_AUTH +
+    //? FIRST_RENDER +
+        //? NO_WAIT(LAZY) +
             //* {
             //* ____usePageStateSetUp____: 1,
             //* ____ProtectedElement_____: 1,
             //* ____LOADER_____: SUSPENSE=1,
             //* ____RedirectModal_____: NULL=1
             //* }
-        //? WAIT_AUTH(LAZY) ++
+        //? WAIT_AUTH(LAZY) +
         //! NO_REDIRECT
             //* {
             //* ____usePageStateSetUp____: 1,
@@ -17,7 +17,7 @@
             //* ____LOADER_____: LOADING=2, SUSPENSE=1,
             //* ____RedirectModal_____: NULL=1
             //* }
-        //? WAIT_AUTH(LAZY) ++
+        //? WAIT_AUTH(LAZY) +
         //! REDIRECT
             //* {
             //* ____usePageStateSetUp____: 2,
@@ -25,15 +25,15 @@
             //* ____LOADER_____: LOADING=3, SUSPENSE=1,
             //* ____RedirectModal_____: NULL=2, MODAL=1
             //* }
-    //? NOT_FIRST_RENDER ++
-        //? NO_WAIT(LAZY) ++
+    //? NOT_FIRST_RENDER +
+        //? NO_WAIT(LAZY) +
             //* {
             //* ____usePageStateSetUp____: 1,
             //* ____ProtectedElement_____: 1,
             //* ____LOADER_____: SUSPENSE=1 | 0,
             //* ____RedirectModal_____: 0
             //* }
-        //? WAIT_AUTH(LAZY) ++
+        //? WAIT_AUTH(LAZY) +
         //! NO_REDIRECT
             //* {
             //* ____usePageStateSetUp____: 1,
@@ -50,16 +50,16 @@
             //* ____RedirectModal_____: NULL=1, MODAL=1
             //* }
 
-//! AUTH ++
-    //? FIRST_RENDER ++
-        //? NO_WAIT(LAZY) ++
+//! AUTH +
+    //? FIRST_RENDER +
+        //? NO_WAIT(LAZY) +
             //* {
             //* ____usePageStateSetUp____: 1,
             //* ____ProtectedElement_____: 1,
             //* ____LOADER_____: SUSPENSE=1,
             //* ____RedirectModal_____: NULL=1
             //* }
-        //? WAIT_AUTH(LAZY) ++
+        //? WAIT_AUTH(LAZY) +
         //! NO_REDIRECT
             //* {
             //* ____usePageStateSetUp____: 1,
@@ -67,7 +67,7 @@
             //* ____LOADER_____: LOADING=2, SUSPENSE=1,
             //* ____RedirectModal_____: NULL=1
             //* }
-        //? WAIT_AUTH(LAZY) ++
+        //? WAIT_AUTH(LAZY) +
         //! REDIRECT
             //* {
             //* ____usePageStateSetUp____: 2,
@@ -75,15 +75,15 @@
             //* ____LOADER_____: LOADING=3, SUSPENSE=1,
             //* ____RedirectModal_____: NULL=2, MODAL=1
             //* }
-    //? NOT_FIRST_RENDER ++
-        //? NO_WAIT(LAZY) ++
+    //? NOT_FIRST_RENDER +
+        //? NO_WAIT(LAZY) +
             //* {
             //* ____usePageStateSetUp____: 1,
             //* ____ProtectedElement_____: 1,
             //* ____LOADER_____: SUSPENSE=1 | 0,
             //* ____RedirectModal_____: 0
             //* }
-        //? WAIT_AUTH(LAZY) ++
+        //? WAIT_AUTH(LAZY) +
         //! NO_REDIRECT
             //* {
             //* ____usePageStateSetUp____: 1,
@@ -91,7 +91,7 @@
             //* ____LOADER_____: (LOADING=2, SUSPENSE=1) | 0,
             //* ____RedirectModal_____: 0
             //* }
-        //? WAIT_AUTH(LAZY) ++
+        //? WAIT_AUTH(LAZY) +
         //! REDIRECT
             //* {
             //* ____usePageStateSetUp____: 2,
@@ -100,7 +100,7 @@
             //* ____RedirectModal_____: NULL=1, MODAL=1
             //* }
 
-//! LOGIN +$
+//! LOGIN +
     //! REDIRECT
     //? FIRST_RENDER +
         //? NO_WAIT(LAZY) +
@@ -135,7 +135,7 @@
     //! NO_REDIRECT
         //* NOT_RENDERING
 
-//! LOGOUT +$
+//! LOGOUT +
     //! REDIRECT
     //? FIRST_RENDER +
         //? NO_WAIT(LAZY) +
@@ -212,7 +212,7 @@
                 //* {
                 //* ____usePageStateSetUp____: 2,
                 //* ____ProtectedElement_____: 2,
-                //* ____LOADER_____: LOADING=4,
+                //* ____LOADER_____: {LOADING=3, SUSPENSE=1},
                 //* ____RedirectModal_____: NULL=1
                 //* }
         //! AFTER_CHECK_AUTH

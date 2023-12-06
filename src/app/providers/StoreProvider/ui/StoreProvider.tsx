@@ -17,6 +17,7 @@ import { useAppNavigate } from 'shared/hooks/redux';
 import { createRedirectionModal, StateSetupProvider } from 'store/app';
 import Modal from 'shared/ui/Modal';
 import Portal from 'shared/ui/Portal';
+import { flowState } from 'config/store/lib/StateSetup/core/StateSetup';
 
 
 interface IStoreProviderProps {
@@ -45,6 +46,8 @@ const RedirectionModal = createRedirectionModal(({ useContext }) => {
     }, [ closeRedirectionModal, show ]);
 
     useEffect(() => {
+        flowState['useEffect: Update'].____RedirectModal_____[!show ? 'NULL' : 'MODAL']
+            = flowState['useEffect: Update'].____RedirectModal_____[!show ? 'NULL' : 'MODAL'] + 1;
         console.log('%c____RedirectModal_____: UPDATE', 'color:#0465cd', !show ? 'NULL' : 'MODAL', { show, context });
     });
 

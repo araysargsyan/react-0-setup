@@ -75,33 +75,59 @@ const RedirectionTypes = {
 } as const;
 type TRedirectionTypes = typeof RedirectionTypes[keyof typeof RedirectionTypes];
 
-const flowStateInitial = {
-    'useEffect: Update': {
-        ____usePageStateSetUp____: 0,
-        ____ProtectedElement_____: 0,
-        ____LOADER_____: {
-            SUSPENSE: 0,
-            LOADING: 0
+
+class FlowStateInitial {
+    private initialFlowState = {
+        'useEffect: Update': {
+            ____usePageStateSetUp____: 0,
+            ____ProtectedElement_____: 0,
+            ____LOADER_____: {
+                SUSPENSE: 0,
+                LOADING: 0
+            },
+            ____RedirectModal_____: {
+                NULL: 0,
+                MODAL: 0,
+                types: []
+            },
         },
-        ____RedirectModal_____: {
-            NULL: 0,
-            MODAL: 0
-        },
-    },
-    'cals': {
-        'SETUP': {
-            count: 0,
-            breakCount: 0
-        },
-        'SETUP_FIRST': {
-            count: 0,
-            breakCount: 0
-        },
-        'CHECK_AUTH': 0,
-        'BREAK': 0
+        'calls': {
+            'SETUP': {
+                count: 0,
+                breakCount: 0
+            },
+            'SETUP_FIRST': {
+                count: 0,
+                breakCount: 0
+            },
+            'CHECK_AUTH': 0,
+            'BREAK': 0
+        }
+    };
+
+    public 'calls'!: typeof this.initialFlowState['calls'];
+    public 'useEffect: Update'!: typeof this.initialFlowState['useEffect: Update'];
+
+    constructor() {
+        this['calls'] = JSON.parse(JSON.stringify(this.initialFlowState['calls']));
+        this['useEffect: Update'] = JSON.parse(JSON.stringify(this.initialFlowState['useEffect: Update']));
     }
-};
-export let flowState: typeof flowStateInitial = JSON.parse(JSON.stringify(flowStateInitial));
+    public reset = () => {
+        console.log('__reset__');
+        this['calls'] = JSON.parse(JSON.stringify(this.initialFlowState['calls']));
+        this['useEffect: Update'] = JSON.parse(JSON.stringify(this.initialFlowState['useEffect: Update']));
+    };
+
+    public get = () => {
+        return JSON.parse(JSON.stringify({
+            ['calls']: this['calls'],
+            ['useEffect: Update']: this['useEffect: Update']
+        }));
+    };
+}
+
+export const flowState = new FlowStateInitial();
+
 
 class StateSetup {
     private readonly basePageOptions: IPageOptions & {isPageLoaded: boolean; isActionsCalling: boolean} = {
@@ -191,7 +217,7 @@ class StateSetup {
     }
 
     private setBreakPageActions(pathname: string, pageCount: number) {
-        flowState.cals['BREAK'] = flowState.cals['BREAK'] + 1;
+        flowState.calls['BREAK'] = flowState.calls['BREAK'] + 1;
         console.log('setBreakPageActions', pathname, pageCount);
         this.redirectTo = null;
         if (this.pageOptionsMap[pathname]._break) {
@@ -210,7 +236,7 @@ class StateSetup {
         },
         thunkAPI
     ) => {
-        flowState.cals['CHECK_AUTH'] = flowState.cals['CHECK_AUTH'] + 1;
+        flowState.calls['CHECK_AUTH'] = flowState.calls['CHECK_AUTH'] + 1;
         this.isAuthChecking = true;
         const pageCount = this.pageCount;
         const prevInitiated = this.flowStatus;
@@ -229,10 +255,7 @@ class StateSetup {
                 throw new Error('checkAuthorization');
             }
 
-            const redirectTo = this.getRedirectTo(isAuthExpired
-                ? this.prevRoute?.pathname || this.currentRoute
-                : this.currentRoute
-            );
+            const redirectTo = this.getRedirectTo(this.currentRoute);
             if (redirectTo) {
                 this.updateBasePageOptions(redirectTo, searchParams);
 
@@ -324,25 +347,20 @@ class StateSetup {
                     { payload: { redirectTo, mode } }
                 ) => {
                     if (mode === 'APP') {
-                        if (this.restart === RestartTypes.AuthExpired) {
-                            state.isPageReady = false;
-                            this.redirectTo = redirectTo;
-                        } else {
-                            if (this.waitUntil) {
-                                this.waitUntil = false;
-                                this.loading = null;
-                                state.loading = false;
-                                state.loadingCount = state.loadingCount + 0.5;
-                            }
-                            state.isAppReady = true;
-
-                            if (redirectTo === null) {
-                                state.isPageReady = true;
-                            } else {
-                                this.redirectTo = redirectTo;
-                                state.isPageReady = true;
-                            }
+                        // if (this.restart === RestartTypes.AuthExpired) {
+                        //     state.isPageReady = false;
+                        //     this.redirectTo = redirectTo;
+                        // } else {
+                        if (this.waitUntil) {
+                            this.waitUntil = false;
+                            this.loading = null;
+                            state.loading = false;
+                            state.loadingCount = state.loadingCount + 0.5;
                         }
+                        this.redirectTo = redirectTo;
+                        state.isAppReady = true;
+                        state.isPageReady = true;
+                        // }
                     } /*else {
                         if (redirectTo === null) {
                             if (waitUntil === 'CHECK_AUTH') {
@@ -563,7 +581,7 @@ class StateSetup {
                 dispatch
             }
         ) => {
-            flowState.cals[type].count = flowState.cals[type].count + 1;
+            flowState.calls[type].count = flowState.calls[type].count + 1;
             console.log('%c@@INIT:STATE', 'color: #ed149a', { $AppState: this.$AppState });
             try {
                 const prevRoute = this.prevRoute;
@@ -606,7 +624,7 @@ class StateSetup {
 
                 const isBroken = await this.callActions(pathname, dispatch, getState(), asyncActionCreatorsOption);
                 if (isBroken) {
-                    flowState.cals[type].breakCount = flowState.cals[type].breakCount + 1;
+                    flowState.calls[type].breakCount = flowState.calls[type].breakCount + 1;
                 }
 
                 console.info('%csetUp::end', 'color: #ed149a', {
@@ -625,8 +643,10 @@ class StateSetup {
                     && this.currentRoute === pathname
                     && this.pageOptionsMap[this.currentRoute].isActionsCalling/*&& this.flowStatus === type*/
                 ) {
-                    console.log('%csetUp->PAGE_IS_READY', 'color: #ed149a', flowState);
-                    flowState = JSON.parse(JSON.stringify(flowStateInitial));
+                    console.log('%csetUp->PAGE_IS_READY', 'color: #ed149a', flowState.get());
+                    if (!flowState['useEffect: Update'].____RedirectModal_____.MODAL) {
+                        flowState.reset();
+                    }
                     this.prevRoute = {
                         pathname,
                         mustDestroy: false
@@ -667,7 +687,9 @@ class StateSetup {
                 //     this.flowStatus = null;
                 // }
 
-                console.log('%csetUp::finally', 'color: #ed149a', { state: getState().app, $AppState: this.$AppState });
+                console.log('%csetUp::finally', 'color: #ed149a', {
+                    state: getState().app, $AppState: this.$AppState, flowState: flowState.get()
+                });
             }
         }
     );
@@ -810,14 +832,16 @@ class StateSetup {
             }, 'PagesCount=' + this.pageCount);
 
             if (mustShowRedirectionModal) {
-                console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '=========SHOW_REDIRECTION_MODAL=========');
                 this.redirectionContext = {
                     redirectTo: pathname,
                     from: state.from,
                     type: RedirectionTypes.NotFirstRender,
                     isPageLoaded: this.isPageLoaded(pathname)
                 };
-                dispatch(this.setShowRedirectionModal(true));
+                if (this.isAuth === false) {
+                    console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '=========SHOW_REDIRECTION_MODAL=========');
+                    dispatch(this.setShowRedirectionModal(true));
+                }
             }
 
             if (mustCallActions) {
@@ -843,7 +867,7 @@ class StateSetup {
                 }).then((result) => {
                     if (this.checkAuthorization.fulfilled.match(result)) {
                         if (!this.pageOptionsMap[pathname]._break?.[currentPageCount]) {
-                            if (result.payload.redirectTo || !this.pageOptionsMap[pathname].isActionsCalling) {
+                            if (result.payload.redirectTo || (!this.pageOptionsMap[pathname].isActionsCalling && result.payload.waitUntil)) {
                                 console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '============SetUp>>>CheckAuth=============', {
                                     result,
                                     pathname,
@@ -879,7 +903,7 @@ class StateSetup {
             }
 
             if (this.restart) {
-                console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'CLEAN_STATE>RESTART');
+                console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'CLEAN>RESTART');
                 this.restart = null;
             }
 
@@ -947,15 +971,16 @@ class StateSetup {
         (loadingCount) => {
             let loading = false;
 
-            if (
-                type === LoadingTypes.Suspense
-                && !waitUntil
-                && this.loading !== LoadingTypes.Loading
-                && !this.isPageLoaded(this.currentRoute)
-            ) {
-                loading = true;
-            } else if (type === LoadingTypes.Loading && this.loading === LoadingTypes.Loading) {
-                loading = true;
+            if (!this.isPageLoaded(this.currentRoute) || this.restart === RestartTypes.OnAuth) {
+                if (
+                    !waitUntil
+                    && type === LoadingTypes.Suspense
+                    && this.loading !== LoadingTypes.Loading
+                ) {
+                    loading = true;
+                } else if (type === LoadingTypes.Loading && this.loading === LoadingTypes.Loading) {
+                    loading = true;
+                }
             }
 
             console.log(`%c$$$getLoading$$$-${this.currentRoute}`, 'color: #dbd518', {
@@ -1009,8 +1034,10 @@ class StateSetup {
 
                 if (
                     type === LoadingTypes.Suspense
-                    && (pathname === this.currentRoute /*|| this.loading === 'LOADING'*/)
                     && !this.isPageLoaded(pathname)
+                    && (pathname === this.currentRoute
+                        || (this.restart === RestartTypes.AuthExpired && this.isPageLoaded(this.currentRoute))
+                    )
                 ) {
                     console.log(`%c____LOADER_____{${pathname}}`, 'color: #dbd518', 'useLayoutEffect', 'UNMOUNT', '+++Clear+++');
                     if (pathname === this.currentRoute) {

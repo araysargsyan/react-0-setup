@@ -2,7 +2,7 @@ import {
     type FC,
     type ReactNode,
     useEffect,
-    useMemo
+    useMemo, useRef
 } from 'react';
 import { type ReducersMapObject } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
@@ -33,12 +33,14 @@ const RedirectionModal = createRedirectionModal(({ useContext }) => {
         context,
         closeRedirectionModal
     } = useContext();
+    const isClosed = useRef(false);
     console.log('%c____RedirectModal_____', 'color:#0465cd', !show ? 'NULL' : 'MODAL', { show, context });
 
     useEffect(() => {
         if (show) {
             setTimeout(() => {
                 console.log('%c____RedirectModal_____', 'color:#0465cd', 'CLOSE', { show, context });
+                isClosed.current = true;
                 closeRedirectionModal();
             }, 3200);
         }
@@ -46,9 +48,16 @@ const RedirectionModal = createRedirectionModal(({ useContext }) => {
     }, [ closeRedirectionModal, show ]);
 
     useEffect(() => {
+        console.log('%c____RedirectModal_____: UPDATE', 'color:#0465cd', !show ? 'NULL' : 'MODAL', { show, context });
+        context?.type && flowState['useEffect: Update'].____RedirectModal_____.types.push(context.type as never);
         flowState['useEffect: Update'].____RedirectModal_____[!show ? 'NULL' : 'MODAL']
             = flowState['useEffect: Update'].____RedirectModal_____[!show ? 'NULL' : 'MODAL'] + 1;
-        console.log('%c____RedirectModal_____: UPDATE', 'color:#0465cd', !show ? 'NULL' : 'MODAL', { show, context });
+
+        if (isClosed.current) {
+            isClosed.current = false;
+            console.log('$flowState', flowState.get());
+            flowState.reset();
+        }
     });
 
     if (!show) {

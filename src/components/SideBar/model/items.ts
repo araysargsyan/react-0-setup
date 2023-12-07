@@ -18,6 +18,11 @@ export const sidebarItemsList: ISidebarItem[] = [
         text: 'Main',
     },
     {
+        path: ERoutes.MAIN2,
+        Icon: MainIcon,
+        text: 'Main2',
+    },
+    {
         path: ERoutes.ABOUT,
         Icon: AboutIcon,
         text: 'About us',

@@ -12,6 +12,7 @@ import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import { getIsAuthenticated } from 'store/app';
 import loginReducer, { loginActions } from 'features/forms/Login/model';
 import { type IReduxStoreWithManager } from 'config/store';
+import { USER_LOCALSTORAGE_KEY } from 'shared/const';
 
 import cls from './Navbar.module.scss';
 
@@ -59,6 +60,16 @@ const Navbar: FC<INavbarProps> = ({ className }) => {
         return (
             <div className={ _c(cls.navbar,  [ className ]) }>
                 <AppButton
+                    key={ 'CLEAR' }
+                    style={{ color: 'cyan' }}
+                    onClick={ (e) => {
+                        e.currentTarget.style.color = 'crimson';
+                        localStorage.removeItem(USER_LOCALSTORAGE_KEY);
+                    } }
+                >
+                    { 'Clear storage' }
+                </AppButton>
+                <AppButton
                     theme={ EAppButtonTheme.CLEAR_INVERTED }
                     className={ cls.links }
                     onClick={ logout }
@@ -72,11 +83,12 @@ const Navbar: FC<INavbarProps> = ({ className }) => {
     return (
         <div className={ _c(cls.navbar, [ className ]) }>
             <AppButton
-                className={ _c(cls.links) }
+                key={ 'FAST' }
+                style={{ color: 'cyan' }}
                 theme={ EAppButtonTheme.CLEAR_INVERTED }
                 onClick={ fastLogin }
             >
-                { 'loginnn' }
+                { 'Fast Login' }
             </AppButton>
             <AppButton
                 className={ _c(cls.links) }

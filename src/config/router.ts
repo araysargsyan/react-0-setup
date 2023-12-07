@@ -10,6 +10,7 @@ import { type DeepPartial } from '@reduxjs/toolkit';
 
 export const enum ERoutes {
     MAIN = '/',
+    MAIN2 = '/as',
     LOGIN = '/login',
     ABOUT = '/about',
     PROFILE = '/profile',
@@ -33,6 +34,10 @@ export interface IRouterConfig {
 export const routesConfig: Array<PathRouteProps & IRouterConfig> = [
     {
         path: ERoutes.MAIN,
+        Element: memo(lazyImport(() => import('pages/Main')))
+    },
+    {
+        path: ERoutes.MAIN2,
         Element: memo(lazyImport(() => import('pages/Main')))
     },
     {

@@ -26,7 +26,9 @@ import {
     useSearchParams
 } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import until from 'app/dubag/util/wait';
 
+import { auth, noAuth } from './testScenarios';
 import {
     type TStateSetupFn,
     type IAppSchema,
@@ -104,18 +106,198 @@ class FlowStateInitial {
             'BREAK': 0
         }
     };
-
+    public navigate!: ReturnType<typeof useNavigate>;
+    public checks: any = { errors: [] };
     public 'calls'!: typeof this.initialFlowState['calls'];
     public 'useEffect: Update'!: typeof this.initialFlowState['useEffect: Update'];
 
     constructor() {
+        this.checks = {
+            ...this.checks,
+            ...JSON.parse(localStorage.getItem('checks') || '{}')
+        };
         this['calls'] = JSON.parse(JSON.stringify(this.initialFlowState['calls']));
         this['useEffect: Update'] = JSON.parse(JSON.stringify(this.initialFlowState['useEffect: Update']));
     }
     public reset = () => {
-        console.log('__reset__');
-        this['calls'] = JSON.parse(JSON.stringify(this.initialFlowState['calls']));
-        this['useEffect: Update'] = JSON.parse(JSON.stringify(this.initialFlowState['useEffect: Update']));
+        const waitingTime = 100;
+
+        if (window.location.pathname !== noAuth.paths.FRL['NO_WAIT']
+            && this.checks?.noAuth?.['FRL->NO_WAIT'] === undefined
+        ) {
+            until(waitingTime).then(() => {
+                localStorage.setItem('flowState', JSON.stringify(noAuth.FRL['NO_WAIT']));
+                localStorage.setItem('flowStateMap', JSON.stringify([ 'noAuth', 'FRL', 'NO_WAIT' ]));
+                window.location.replace(noAuth.paths.FRL['NO_WAIT']);
+            });
+        } else {
+            if (window.location.pathname === noAuth.paths.FRL['NO_WAIT']
+                && this.checks?.noAuth?.['FRL->NO_WAIT'] === undefined
+                && !localStorage.getItem('flowState')
+            ) {
+                return window.location.replace('/as');
+            }
+
+            const isAsAspect: boolean = localStorage.getItem('flowState') === JSON.stringify(this['useEffect: Update']);
+            const flowStateMap: string[] | string = JSON.parse(localStorage.getItem('flowStateMap') || '[]');
+
+            console.log('$__reset__$: INIT', {
+                LOCAL: JSON.parse(localStorage.getItem('flowState') || '{}'),
+                ORIGINAL: this['useEffect: Update'],
+                checks: this.checks,
+                flowStateMap,
+                isAsAspect,
+            });
+            if (Array.isArray(flowStateMap) && flowStateMap.length) {
+                this.checks[flowStateMap[0]] = {
+                    ...this.checks?.[flowStateMap[0]],
+                    [flowStateMap.filter((k) => k !== flowStateMap[0]).join('->')]: isAsAspect
+                };
+                if (!isAsAspect) {
+                    this.checks.errors = [
+                        ...this.checks.errors,
+                        {
+                            LOCAL: JSON.parse(localStorage.getItem('flowState') || '{}'),
+                            ORIGINAL: JSON.parse(JSON.stringify(this['useEffect: Update'])),
+                            flowStateMap
+                        }
+                    ];
+                }
+                localStorage.setItem('checks', JSON.stringify(this.checks));
+
+                console.log('$__reset__$: CHECKS', this.checks);
+            }
+
+            localStorage.removeItem('flowState');
+            localStorage.removeItem('flowStateMap');
+            this['calls'] = JSON.parse(JSON.stringify(this.initialFlowState['calls']));
+            this['useEffect: Update'] = JSON.parse(JSON.stringify(this.initialFlowState['useEffect: Update']));
+
+            const type = Array.isArray(flowStateMap) ? flowStateMap[0] : flowStateMap;
+            const object = type === 'noAuth' ? noAuth : type === 'auth' ? auth : null;
+            if ([ 'noAuth', 'auth' ].includes(type) && object) {
+                if (this.checks[type]['FRL->WAIT_AUTH'] === undefined
+                    && window.location.pathname !== object.paths['FRL']['WAIT_AUTH']
+                ) {
+                    until(waitingTime).then(() => {
+                        localStorage.setItem('flowState', JSON.stringify(object['FRL']['WAIT_AUTH']));
+                        localStorage.setItem('flowStateMap', JSON.stringify([ type, 'FRL', 'WAIT_AUTH' ]));
+                        window.location.replace(object.paths['FRL']['WAIT_AUTH']);
+                    });
+                } else if (this.checks[type]['FRL->WAIT_AUTH/REDIRECT'] === undefined
+                    && window.location.pathname !== object.paths['FRL']['WAIT_AUTH/REDIRECT']
+                ) {
+                    until(waitingTime).then(() => {
+                        localStorage.setItem('flowState', JSON.stringify(object['FRL']['WAIT_AUTH/REDIRECT']));
+                        localStorage.setItem('flowStateMap', JSON.stringify([ type, 'FRL', 'WAIT_AUTH/REDIRECT' ]));
+                        window.location.replace(object.paths['FRL']['WAIT_AUTH/REDIRECT']);
+                    });
+                } else if (this.checks[type]['NFRL->NO_WAIT'] === undefined) {
+                    if (window.location.pathname !== '/as') {
+                        localStorage.setItem('flowStateMap', JSON.stringify(type));
+                        window.location.replace('/as');
+                    } else {
+                        until(waitingTime).then(() => {
+                            localStorage.setItem('flowState', JSON.stringify(object['NFRL']['NO_WAIT']));
+                            localStorage.setItem('flowStateMap', JSON.stringify([ type, 'NFRL', 'NO_WAIT' ]));
+                            this.navigate(object.paths['NFRL']['NO_WAIT']);
+                        });
+                    }
+                } else if (this.checks[type]['NFRL->WAIT_AUTH'] === undefined) {
+                    if (window.location.pathname !== '/as') {
+                        localStorage.setItem('flowStateMap', JSON.stringify(type));
+                        window.location.replace('/as');
+                    } else {
+                        until(waitingTime).then(() => {
+                            localStorage.setItem('flowState', JSON.stringify(object['NFRL']['WAIT_AUTH']));
+                            localStorage.setItem('flowStateMap', JSON.stringify([ type, 'NFRL', 'WAIT_AUTH' ]));
+                            this.navigate(object.paths['NFRL']['WAIT_AUTH']);
+                        });
+                    }
+                } else if (this.checks[type]['NFRL->WAIT_AUTH/REDIRECT'] === undefined) {
+                    if (window.location.pathname !== '/as') {
+                        localStorage.setItem('flowStateMap', JSON.stringify(type));
+                        window.location.replace('/as');
+                    } else {
+                        until(waitingTime).then(() => {
+                            localStorage.setItem('flowState', JSON.stringify(object['NFRL']['WAIT_AUTH/REDIRECT']));
+                            localStorage.setItem('flowStateMap', JSON.stringify([ type, 'NFRL', 'WAIT_AUTH/REDIRECT' ]));
+                            this.navigate(object.paths['NFRL']['WAIT_AUTH/REDIRECT']);
+                        });
+                    }
+                } else if (this.checks[type]['NFRLL->NO_WAIT'] === undefined) {
+                    const path = object.paths['NFRLL']['NO_WAIT'];
+                    const isRendered = localStorage.getItem('rendered');
+                    if (window.location.pathname !== '/as' && !isRendered) {
+                        localStorage.setItem('flowStateMap', JSON.stringify(type));
+                        window.location.replace('/as?rendered=false');
+                    } else if (window.location.pathname === '/as' && window.location.search === '?rendered=false') {
+                        until(waitingTime).then(() => {
+                            localStorage.setItem('flowStateMap', JSON.stringify(type));
+                            localStorage.setItem('rendered', JSON.stringify(true));
+                            window.location.replace(path);
+                        });
+                    } else if (isRendered === 'true') {
+                        until(waitingTime).then(() => {
+                            localStorage.removeItem('rendered');
+                            localStorage.setItem('flowState', JSON.stringify(object['NFRLL']['NO_WAIT']));
+                            localStorage.setItem('flowStateMap', JSON.stringify([ type, 'NFRLL', 'NO_WAIT' ]));
+                            this.navigate(path);
+                        });
+                    }
+                } else if (this.checks[type]['NFRLL->WAIT_AUTH'] === undefined) {
+                    const path = object.paths['NFRLL']['WAIT_AUTH'];
+                    const isRendered = localStorage.getItem('rendered');
+                    if (window.location.pathname !== '/as' && !isRendered) {
+                        localStorage.setItem('flowStateMap', JSON.stringify(type));
+                        window.location.replace('/as?rendered=false');
+                    } else if (window.location.pathname === '/as' && window.location.search === '?rendered=false') {
+                        until(waitingTime).then(() => {
+                            localStorage.setItem('flowStateMap', JSON.stringify(type));
+                            localStorage.setItem('rendered', JSON.stringify(true));
+                            window.location.replace(path);
+                        });
+                    } else if (isRendered === 'true') {
+                        until(waitingTime).then(() => {
+                            localStorage.removeItem('rendered');
+                            localStorage.setItem('flowState', JSON.stringify(object['NFRLL']['WAIT_AUTH']));
+                            localStorage.setItem('flowStateMap', JSON.stringify([ type, 'NFRLL', 'WAIT_AUTH' ]));
+                            this.navigate(path);
+                        });
+                    }
+                } else if (this.checks[type]['NFRLL->WAIT_AUTH/REDIRECT'] === undefined) {
+                    const path = object.paths['NFRLL']['WAIT_AUTH/REDIRECT'];
+                    const isRendered = localStorage.getItem('rendered');
+                    if (window.location.pathname !== '/as' && !isRendered) {
+                        localStorage.setItem('flowStateMap', JSON.stringify(type));
+                        window.location.replace('/as?rendered=false');
+                    } else if (window.location.pathname === '/as' && window.location.search === '?rendered=false') {
+                        until(waitingTime).then(() => {
+                            localStorage.setItem('flowStateMap', JSON.stringify(type));
+                            localStorage.setItem('rendered', JSON.stringify(true));
+                            window.location.replace(path);
+                        });
+                    } else if (isRendered === 'true') {
+                        until(waitingTime).then(() => {
+                            localStorage.removeItem('rendered');
+                            localStorage.setItem('flowState', JSON.stringify(object['NFRLL']['WAIT_AUTH/REDIRECT']));
+                            localStorage.setItem('flowStateMap', JSON.stringify([ type, 'NFRLL', 'WAIT_AUTH/REDIRECT' ]));
+                            this.navigate(path);
+                        });
+                    }
+                } else if (!localStorage.getItem('user') && this.checks.auth === undefined) {
+                    localStorage.setItem('user', JSON.stringify({
+                        id: '1',
+                        password: '123',
+                        username: 'admin',
+                    }));
+                    localStorage.setItem('flowState', JSON.stringify(auth.FRL['NO_WAIT']));
+                    localStorage.setItem('flowStateMap', JSON.stringify([ 'auth', 'FRL', 'NO_WAIT' ]));
+                    window.location.replace(auth.paths.FRL['NO_WAIT']);
+                }
+            }
+        }
+
     };
 
     public get = () => {
@@ -789,6 +971,9 @@ class StateSetup {
         });
 
         useLayoutEffect(() => {
+            if (!flowState.navigate) {
+                flowState.navigate = navigate;
+            }
             if (this.flowStatus === FlowStatuses.Start) {
                 if (mustRedirectTo) {
                     console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'useLayoutEffect', 'REDIRECT');
@@ -807,7 +992,6 @@ class StateSetup {
         });
 
         useEffect(() => {
-            console.log(stopActionsRecall, 888);
             const mustCheckAuth = !this.isAuthChecking
                 && this.flowStatus === FlowStatuses.Start
                 && (this.isAuth === null || Boolean(this.isAuth));

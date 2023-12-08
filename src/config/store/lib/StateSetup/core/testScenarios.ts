@@ -1,5 +1,105 @@
 //UPDATE SCENARIOS
 
+export const noAuth = {
+    paths: {
+        //! FIRST_RENDER(LAZY)
+        FRL: {
+            'NO_WAIT': '/',
+            'WAIT_AUTH': '/about',
+            'WAIT_AUTH/REDIRECT': '/profile',
+        },
+        //! NOT_FIRST_RENDER(LAZY)
+        NFRL: {
+            'NO_WAIT': '/',
+            'WAIT_AUTH': '/about',
+            'WAIT_AUTH/REDIRECT': '/profile',
+        },
+        //! NOT_FIRST_RENDER_LOADED(LAZY)
+        NFRLL: {
+            'NO_WAIT': '/',
+            'WAIT_AUTH': '/about',
+            'WAIT_AUTH/REDIRECT': '/profile',
+        }
+    },
+    FRL: {
+        'NO_WAIT': {
+            ____usePageStateSetUp____: 1,
+            ____ProtectedElement_____: 1,
+            ____LOADER_____: { SUSPENSE: 1, LOADING: 0 },
+            ____RedirectModal_____: {
+                NULL: 1, MODAL: 0, types: []
+            }
+        },
+        'WAIT_AUTH': {
+            ____usePageStateSetUp____: 1,
+            ____ProtectedElement_____: 2,
+            ____LOADER_____: { SUSPENSE: 1, LOADING: 2 },
+            ____RedirectModal_____: {
+                NULL: 1, MODAL: 0, types: []
+            }
+        },
+        'WAIT_AUTH/REDIRECT': {
+            ____usePageStateSetUp____: 2,
+            ____ProtectedElement_____: 2,
+            ____LOADER_____: { SUSPENSE: 1, LOADING: 3 },
+            ____RedirectModal_____: {
+                NULL: 2, MODAL: 1, types: [ 'FIRST_RENDER' ]
+            }
+        },
+    },
+    NFRL: {
+        'NO_WAIT': {
+            ____usePageStateSetUp____: 1,
+            ____ProtectedElement_____: 1,
+            ____LOADER_____: { SUSPENSE: 1, LOADING: 0 },
+            ____RedirectModal_____: {
+                NULL: 0, MODAL: 0, types: []
+            }
+        },
+        'WAIT_AUTH': {
+            ____usePageStateSetUp____: 1,
+            ____ProtectedElement_____: 1,
+            ____LOADER_____: { SUSPENSE: 1, LOADING: 2 },
+            ____RedirectModal_____: {
+                NULL: 0, MODAL: 0, types: []
+            }
+        },
+        'WAIT_AUTH/REDIRECT': {
+            ____usePageStateSetUp____: 2,
+            ____ProtectedElement_____: 2,
+            ____LOADER_____: { SUSPENSE: 1, LOADING: 3 },
+            ____RedirectModal_____: {
+                NULL: 1, MODAL: 1, types: [ 'NOT_FIRST_RENDER' ]
+            }
+        },
+    },
+    NFRLL: {
+        'NO_WAIT': {
+            ____usePageStateSetUp____: 1,
+            ____ProtectedElement_____: 1,
+            ____LOADER_____: { SUSPENSE: 0, LOADING: 0 },
+            ____RedirectModal_____: {
+                NULL: 0, MODAL: 0, types: []
+            }
+        },
+        'WAIT_AUTH': {
+            ____usePageStateSetUp____: 1,
+            ____ProtectedElement_____: 1,
+            ____LOADER_____: { SUSPENSE: 0, LOADING: 0 },
+            ____RedirectModal_____: {
+                NULL: 0, MODAL: 0, types: []
+            }
+        },
+        'WAIT_AUTH/REDIRECT': {
+            ____usePageStateSetUp____: 2,
+            ____ProtectedElement_____: 2,
+            ____LOADER_____: { SUSPENSE: 0, LOADING: 0 },
+            ____RedirectModal_____: {
+                NULL: 1, MODAL: 1, types: [ 'NOT_FIRST_RENDER' ]
+            }
+        },
+    }
+};
 //! NO_AUTH +$
     //? FIRST_RENDER +
         //? NO_WAIT(LAZY) +
@@ -50,6 +150,106 @@
             //* ____RedirectModal_____: NULL=1, MODAL=1
             //* }
 
+export const auth = {
+    paths: {
+        //! FIRST_RENDER(LAZY)
+        FRL: {
+            'NO_WAIT': '/',
+            'WAIT_AUTH': '/profile',
+            'WAIT_AUTH/REDIRECT': '/about',
+        },
+        //! NOT_FIRST_RENDER(LAZY)
+        NFRL: {
+            'NO_WAIT': '/',
+            'WAIT_AUTH': '/profile',
+            'WAIT_AUTH/REDIRECT': '/about',
+        },
+        //! NOT_FIRST_RENDER_LOADED(LAZY)
+        NFRLL: {
+            'NO_WAIT': '/',
+            'WAIT_AUTH': '/profile',
+            'WAIT_AUTH/REDIRECT': '/about',
+        }
+    },
+    FRL: {
+        'NO_WAIT': {
+            ____usePageStateSetUp____: 1,
+            ____ProtectedElement_____: 1,
+            ____LOADER_____: { SUSPENSE: 1, LOADING: 0 },
+            ____RedirectModal_____: {
+                NULL: 1, MODAL: 0, types: []
+            }
+        },
+        'WAIT_AUTH': {
+            ____usePageStateSetUp____: 1,
+            ____ProtectedElement_____: 2,
+            ____LOADER_____: { SUSPENSE: 1, LOADING: 2 },
+            ____RedirectModal_____: {
+                NULL: 1, MODAL: 0, types: []
+            }
+        },
+        'WAIT_AUTH/REDIRECT': {
+            ____usePageStateSetUp____: 2,
+            ____ProtectedElement_____: 2,
+            ____LOADER_____: { SUSPENSE: 1, LOADING: 3 },
+            ____RedirectModal_____: {
+                NULL: 2, MODAL: 1, types: [ 'FIRST_RENDER' ]
+            }
+        },
+    },
+    NFRL: {
+        'NO_WAIT': {
+            ____usePageStateSetUp____: 1,
+            ____ProtectedElement_____: 1,
+            ____LOADER_____: { SUSPENSE: 1, LOADING: 0 },
+            ____RedirectModal_____: {
+                NULL: 0, MODAL: 0, types: []
+            }
+        },
+        'WAIT_AUTH': {
+            ____usePageStateSetUp____: 1,
+            ____ProtectedElement_____: 1,
+            ____LOADER_____: { SUSPENSE: 1, LOADING: 2 },
+            ____RedirectModal_____: {
+                NULL: 0, MODAL: 0, types: []
+            }
+        },
+        'WAIT_AUTH/REDIRECT': {
+            ____usePageStateSetUp____: 2,
+            ____ProtectedElement_____: 2,
+            ____LOADER_____: { SUSPENSE: 1, LOADING: 3 },
+            ____RedirectModal_____: {
+                NULL: 1, MODAL: 1, types: [ 'NOT_FIRST_RENDER' ]
+            }
+        },
+    },
+    NFRLL: {
+        'NO_WAIT': {
+            ____usePageStateSetUp____: 1,
+            ____ProtectedElement_____: 1,
+            ____LOADER_____: { SUSPENSE: 0, LOADING: 0 },
+            ____RedirectModal_____: {
+                NULL: 0, MODAL: 0, types: []
+            }
+        },
+        'WAIT_AUTH': {
+            ____usePageStateSetUp____: 1,
+            ____ProtectedElement_____: 1,
+            ____LOADER_____: { SUSPENSE: 0, LOADING: 0 },
+            ____RedirectModal_____: {
+                NULL: 0, MODAL: 0, types: []
+            }
+        },
+        'WAIT_AUTH/REDIRECT': {
+            ____usePageStateSetUp____: 2,
+            ____ProtectedElement_____: 2,
+            ____LOADER_____: { SUSPENSE: 0, LOADING: 0 },
+            ____RedirectModal_____: {
+                NULL: 1, MODAL: 1, types: [ 'NOT_FIRST_RENDER' ]
+            }
+        },
+    }
+};
 //! AUTH +$
     //? FIRST_RENDER +
         //? NO_WAIT(LAZY) +

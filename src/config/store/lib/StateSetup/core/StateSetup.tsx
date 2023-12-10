@@ -27,8 +27,11 @@ import {
 } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import until from 'app/dubag/util/wait';
+import { ERoutes } from 'config/router';
 
-import { auth, noAuth } from './testScenarios';
+import {
+    auth, login, logout, noAuth
+} from './testScenarios';
 import {
     type TStateSetupFn,
     type IAppSchema,
@@ -120,7 +123,7 @@ class FlowStateInitial {
         this['useEffect: Update'] = JSON.parse(JSON.stringify(this.initialFlowState['useEffect: Update']));
     }
     public reset = () => {
-        const waitingTime = 100;
+        const waitingTime = 1000;
 
         if (window.location.pathname !== noAuth.paths.FRL['NO_WAIT']
             && this.checks?.noAuth?.['FRL->NO_WAIT'] === undefined
@@ -135,7 +138,7 @@ class FlowStateInitial {
                 && this.checks?.noAuth?.['FRL->NO_WAIT'] === undefined
                 && !localStorage.getItem('flowState')
             ) {
-                return window.location.replace('/as');
+                return window.location.replace(ERoutes.TEST);
             }
 
             const isAsAspect: boolean = localStorage.getItem('flowState') === JSON.stringify(this['useEffect: Update']);
@@ -170,32 +173,32 @@ class FlowStateInitial {
 
             localStorage.removeItem('flowState');
             localStorage.removeItem('flowStateMap');
+            localStorage.removeItem('$authProtectionConfig');
             this['calls'] = JSON.parse(JSON.stringify(this.initialFlowState['calls']));
             this['useEffect: Update'] = JSON.parse(JSON.stringify(this.initialFlowState['useEffect: Update']));
 
             const type = Array.isArray(flowStateMap) ? flowStateMap[0] : flowStateMap;
-            const object = type === 'noAuth' ? noAuth : type === 'auth' ? auth : null;
+            const object: any = type === 'noAuth' ? noAuth
+                : type === 'auth' ? auth
+                    : type === 'login' ? login
+                        : type === 'logout' ? logout : null;
             if ([ 'noAuth', 'auth' ].includes(type) && object) {
-                if (this.checks[type]['FRL->WAIT_AUTH'] === undefined
-                    && window.location.pathname !== object.paths['FRL']['WAIT_AUTH']
-                ) {
+                if (this.checks[type]['FRL->WAIT_AUTH'] === undefined) {
                     until(waitingTime).then(() => {
                         localStorage.setItem('flowState', JSON.stringify(object['FRL']['WAIT_AUTH']));
                         localStorage.setItem('flowStateMap', JSON.stringify([ type, 'FRL', 'WAIT_AUTH' ]));
                         window.location.replace(object.paths['FRL']['WAIT_AUTH']);
                     });
-                } else if (this.checks[type]['FRL->WAIT_AUTH/REDIRECT'] === undefined
-                    && window.location.pathname !== object.paths['FRL']['WAIT_AUTH/REDIRECT']
-                ) {
+                } else if (this.checks[type]['FRL->WAIT_AUTH/REDIRECT'] === undefined) {
                     until(waitingTime).then(() => {
                         localStorage.setItem('flowState', JSON.stringify(object['FRL']['WAIT_AUTH/REDIRECT']));
                         localStorage.setItem('flowStateMap', JSON.stringify([ type, 'FRL', 'WAIT_AUTH/REDIRECT' ]));
                         window.location.replace(object.paths['FRL']['WAIT_AUTH/REDIRECT']);
                     });
                 } else if (this.checks[type]['NFRL->NO_WAIT'] === undefined) {
-                    if (window.location.pathname !== '/as') {
+                    if (window.location.pathname !== ERoutes.TEST) {
                         localStorage.setItem('flowStateMap', JSON.stringify(type));
-                        window.location.replace('/as');
+                        window.location.replace(ERoutes.TEST);
                     } else {
                         until(waitingTime).then(() => {
                             localStorage.setItem('flowState', JSON.stringify(object['NFRL']['NO_WAIT']));
@@ -204,9 +207,9 @@ class FlowStateInitial {
                         });
                     }
                 } else if (this.checks[type]['NFRL->WAIT_AUTH'] === undefined) {
-                    if (window.location.pathname !== '/as') {
+                    if (window.location.pathname !== ERoutes.TEST) {
                         localStorage.setItem('flowStateMap', JSON.stringify(type));
-                        window.location.replace('/as');
+                        window.location.replace(ERoutes.TEST);
                     } else {
                         until(waitingTime).then(() => {
                             localStorage.setItem('flowState', JSON.stringify(object['NFRL']['WAIT_AUTH']));
@@ -215,9 +218,9 @@ class FlowStateInitial {
                         });
                     }
                 } else if (this.checks[type]['NFRL->WAIT_AUTH/REDIRECT'] === undefined) {
-                    if (window.location.pathname !== '/as') {
+                    if (window.location.pathname !== ERoutes.TEST) {
                         localStorage.setItem('flowStateMap', JSON.stringify(type));
-                        window.location.replace('/as');
+                        window.location.replace(ERoutes.TEST);
                     } else {
                         until(waitingTime).then(() => {
                             localStorage.setItem('flowState', JSON.stringify(object['NFRL']['WAIT_AUTH/REDIRECT']));
@@ -228,10 +231,10 @@ class FlowStateInitial {
                 } else if (this.checks[type]['NFRLL->NO_WAIT'] === undefined) {
                     const path = object.paths['NFRLL']['NO_WAIT'];
                     const isRendered = localStorage.getItem('rendered');
-                    if (window.location.pathname !== '/as' && !isRendered) {
+                    if (window.location.pathname !== ERoutes.TEST && !isRendered) {
                         localStorage.setItem('flowStateMap', JSON.stringify(type));
-                        window.location.replace('/as?rendered=false');
-                    } else if (window.location.pathname === '/as' && window.location.search === '?rendered=false') {
+                        window.location.replace(`${ERoutes.TEST}?rendered=false`);
+                    } else if (window.location.pathname === ERoutes.TEST && window.location.search === '?rendered=false') {
                         until(waitingTime).then(() => {
                             localStorage.setItem('flowStateMap', JSON.stringify(type));
                             localStorage.setItem('rendered', JSON.stringify(true));
@@ -248,10 +251,10 @@ class FlowStateInitial {
                 } else if (this.checks[type]['NFRLL->WAIT_AUTH'] === undefined) {
                     const path = object.paths['NFRLL']['WAIT_AUTH'];
                     const isRendered = localStorage.getItem('rendered');
-                    if (window.location.pathname !== '/as' && !isRendered) {
+                    if (window.location.pathname !== ERoutes.TEST && !isRendered) {
                         localStorage.setItem('flowStateMap', JSON.stringify(type));
-                        window.location.replace('/as?rendered=false');
-                    } else if (window.location.pathname === '/as' && window.location.search === '?rendered=false') {
+                        window.location.replace(`${ERoutes.TEST}?rendered=false`);
+                    } else if (window.location.pathname === ERoutes.TEST && window.location.search === '?rendered=false') {
                         until(waitingTime).then(() => {
                             localStorage.setItem('flowStateMap', JSON.stringify(type));
                             localStorage.setItem('rendered', JSON.stringify(true));
@@ -268,10 +271,10 @@ class FlowStateInitial {
                 } else if (this.checks[type]['NFRLL->WAIT_AUTH/REDIRECT'] === undefined) {
                     const path = object.paths['NFRLL']['WAIT_AUTH/REDIRECT'];
                     const isRendered = localStorage.getItem('rendered');
-                    if (window.location.pathname !== '/as' && !isRendered) {
+                    if (window.location.pathname !== ERoutes.TEST && !isRendered) {
                         localStorage.setItem('flowStateMap', JSON.stringify(type));
-                        window.location.replace('/as?rendered=false');
-                    } else if (window.location.pathname === '/as' && window.location.search === '?rendered=false') {
+                        window.location.replace(`${ERoutes.TEST}?rendered=false`);
+                    } else if (window.location.pathname === ERoutes.TEST && window.location.search === '?rendered=false') {
                         until(waitingTime).then(() => {
                             localStorage.setItem('flowStateMap', JSON.stringify(type));
                             localStorage.setItem('rendered', JSON.stringify(true));
@@ -285,7 +288,7 @@ class FlowStateInitial {
                             this.navigate(path);
                         });
                     }
-                } else if (!localStorage.getItem('user') && this.checks.auth === undefined) {
+                }  else if (!localStorage.getItem('user') && this.checks.auth === undefined) {
                     localStorage.setItem('user', JSON.stringify({
                         id: '1',
                         password: '123',
@@ -294,6 +297,92 @@ class FlowStateInitial {
                     localStorage.setItem('flowState', JSON.stringify(auth.FRL['NO_WAIT']));
                     localStorage.setItem('flowStateMap', JSON.stringify([ 'auth', 'FRL', 'NO_WAIT' ]));
                     window.location.replace(auth.paths.FRL['NO_WAIT']);
+                } else if (localStorage.getItem('user') && this.checks.login === undefined) {
+                    document.getElementById('SIGN_OUT')?.click();
+                    until(waitingTime + 1000).then(() => {
+                        localStorage.setItem('flowStateMap', JSON.stringify('login'));
+                        localStorage.setItem('$authProtectionConfig', JSON.stringify(login.config['RFRL']['NO_WAIT']));
+                        window.location.replace(login.paths['RFRL']['NO_WAIT']);
+                    });
+                }
+            } else if ([ 'login', 'logout' ].includes(type) && object) {
+                const loginBtnId = 'FAST_SIGN_IN';
+                const logoutBtnId = 'SIGN_OUT';
+
+                if (this.checks[type] === undefined) {
+                    until(waitingTime).then(() => {
+                        localStorage.setItem('flowStateMap', JSON.stringify([ type, 'RFRL', 'NO_WAIT' ]));
+                        localStorage.setItem('flowState', JSON.stringify(object['RFRL']['NO_WAIT']));
+                        (document.getElementById(type === 'login' ? loginBtnId : logoutBtnId))?.click();
+                    });
+                } else if (this.checks[type]['RFRL->WAIT_AUTH'] === undefined) {
+                    if (window.location.pathname !== object.paths['RFRL']['WAIT_AUTH']) {
+                        (document.getElementById(type === 'login' ? logoutBtnId : loginBtnId))?.click(),
+                        until(waitingTime + 1000).then(() => {
+                            localStorage.setItem('$authProtectionConfig', JSON.stringify(object.config['RFRL']['WAIT_AUTH']));
+                            localStorage.setItem('flowStateMap', JSON.stringify(type));
+                            window.location.replace(object.paths['RFRL']['WAIT_AUTH']);
+                        });
+                    } else {
+                        until(waitingTime + 1000).then(() => {
+                            localStorage.setItem('flowStateMap', JSON.stringify([ type, 'RFRL', 'WAIT_AUTH' ]));
+                            localStorage.setItem('flowState', JSON.stringify(object['RFRL']['WAIT_AUTH']));
+                            (document.getElementById(type === 'login' ? loginBtnId : logoutBtnId))?.click();
+                        });
+                    }
+                } else if (this.checks[type]['RNFRL->NO_WAIT'] === undefined) {
+                    const rendered = localStorage.getItem('rendered');
+                    if (window.location.pathname !== object.config['RNFRL']['NO_WAIT'][type === 'login'? 'authorized' : 'unAuthorized'] && !rendered) {
+                        localStorage.setItem('rendered', JSON.stringify(true));
+                        localStorage.setItem('flowStateMap', JSON.stringify(type));
+                        localStorage.setItem('$authProtectionConfig', JSON.stringify(object.config['RNFRL']['NO_WAIT']));
+                        window.location.replace(object.config['RNFRL']['NO_WAIT'][type === 'login'? 'authorized' : 'unAuthorized']);
+                    } else {
+                        (document.getElementById(type === 'login' ? logoutBtnId : loginBtnId))?.click();
+                        until(waitingTime).then(() => {
+                            if (window.location.pathname !== object.paths['RNFRL']['NO_WAIT']) {
+                                localStorage.setItem('flowStateMap', JSON.stringify(type));
+                                localStorage.setItem('$authProtectionConfig', JSON.stringify(object.config['RNFRL']['NO_WAIT']));
+                                this.navigate(object.paths['RNFRL']['NO_WAIT']);
+                            } else {
+                                localStorage.removeItem('rendered');
+                                localStorage.setItem('flowStateMap', JSON.stringify([ type, 'RNFRL', 'NO_WAIT' ]));
+                                localStorage.setItem('$authProtectionConfig', JSON.stringify(object.config['RNFRL']['NO_WAIT']));
+                                localStorage.setItem('flowState', JSON.stringify(object['RNFRL']['NO_WAIT']));
+                                (document.getElementById(type === 'login' ? loginBtnId : logoutBtnId))?.click();
+                            }
+                        });
+                    }
+                } else if (this.checks[type]['RNFRL->WAIT_AUTH'] === undefined) {
+                    const rendered = localStorage.getItem('rendered');
+                    if (window.location.pathname !== object.config['RNFRL']['WAIT_AUTH'][type === 'login'? 'authorized' : 'unAuthorized'] && !rendered) {
+                        localStorage.setItem('rendered', JSON.stringify(true));
+                        localStorage.setItem('flowStateMap', JSON.stringify(type));
+                        localStorage.setItem('$authProtectionConfig', JSON.stringify(object.config['RNFRL']['WAIT_AUTH']));
+                        window.location.replace(object.config['RNFRL']['WAIT_AUTH'][type === 'login'? 'authorized' : 'unAuthorized']);
+                    } else {
+                        (document.getElementById(type === 'login' ? logoutBtnId : loginBtnId))?.click();
+                        until(waitingTime).then(() => {
+                            if (window.location.pathname !== object.paths['RNFRL']['WAIT_AUTH']) {
+                                localStorage.setItem('flowStateMap', JSON.stringify(type));
+                                localStorage.setItem('$authProtectionConfig', JSON.stringify(object.config['RNFRL']['WAIT_AUTH']));
+                                this.navigate(object.paths['RNFRL']['WAIT_AUTH']);
+                            } else {
+                                localStorage.removeItem('rendered');
+                                localStorage.setItem('flowStateMap', JSON.stringify([ type, 'RNFRL', 'WAIT_AUTH' ]));
+                                localStorage.setItem('$authProtectionConfig', JSON.stringify(object.config['RNFRL']['WAIT_AUTH']));
+                                localStorage.setItem('flowState', JSON.stringify(object['RNFRL']['WAIT_AUTH']));
+                                (document.getElementById(type === 'login' ? loginBtnId : logoutBtnId))?.click();
+                            }
+                        });
+                    }
+                } else if (this.checks['login']['RNFRL->WAIT_AUTH'] && this.checks.logout === undefined) {
+                    document.getElementById(loginBtnId)?.click();
+                    until(waitingTime + 1000).then(() => {
+                        localStorage.setItem('flowStateMap', JSON.stringify('logout'));
+                        localStorage.setItem('$authProtectionConfig', JSON.stringify(logout.config['RFRL']['NO_WAIT']));
+                        window.location.replace(logout.paths['RFRL']['NO_WAIT']);
+                    });
                 }
             }
         }
@@ -309,10 +398,20 @@ class FlowStateInitial {
 }
 
 export const flowState = new FlowStateInitial();
-
+// @ts-ignore
+window.flowState = flowState;
 
 class StateSetup {
-    private readonly basePageOptions: IPageOptions & {isPageLoaded: boolean; isActionsCalling: boolean} = {
+    public static readonly authProtectionConfig: IAuthProtection = {} as IAuthProtection;
+    public static set $authProtectionConfig({ authorized, unAuthorized }: {authorized?: string; unAuthorized?: string}) {
+        if (authorized) {
+            this.authProtectionConfig.authorized = authorized;
+        }
+        if (unAuthorized) {
+            this.authProtectionConfig.unAuthorized = unAuthorized;
+        }
+    }
+    private readonly basePageOptions: IPageOptions & {isPageLoaded: boolean; isActionsCalling: boolean; pageNumber?: number} = {
         actions: [],
         authRequirement: null,
         isPageLoaded: false,
@@ -320,9 +419,13 @@ class StateSetup {
     };
     private readonly getStateSetupConfig: TGetStateSetupConfig;
     private readonly checkAuthorization: TCheckAuthorizationAsyncThunk;
-    private readonly authProtectionConfig: IAuthProtection;
     private readonly PageLoader: ComponentType | null;
 
+    private _prevRoute?: {
+        pathname: string;
+        mustDestroy?: boolean;
+        ready?: boolean;
+    };
     private isAuth: boolean | null = null;
     private redirectTo: string | null = null;
     private hasRedirectionModal: boolean = false;
@@ -330,17 +433,30 @@ class StateSetup {
     private waitUntil = false; //* for not lazy loaded components
     private restart: TRestartTypes | null = null;
     private flowStatus: TFlowStatuses | null = null;
-    private currentRoute: string = '';
-    private prevRoute: {
-        pathname: string;
-        mustDestroy: boolean;
-        redirectedFrom?: string;
-    } | null = null;
-    private pageOptionsMap: Record<string, IPageOptions & {isPageLoaded: boolean; isActionsCalling: boolean; _break?: Record<number, boolean>}> = {};
+    private currentRoute: string | null = null;
+    private pageOptionsMap: Record<string, IPageOptions & {
+        isPageLoaded: boolean; isActionsCalling: boolean; _break?: Record<number, boolean>; pageNumber?: number;
+    }> = {};
     private asyncReducer: TAsyncReducer | null = null;
     private redirectionContext: ReturnType<TUseRedirectionContext<TRedirectionTypes>>['context'] = null;
-    private pageCount = 0;
+    private pageNumber = 0;
     private isAuthChecking = false;
+
+    private get prevRoute(): typeof this._prevRoute {
+        return this._prevRoute;
+    }
+    private set prevRoute(value: Exclude<typeof this._prevRoute, undefined>) {
+        console.log(value, 555555);
+        if (value.pathname) {
+            this._prevRoute = value;
+        } else {
+            this._prevRoute = {
+                ...this.prevRoute,
+                ...value
+            };
+        }
+
+    }
 
     private get $AppState() {
         return {
@@ -352,11 +468,11 @@ class StateSetup {
             loading: this.loading,
             waitUntil: this.waitUntil,
             restart: this.restart,
-            prevRoute: JSON.parse(JSON.stringify(this.prevRoute)),
+            prevRoute: JSON.parse(JSON.stringify(this.prevRoute || {})),
             pageOptionsMap: JSON.parse(JSON.stringify(this.pageOptionsMap)),
             redirectionContext: JSON.parse(JSON.stringify(this.redirectionContext)),
             asyncReducer: this.asyncReducer,
-            pageCount: this.pageCount
+            pageNumber: this.pageNumber
         };
     };
 
@@ -381,7 +497,10 @@ class StateSetup {
     ) {
         console.log('StateSetup::__constructor__', { getStateSetupConfig, options: { appReducerName, authProtectionConfig } });
         this.getStateSetupConfig = getStateSetupConfig as TGetStateSetupConfig;
-        this.authProtectionConfig = authProtectionConfig;
+        StateSetup.$authProtectionConfig = {
+            ...authProtectionConfig,
+            ...JSON.parse(localStorage.getItem('$authProtectionConfig') || '{}') as IAuthProtection,
+        };
         this.PageLoader = PageLoader || null;
         this.checkAuthorization = createAsyncThunk<
             TCheckAuthorizationReturn,
@@ -398,14 +517,14 @@ class StateSetup {
         this.generateReducer();
     }
 
-    private setBreakPageActions(pathname: string, pageCount: number) {
+    private setBreakPageActions(pathname: string, pageNumber: number) {
         flowState.calls['BREAK'] = flowState.calls['BREAK'] + 1;
-        console.log('setBreakPageActions', pathname, pageCount);
+        console.log('setBreakPageActions', pathname, pageNumber);
         this.redirectTo = null;
         if (this.pageOptionsMap[pathname]._break) {
-            this.pageOptionsMap[pathname]._break![pageCount] = true;
+            this.pageOptionsMap[pathname]._break![pageNumber] = true;
         } else {
-            this.pageOptionsMap[pathname]._break = { [pageCount]: true };
+            this.pageOptionsMap[pathname]._break = { [pageNumber]: true };
         }
     }
 
@@ -420,12 +539,12 @@ class StateSetup {
     ) => {
         flowState.calls['CHECK_AUTH'] = flowState.calls['CHECK_AUTH'] + 1;
         this.isAuthChecking = true;
-        const pageCount = this.pageCount;
+        const pageNumber = this.pageNumber;
         const prevInitiated = this.flowStatus;
 
         try {
             const prevRedirectTo = this.getRedirectTo(this.flowStatus === FlowStatuses.Start
-                ? this.currentRoute : pathname
+                ? this.currentRoute! : pathname
             );
             const isAuth = await checkAuthorization({ isAuth: this.isAuth }, thunkAPI);
             const isAuthExpired = typeof isAuth === 'boolean' && this.isAuth && isAuth !== this.isAuth;
@@ -437,7 +556,7 @@ class StateSetup {
                 throw new Error('checkAuthorization');
             }
 
-            const redirectTo = this.getRedirectTo(this.currentRoute);
+            const redirectTo = this.getRedirectTo(this.currentRoute!);
             if (redirectTo) {
                 this.updateBasePageOptions(redirectTo, searchParams);
 
@@ -447,7 +566,7 @@ class StateSetup {
                 }
             }
 
-            const { waitUntil } = this.getPageOption(redirectTo || this.currentRoute, 'onNavigate') || {};
+            const { waitUntil } = this.getPageOption(redirectTo || this.currentRoute!, 'onNavigate') || {};
             console.log('%cAuthorization', 'color: #076eab', 'AFTER_CHECK_AUTH', {
                 redirectTo,
                 prevRedirectTo,
@@ -457,7 +576,7 @@ class StateSetup {
                 isAuth,
                 waitUntil,
                 prevInitiated,
-                pageCount,
+                pageNumber,
                 $AppState: this.$AppState
             });
 
@@ -475,11 +594,11 @@ class StateSetup {
                 $AppState: this.$AppState,
                 pathname,
                 prevInitiated,
-                pageCount,
+                pageNumber,
             });
             // if (this.currentRoute !== pathname) {
             //     console.log('%cAuthorization', 'color: #076eab', 'SET_BREAK');
-            //     this.setBreakPageActions(pathname, pageCount);
+            //     this.setBreakPageActions(pathname, pageNumber);
             // } else if (prevInitiated === FlowStatuses.SetupFirst /*&& isAuthFirst*/) {
             //     // this.flowStatus = null;
             // }
@@ -650,25 +769,24 @@ class StateSetup {
         asyncActionCreatorsOption: Awaited<ReturnType<TAsyncReducersOptions>>[1]
     ) {
         let isLoopBroken = false;
-        const pageCount = this.pageCount;
         const actions = this.getPageOption(pathname, 'actions');
-        console.log('*************************START_callActions', {
-            pathname,
-            pageCount,
-            actions
-        });
+        console.log(`*************************START_callActions{${pathname}}`, { actions });
 
         for (let i = 0; i < actions.length; i++) {
-            console.log('*************************callAction', {
-                $AppState: this.$AppState, pathname, mustBreak: this.currentRoute !== pathname, pageCount
-            });
+            const pageNumber = this.pageOptionsMap[pathname].pageNumber!;
 
-            if (this.pageOptionsMap[pathname]._break?.[pageCount]) {
-                delete this.pageOptionsMap[pathname]._break?.[pageCount];
-                // this.pageOptionsMap[pathname].isActionsCalling = false;
-                isLoopBroken = true;
-                console.log('*************************BREAK', pathname);
-                break;
+            console.log(`*************************callAction{${pathname}}`, {
+                $AppState: this.$AppState, pathname, mustBreak: this.currentRoute !== pathname, pageNumber
+            });
+            if (this.pageOptionsMap[pathname]._break?.[pageNumber]) {
+                delete this.pageOptionsMap[pathname]._break?.[pageNumber];
+                delete this.pageOptionsMap[pathname].pageNumber;
+                if (this.currentRoute !== pathname) {
+                    this.pageOptionsMap[pathname].isActionsCalling = false;
+                    isLoopBroken = true;
+                    console.log('*************************BREAK', pathname);
+                    break;
+                }
             }
 
             const action = actions[i];
@@ -722,10 +840,10 @@ class StateSetup {
         if (authRequirement !== null) {
             redirectTo = authRequirement
                 ? (!this.isAuth
-                        ? this.authProtectionConfig.unAuthorized
+                        ? StateSetup.authProtectionConfig.unAuthorized
                         : null)
                 : (this.isAuth
-                        ? this.authProtectionConfig.authorized
+                        ? StateSetup.authProtectionConfig.authorized
                         : null);
         }
 
@@ -752,6 +870,7 @@ class StateSetup {
         async (
             {
                 pathname,
+                pageNumber,
                 mode,
                 asyncReducer,
                 type
@@ -764,9 +883,9 @@ class StateSetup {
             }
         ) => {
             flowState.calls[type].count = flowState.calls[type].count + 1;
-            console.log('%c@@INIT:STATE', 'color: #ed149a', { $AppState: this.$AppState });
+            console.log(`%c@@INIT:STATE{${pathname}}`, 'color: #ed149a', { $AppState: this.$AppState });
             try {
-                const prevRoute = this.prevRoute;
+                this.pageOptionsMap[pathname].pageNumber = pageNumber;
                 const prevInitiated = this.flowStatus;
                 let asyncActionCreatorsOption: Awaited<ReturnType<TAsyncReducersOptions>>[1] = null;
                 this.flowStatus = type;
@@ -780,7 +899,6 @@ class StateSetup {
                     asyncReducer,
                     $AppState: this.$AppState,
                     prevInitiated,
-                    prevRoute,
                     type
                 });
 
@@ -790,9 +908,9 @@ class StateSetup {
                 if (this.asyncReducer) {
                     const asyncReducerOptions = this.getPageOption(pathname, 'asyncReducerOptions');
 
-                    if (prevRoute?.pathname !== pathname) {
-                        if (prevRoute?.mustDestroy) {
-                            const asyncReducerOptions = this.getPageOption(prevRoute.pathname, 'asyncReducerOptions');
+                    if (this.prevRoute?.pathname !== pathname) {
+                        if (this.prevRoute?.mustDestroy) {
+                            const asyncReducerOptions = this.getPageOption(this.prevRoute.pathname, 'asyncReducerOptions');
                             await this.callReducerManager('remove', asyncReducerOptions, getState(), dispatch);
                         }
 
@@ -813,7 +931,6 @@ class StateSetup {
                     pathname, isAppReady:
                     getState().app.isAppReady,
                     mode,
-                    prevRoute,
                     state: getState(),
                     $AppState: this.$AppState,
                     prevInitiated,
@@ -831,7 +948,7 @@ class StateSetup {
                     }
                     this.prevRoute = {
                         pathname,
-                        mustDestroy: false
+                        ready: true,
                     };
                     this.flowStatus = null;
                     this.pageOptionsMap[pathname].isActionsCalling = false;
@@ -915,32 +1032,19 @@ class StateSetup {
             pathname
         });
 
+        this.pageNumber = this.pageNumber + 1;
         if (this.currentRoute !== pathname) {
             console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'SET_CURRENT_ROUTE');
-            this.pageCount = this.pageCount + 1;
-            this.currentRoute = pathname;
-        }
-        if (
-            (this.flowStatus === FlowStatuses.Setup || this.flowStatus === FlowStatuses.SetupFirst)
-            && !this.isAuthChecking
-            && !state?.from
-        ) {
-            if (prevRoute !== this.currentRoute) {
-                console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'SET_BREAK');
-                this.setBreakPageActions(prevRoute, this.pageCount - 1 || 1);
-            } else {
-                stopActionsRecall = true;
+            if (this.currentRoute) {
+                this.prevRoute = { pathname: this.currentRoute };
             }
+            this.currentRoute = pathname;
         }
         if (!this.pageOptionsMap[pathname]) {
             this.updateBasePageOptions(pathname, searchParams);
         }
-        console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'INIT: END', {
-            $AppState: this.$AppState,
-            pathname
-        });
 
-        const currentPageCount = this.pageCount;
+        const currentPageCount = this.pageNumber;
         const { waitUntil } = this.getPageOption(pathname, 'onNavigate') || {};
         const redirectTo = this.getRedirectTo(pathname);
         const mustRedirectTo = this.isAuth !== null && redirectTo;
@@ -949,6 +1053,32 @@ class StateSetup {
             && !this.pageOptionsMap[mustRedirectTo || pathname]?.isPageLoaded
             && (!state?.from || this.restart === RestartTypes.AuthExpired)
             && this.prevRoute?.pathname !== redirectTo;
+
+        console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'INIT: END', {
+            $AppState: this.$AppState,
+            pathname,
+            prevRoute,
+            waitUntil,
+            stateFrom: state?.from
+        });
+
+        if (
+            (this.flowStatus === FlowStatuses.Setup || this.flowStatus === FlowStatuses.SetupFirst)
+            // && (!this.isAuthChecking || waitUntil)
+            // && (!waitUntil || this.isAuth === false)
+            && this.prevRoute
+            && !state?.from
+        ) {
+            if (this.prevRoute.pathname !== this.currentRoute) {
+                if (this.pageOptionsMap[this.prevRoute!.pathname].isActionsCalling) {
+                    console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'SET_BREAK');
+                    this.setBreakPageActions(prevRoute, this.pageOptionsMap[prevRoute].pageNumber!);
+                }
+            } else {
+                this.pageOptionsMap[this.currentRoute].pageNumber = this.pageNumber;
+                stopActionsRecall = true;
+            }
+        }
 
         if (mustActivateLoading) {
             console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'PRE-SET_LOADING');
@@ -974,20 +1104,23 @@ class StateSetup {
             if (!flowState.navigate) {
                 flowState.navigate = navigate;
             }
-            if (this.flowStatus === FlowStatuses.Start) {
-                if (mustRedirectTo) {
-                    console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'useLayoutEffect', 'REDIRECT');
-                    if (!this.pageOptionsMap[redirectTo]) {
-                        this.updateBasePageOptions(redirectTo, searchParams);
-                    }
+            if (mustRedirectTo) {
+                console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'useLayoutEffect', 'REDIRECT');
+                if (!this.pageOptionsMap[redirectTo]) {
+                    this.updateBasePageOptions(redirectTo, searchParams);
+                }
 
-                    navigate(redirectTo, { state: { from: pathname } });
-                }
-                if (this.loading === LoadingTypes.Loading && !isLoadingActivated.current /*&& !this.redirectTo && !state?.from*/) {
-                    isLoadingActivated.current = true;
-                    console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'useLayoutEffect', 'SET_LOADING');
-                    dispatch(this.setLoading(true));
-                }
+                navigate(redirectTo, { state: { from: pathname } });
+            }
+            if (!isLoadingActivated.current
+                && this.loading === LoadingTypes.Loading
+                // this.flowStatus === FlowStatuses.Start
+                // && this.loading === LoadingTypes.Loading
+                // && !isLoadingActivated.current
+            ) {
+                console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'useLayoutEffect', 'SET_LOADING');
+                isLoadingActivated.current = true;
+                dispatch(this.setLoading(true));
             }
         });
 
@@ -996,6 +1129,7 @@ class StateSetup {
                 && this.flowStatus === FlowStatuses.Start
                 && (this.isAuth === null || Boolean(this.isAuth));
             const mustCallActions = (!waitUntil || this.isAuth === false)
+                && !this.pageOptionsMap[pathname].isActionsCalling
                 && !stopActionsRecall
                 && !this.redirectTo
                 && (!state?.from || (this.restart && this.restart !== RestartTypes.AuthExpired));
@@ -1011,9 +1145,10 @@ class StateSetup {
                 waitUntil,
                 mustCheckAuth,
                 mustCallActions,
+                stopActionsRecall,
                 mustShowRedirectionModal,
                 $AppState: this.$AppState
-            }, 'PagesCount=' + this.pageCount);
+            }, 'PagesCount=' + this.pageNumber);
 
             if (mustShowRedirectionModal) {
                 this.redirectionContext = {
@@ -1034,8 +1169,9 @@ class StateSetup {
                 );
                 setup({
                     mode: 'APP',
+                    pathname: mustRedirectTo || this.currentRoute!,
+                    pageNumber: currentPageCount,
                     type: FlowStatuses.SetupFirst,
-                    pathname: mustRedirectTo || pathname,
                     asyncReducer
                 });
             }
@@ -1049,30 +1185,35 @@ class StateSetup {
                     searchParams,
                     mode: 'APP'
                 }).then((result) => {
+                    console.log(8888, {
+                        currentPageCount,
+                        pathname
+                    });
                     if (this.checkAuthorization.fulfilled.match(result)) {
-                        if (!this.pageOptionsMap[pathname]._break?.[currentPageCount]) {
-                            if (result.payload.redirectTo || (!this.pageOptionsMap[pathname].isActionsCalling && result.payload.waitUntil)) {
-                                console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '============SetUp>>>CheckAuth=============', {
-                                    result,
-                                    pathname,
-                                    $AppState: this.$AppState
-                                });
-                                setup({
-                                    type: FlowStatuses.Setup,
-                                    mode: 'APP',
-                                    pathname: result.payload.redirectTo || this.currentRoute,
-                                    asyncReducer
-                                });
-                            }
-                        } else {
-                            delete this.pageOptionsMap[pathname]._break?.[currentPageCount];
+                        // if (!this.pageOptionsMap[this.currentRoute]._break?.[currentPageCount]) {
+                        if (!this.pageOptionsMap[this.currentRoute!].isActionsCalling && result.payload.waitUntil) {
+                            console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '============SetUp>>>CheckAuth=============', {
+                                result,
+                                pathname,
+                                $AppState: this.$AppState
+                            });
+                            setup({
+                                pageNumber: result.payload.redirectTo ? this.pageNumber + 1 : this.pageNumber,
+                                pathname: result.payload.redirectTo || this.currentRoute!,
+                                type: FlowStatuses.Setup,
+                                mode: 'APP',
+                                asyncReducer
+                            });
                         }
+                        // } else {
+                        //     delete this.pageOptionsMap[this.currentRoute]._break?.[currentPageCount];
+                        // }
 
                         if (result.payload.redirectTo && (!mustRedirectTo || this.restart === RestartTypes.AuthExpired)) {
                             console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'REDIRECT');
                             this.redirectionContext = {
                                 redirectTo: result.payload.redirectTo,
-                                from: this.currentRoute,
+                                from: this.currentRoute!,
                                 type: this.restart || RedirectionTypes.FirstRender,
                                 isPageLoaded: this.isPageLoaded(result.payload.redirectTo)
                             };
@@ -1155,7 +1296,7 @@ class StateSetup {
         (loadingCount) => {
             let loading = false;
 
-            if (!this.isPageLoaded(this.currentRoute) || this.restart === RestartTypes.OnAuth) {
+            if (!this.isPageLoaded(this.currentRoute!) || this.restart === RestartTypes.OnAuth) {
                 if (
                     !waitUntil
                     && type === LoadingTypes.Suspense
@@ -1199,6 +1340,11 @@ class StateSetup {
                 pathname,
                 $AppState: this.$AppState
             });
+
+            if (!loading && this.loading === LoadingTypes.Loading && this.isPageLoaded(this.currentRoute!)) {
+                this.loading = null;
+                dispatch(this.setLoading(false));
+            }
         });
 
         useLayoutEffect(() => {
@@ -1218,10 +1364,13 @@ class StateSetup {
 
                 if (
                     type === LoadingTypes.Suspense
-                    && !this.isPageLoaded(pathname)
-                    && (pathname === this.currentRoute
-                        || (this.restart === RestartTypes.AuthExpired && this.isPageLoaded(this.currentRoute))
-                    )
+                        ? !this.isPageLoaded(pathname)
+                            && (pathname === this.currentRoute
+                                // || (this.isPageLoaded(this.currentRoute!) && !loading)
+                                || (this.restart === RestartTypes.AuthExpired && this.isPageLoaded(this.currentRoute!))
+                            )
+                        : false
+                        // (this.redirectTo && this.isPageLoaded(this.redirectTo) && this.loading && pathname !== this.currentRoute && !loading)
                 ) {
                     console.log(`%c____LOADER_____{${pathname}}`, 'color: #dbd518', 'useLayoutEffect', 'UNMOUNT', '+++Clear+++');
                     if (pathname === this.currentRoute) {
@@ -1404,4 +1553,7 @@ class StateSetup {
         };
     }
 }
+
+// @ts-ignore
+window.StateSetup = StateSetup;
 export default StateSetup;

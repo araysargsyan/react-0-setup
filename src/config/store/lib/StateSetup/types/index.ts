@@ -121,6 +121,7 @@ type TAsyncReducer = {
 };
 type TStateSetUpArgs = {
     pathname: string;
+    pageNumber: number;
     type: 'SETUP' | 'SETUP_FIRST';
     mode: TMode;
     asyncReducer?: TAsyncReducer;

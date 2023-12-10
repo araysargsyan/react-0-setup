@@ -33,7 +33,7 @@ const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = 
             ],
             // onNavigate: { waitUntil: 'CHECK_AUTH', }
         },
-        [ERoutes.MAIN2]: {
+        [ERoutes.TEST]: {
             authRequirement: null,
             actions: [ //! if async is true this action call will wait in initial setup, by default false
                 {
@@ -91,6 +91,21 @@ const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = 
                 { cb: counterActions.increment },
             ],
             onNavigate: { waitUntil: 'CHECK_AUTH', }
+        },
+        [ERoutes.ABOUT2]: {
+            authRequirement: null,
+            actions: [
+                {
+                    cb: counterActions.fetchTest,
+                    canRefetch: true,
+                    async: true,
+                },
+                { cb: counterActions.decrement, canRefetch: true },
+                { cb: counterActions.increment },
+                { cb: counterActions.increment },
+                { cb: counterActions.increment },
+            ],
+            onNavigate: { waitUntil: 'CHECK_AUTH', }
         }
     };
 };
@@ -114,7 +129,7 @@ export const checkAuthorization: TCheckAuthorizationFn = async (
     //     }
     // }
 
-    // await until(1200);
+    // await until(1000);
 
     if (
         localStorage.getItem(USER_LOCALSTORAGE_KEY)

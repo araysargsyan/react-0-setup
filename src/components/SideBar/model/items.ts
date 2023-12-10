@@ -23,9 +23,19 @@ export const sidebarItemsList: ISidebarItem[] = [
         text: 'Main2',
     },
     {
+        path: ERoutes.TEST,
+        Icon: MainIcon,
+        text: 'TEST',
+    },
+    {
         path: ERoutes.ABOUT,
         Icon: AboutIcon,
         text: 'About us',
+    },
+    {
+        path: ERoutes.ABOUT2,
+        Icon: AboutIcon,
+        text: 'About us 2',
     },
     {
         path: ERoutes.PROFILE,

@@ -171,84 +171,9 @@ export const auth = {
             'WAIT_AUTH/REDIRECT': '/about',
         }
     },
-    FRL: {
-        'NO_WAIT': {
-            ____usePageStateSetUp____: 1,
-            ____ProtectedElement_____: 1,
-            ____LOADER_____: { SUSPENSE: 1, LOADING: 0 },
-            ____RedirectModal_____: {
-                NULL: 1, MODAL: 0, types: []
-            }
-        },
-        'WAIT_AUTH': {
-            ____usePageStateSetUp____: 1,
-            ____ProtectedElement_____: 2,
-            ____LOADER_____: { SUSPENSE: 1, LOADING: 2 },
-            ____RedirectModal_____: {
-                NULL: 1, MODAL: 0, types: []
-            }
-        },
-        'WAIT_AUTH/REDIRECT': {
-            ____usePageStateSetUp____: 2,
-            ____ProtectedElement_____: 2,
-            ____LOADER_____: { SUSPENSE: 1, LOADING: 3 },
-            ____RedirectModal_____: {
-                NULL: 2, MODAL: 1, types: [ 'FIRST_RENDER' ]
-            }
-        },
-    },
-    NFRL: {
-        'NO_WAIT': {
-            ____usePageStateSetUp____: 1,
-            ____ProtectedElement_____: 1,
-            ____LOADER_____: { SUSPENSE: 1, LOADING: 0 },
-            ____RedirectModal_____: {
-                NULL: 0, MODAL: 0, types: []
-            }
-        },
-        'WAIT_AUTH': {
-            ____usePageStateSetUp____: 1,
-            ____ProtectedElement_____: 1,
-            ____LOADER_____: { SUSPENSE: 1, LOADING: 2 },
-            ____RedirectModal_____: {
-                NULL: 0, MODAL: 0, types: []
-            }
-        },
-        'WAIT_AUTH/REDIRECT': {
-            ____usePageStateSetUp____: 2,
-            ____ProtectedElement_____: 2,
-            ____LOADER_____: { SUSPENSE: 1, LOADING: 3 },
-            ____RedirectModal_____: {
-                NULL: 1, MODAL: 1, types: [ 'NOT_FIRST_RENDER' ]
-            }
-        },
-    },
-    NFRLL: {
-        'NO_WAIT': {
-            ____usePageStateSetUp____: 1,
-            ____ProtectedElement_____: 1,
-            ____LOADER_____: { SUSPENSE: 0, LOADING: 0 },
-            ____RedirectModal_____: {
-                NULL: 0, MODAL: 0, types: []
-            }
-        },
-        'WAIT_AUTH': {
-            ____usePageStateSetUp____: 1,
-            ____ProtectedElement_____: 1,
-            ____LOADER_____: { SUSPENSE: 0, LOADING: 0 },
-            ____RedirectModal_____: {
-                NULL: 0, MODAL: 0, types: []
-            }
-        },
-        'WAIT_AUTH/REDIRECT': {
-            ____usePageStateSetUp____: 2,
-            ____ProtectedElement_____: 2,
-            ____LOADER_____: { SUSPENSE: 0, LOADING: 0 },
-            ____RedirectModal_____: {
-                NULL: 1, MODAL: 1, types: [ 'NOT_FIRST_RENDER' ]
-            }
-        },
-    }
+    FRL: JSON.parse(JSON.stringify(noAuth.FRL)),
+    NFRL: JSON.parse(JSON.stringify(noAuth.NFRL)),
+    NFRLL: JSON.parse(JSON.stringify(noAuth.NFRLL)),
 };
 //! AUTH +$
     //? FIRST_RENDER +
@@ -300,6 +225,73 @@ export const auth = {
             //* ____RedirectModal_____: NULL=1, MODAL=1
             //* }
 
+export const login = {
+    config: {
+        RFRL: {
+            'NO_WAIT': { authorized: '/' },
+            'WAIT_AUTH': { authorized: '/profile' }
+        },
+        RNFRL: {
+            'NO_WAIT': { authorized: '/' },
+            'WAIT_AUTH': { authorized: '/profile' }
+        }
+    },
+    paths: {
+        RFRL: {
+            'NO_WAIT': '/about',
+            'WAIT_AUTH': '/about'
+        },
+        RNFRL: {
+            'NO_WAIT': '/about',
+            'WAIT_AUTH': '/about'
+        }
+    },
+    RFRL: {
+        'NO_WAIT': {
+            ____usePageStateSetUp____: 1,
+            ____ProtectedElement_____: 2,
+            ____LOADER_____: { SUSPENSE: 1, LOADING: 0 },
+            ____RedirectModal_____: {
+                NULL: 1, MODAL: 1, types: [ 'ON_AUTH' ]
+            }
+
+        },
+        'WAIT_AUTH': {
+            ____usePageStateSetUp____: 1,
+            ____ProtectedElement_____: 2,
+            ____LOADER_____: { SUSPENSE: 1, LOADING: 3 },
+            ____RedirectModal_____: {
+                NULL: 1, MODAL: 1, types: [ 'ON_AUTH' ]
+            }
+        }
+    },
+    RNFRL: {
+        'NO_WAIT': {
+            ____usePageStateSetUp____: 1,
+            ____ProtectedElement_____: 2,
+            ____LOADER_____: { SUSPENSE: 0, LOADING: 0 },
+            ____RedirectModal_____: {
+                NULL: 1, MODAL: 1, types: [ 'ON_AUTH' ]
+            }
+        },
+        'WAIT_AUTH': {
+            ____usePageStateSetUp____: 1,
+            ____ProtectedElement_____: 2,
+            ____LOADER_____: { SUSPENSE: 0, LOADING: 0 },
+            ____RedirectModal_____: {
+                NULL: 1, MODAL: 1, types: [ 'ON_AUTH' ]
+            }
+        }
+    },
+    NR: {
+        ____usePageStateSetUp____: 0,
+        ____ProtectedElement_____: 0,
+        ____LOADER_____: { SUSPENSE: 0, LOADING: 0 },
+        ____RedirectModal_____: {
+            NULL: 0, MODAL: 0, types: []
+        }
+    }
+};
 //! LOGIN +$
     //! REDIRECT +
     //? FIRST_RENDER +
@@ -335,6 +327,38 @@ export const auth = {
     //! NO_REDIRECT +
         //* NOT_RENDERING
 
+export const logout = {
+    config: {
+        RFRL: {
+            'NO_WAIT': { unAuthorized: '/' },
+            'WAIT_AUTH': { unAuthorized: '/about2' }
+        },
+        RNFRL: {
+            'NO_WAIT': { unAuthorized: '/' },
+            'WAIT_AUTH': { unAuthorized: '/about2' }
+        }
+    },
+    paths: {
+        RFRL: {
+            'NO_WAIT': '/profile',
+            'WAIT_AUTH': '/profile'
+        },
+        RNFRL: {
+            'NO_WAIT': '/profile',
+            'WAIT_AUTH': '/profile'
+        }
+    },
+    RFRL: JSON.parse(JSON.stringify(login.RFRL)),
+    RNFRL: JSON.parse(JSON.stringify(login.RNFRL)),
+    NR: {
+        ____usePageStateSetUp____: 0,
+        ____ProtectedElement_____: 0,
+        ____LOADER_____: { SUSPENSE: 0, LOADING: 0 },
+        ____RedirectModal_____: {
+            NULL: 0, MODAL: 0, types: []
+        }
+    }
+};
 //! LOGOUT +$
     //! REDIRECT +
     //? FIRST_RENDER +

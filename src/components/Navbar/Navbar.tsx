@@ -60,6 +60,7 @@ const Navbar: FC<INavbarProps> = ({ className }) => {
         return (
             <div className={ _c(cls.navbar,  [ className ]) }>
                 <AppButton
+                    id={ 'CLEAR_STORAGE' }
                     key={ 'CLEAR' }
                     style={{ color: 'cyan' }}
                     onClick={ (e) => {
@@ -70,6 +71,7 @@ const Navbar: FC<INavbarProps> = ({ className }) => {
                     { 'Clear storage' }
                 </AppButton>
                 <AppButton
+                    id={ 'SIGN_OUT' }
                     theme={ EAppButtonTheme.CLEAR_INVERTED }
                     className={ cls.links }
                     onClick={ logout }
@@ -83,6 +85,7 @@ const Navbar: FC<INavbarProps> = ({ className }) => {
     return (
         <div className={ _c(cls.navbar, [ className ]) }>
             <AppButton
+                id={ 'FAST_SIGN_IN' }
                 key={ 'FAST' }
                 style={{ color: 'cyan' }}
                 theme={ EAppButtonTheme.CLEAR_INVERTED }

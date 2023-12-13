@@ -67,13 +67,17 @@ export default class FlowStateChecker {
             ) {
                 return window.location.replace(ERoutes.TEST);
             }
-
-            const isAsAspect: boolean = localStorage.getItem('flowState') === JSON.stringify(this['useEffect: Update']);
+            const original = {
+                ...this[ 'useEffect: Update' ],
+                calls: { ...this[ 'calls' ] }
+            };
+            const isAsAspect: boolean = localStorage.getItem('flowState') === JSON.stringify(original);
             const flowStateMap: string[] | string = JSON.parse(localStorage.getItem('flowStateMap') || '[]');
 
             console.log('$__reset__$: INIT', {
+                calls: { ...this[ 'calls' ] },
                 LOCAL: JSON.parse(localStorage.getItem('flowState') || '{}'),
-                ORIGINAL: this['useEffect: Update'],
+                ORIGINAL: original,
                 checks: this.checks,
                 flowStateMap,
                 isAsAspect,
@@ -88,7 +92,7 @@ export default class FlowStateChecker {
                         ...this.checks.errors,
                         {
                             LOCAL: JSON.parse(localStorage.getItem('flowState') || '{}'),
-                            ORIGINAL: JSON.parse(JSON.stringify(this['useEffect: Update'])),
+                            ORIGINAL: original,
                             flowStateMap
                         }
                     ];
@@ -233,6 +237,8 @@ export default class FlowStateChecker {
                     });
                 }
             } else if ([ 'login', 'logout' ].includes(type) && object) {
+                debugger;
+
                 const loginBtnId = 'FAST_SIGN_IN';
                 const logoutBtnId = 'SIGN_OUT';
 

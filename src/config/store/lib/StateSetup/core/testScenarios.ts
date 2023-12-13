@@ -28,6 +28,19 @@ export const noAuth = {
             ____LOADER_____: { SUSPENSE: 1, LOADING: 0 },
             ____RedirectModal_____: {
                 NULL: 1, MODAL: 0, types: []
+            },
+            calls: {
+                'LOADING': 1,
+                'SETUP': {
+                    count: 0,
+                    breakCount: 0
+                },
+                'SETUP_FIRST': {
+                    count: 1,
+                    breakCount: 0
+                },
+                'CHECK_AUTH': 1,
+                'BREAK': 0
             }
         },
         'WAIT_AUTH': {
@@ -36,6 +49,19 @@ export const noAuth = {
             ____LOADER_____: { SUSPENSE: 1, LOADING: 2 },
             ____RedirectModal_____: {
                 NULL: 1, MODAL: 0, types: []
+            },
+            calls: {
+                'LOADING': 1,
+                'SETUP': {
+                    'count': 1,
+                    'breakCount': 0
+                },
+                'SETUP_FIRST': {
+                    'count': 0,
+                    'breakCount': 0
+                },
+                'CHECK_AUTH': 1,
+                'BREAK': 0
             }
         },
         'WAIT_AUTH/REDIRECT': {
@@ -44,6 +70,19 @@ export const noAuth = {
             ____LOADER_____: { SUSPENSE: 1, LOADING: 3 },
             ____RedirectModal_____: {
                 NULL: 2, MODAL: 1, types: [ 'FIRST_RENDER' ]
+            },
+            calls: {
+                'LOADING': 1,
+                'SETUP': {
+                    'count': 1,
+                    'breakCount': 0
+                },
+                'SETUP_FIRST': {
+                    'count': 0,
+                    'breakCount': 0
+                },
+                'CHECK_AUTH': 1,
+                'BREAK': 0
             }
         },
     },
@@ -54,6 +93,19 @@ export const noAuth = {
             ____LOADER_____: { SUSPENSE: 1, LOADING: 0 },
             ____RedirectModal_____: {
                 NULL: 0, MODAL: 0, types: []
+            },
+            calls: {
+                'LOADING': 1,
+                'SETUP': {
+                    'count': 0,
+                    'breakCount': 0
+                },
+                'SETUP_FIRST': {
+                    'count': 1,
+                    'breakCount': 0
+                },
+                'CHECK_AUTH': 0,
+                'BREAK': 0
             }
         },
         'WAIT_AUTH': {
@@ -62,6 +114,19 @@ export const noAuth = {
             ____LOADER_____: { SUSPENSE: 1, LOADING: 2 },
             ____RedirectModal_____: {
                 NULL: 0, MODAL: 0, types: []
+            },
+            calls: {
+                'LOADING': 1,
+                'SETUP': {
+                    'count': 0,
+                    'breakCount': 0
+                },
+                'SETUP_FIRST': {
+                    'count': 1,
+                    'breakCount': 0
+                },
+                'CHECK_AUTH': 0,
+                'BREAK': 0
             }
         },
         'WAIT_AUTH/REDIRECT': {
@@ -70,6 +135,19 @@ export const noAuth = {
             ____LOADER_____: { SUSPENSE: 1, LOADING: 3 },
             ____RedirectModal_____: {
                 NULL: 1, MODAL: 1, types: [ 'NOT_FIRST_RENDER' ]
+            },
+            calls: {
+                'LOADING': 1,
+                'SETUP': {
+                    'count': 0,
+                    'breakCount': 0
+                },
+                'SETUP_FIRST': {
+                    'count': 1,
+                    'breakCount': 0
+                },
+                'CHECK_AUTH': 0,
+                'BREAK': 0
             }
         },
     },
@@ -80,6 +158,19 @@ export const noAuth = {
             ____LOADER_____: { SUSPENSE: 0, LOADING: 0 },
             ____RedirectModal_____: {
                 NULL: 0, MODAL: 0, types: []
+            },
+            calls: {
+                'LOADING': 0,
+                'SETUP': {
+                    'count': 0,
+                    'breakCount': 0
+                },
+                'SETUP_FIRST': {
+                    'count': 1,
+                    'breakCount': 0
+                },
+                'CHECK_AUTH': 0,
+                'BREAK': 0
             }
         },
         'WAIT_AUTH': {
@@ -88,6 +179,19 @@ export const noAuth = {
             ____LOADER_____: { SUSPENSE: 0, LOADING: 0 },
             ____RedirectModal_____: {
                 NULL: 0, MODAL: 0, types: []
+            },
+            calls: {
+                'LOADING': 0,
+                'SETUP': {
+                    'count': 0,
+                    'breakCount': 0
+                },
+                'SETUP_FIRST': {
+                    'count': 1,
+                    'breakCount': 0
+                },
+                'CHECK_AUTH': 0,
+                'BREAK': 0
             }
         },
         'WAIT_AUTH/REDIRECT': {
@@ -96,6 +200,19 @@ export const noAuth = {
             ____LOADER_____: { SUSPENSE: 0, LOADING: 0 },
             ____RedirectModal_____: {
                 NULL: 1, MODAL: 1, types: [ 'NOT_FIRST_RENDER' ]
+            },
+            calls: {
+                'LOADING': 0,
+                'SETUP': {
+                    'count': 0,
+                    'breakCount': 0
+                },
+                'SETUP_FIRST': {
+                    'count': 1,
+                    'breakCount': 0
+                },
+                'CHECK_AUTH': 0,
+                'BREAK': 0
             }
         },
     }
@@ -171,9 +288,115 @@ export const auth = {
             'WAIT_AUTH/REDIRECT': '/about',
         }
     },
-    FRL: JSON.parse(JSON.stringify(noAuth.FRL)),
-    NFRL: JSON.parse(JSON.stringify(noAuth.NFRL)),
-    NFRLL: JSON.parse(JSON.stringify(noAuth.NFRLL)),
+    FRL: {
+        'NO_WAIT': JSON.parse(JSON.stringify(noAuth.FRL['NO_WAIT'])),
+        'WAIT_AUTH': {
+            ...JSON.parse(JSON.stringify(noAuth.FRL['WAIT_AUTH'])),
+            calls: {
+                ...JSON.parse(JSON.stringify(noAuth.FRL['WAIT_AUTH'].calls)),
+                'SETUP': {
+                    'count': 1,
+                    'breakCount': 0
+                },
+                'SETUP_FIRST': {
+                    'count': 0,
+                    'breakCount': 0
+                },
+            }
+        },
+        'WAIT_AUTH/REDIRECT': {
+            ...JSON.parse(JSON.stringify(noAuth.FRL['WAIT_AUTH/REDIRECT'])),
+            calls: {
+                ...JSON.parse(JSON.stringify(noAuth.FRL['WAIT_AUTH/REDIRECT'].calls)),
+                'SETUP': {
+                    'count': 1,
+                    'breakCount': 0
+                },
+                'SETUP_FIRST': {
+                    'count': 0,
+                    'breakCount': 0
+                },
+            }
+        },
+    },
+    NFRL: {
+        'NO_WAIT': {
+            ...JSON.parse(JSON.stringify(noAuth.NFRL['NO_WAIT'])),
+            calls: {
+                ...JSON.parse(JSON.stringify(noAuth.NFRL['NO_WAIT'].calls)),
+                'CHECK_AUTH': 1
+            }
+        },
+        'WAIT_AUTH': {
+            ...JSON.parse(JSON.stringify(noAuth.NFRL['WAIT_AUTH'])),
+            calls: {
+                ...JSON.parse(JSON.stringify(noAuth.NFRL['WAIT_AUTH'].calls)),
+                'CHECK_AUTH': 1,
+                'SETUP': {
+                    'count': 1,
+                    'breakCount': 0
+                },
+                'SETUP_FIRST': {
+                    'count': 0,
+                    'breakCount': 0
+                },
+            }
+        },
+        'WAIT_AUTH/REDIRECT': {
+            ...JSON.parse(JSON.stringify(noAuth.NFRL['WAIT_AUTH/REDIRECT'])),
+            calls: {
+                ...JSON.parse(JSON.stringify(noAuth.NFRL['WAIT_AUTH/REDIRECT'].calls)),
+                'CHECK_AUTH': 1,
+                'SETUP': {
+                    'count': 1,
+                    'breakCount': 0
+                },
+                'SETUP_FIRST': {
+                    'count': 0,
+                    'breakCount': 0
+                },
+            }
+        }
+    },
+    NFRLL: {
+        'NO_WAIT': {
+            ...JSON.parse(JSON.stringify(noAuth.NFRLL['NO_WAIT'])),
+            calls: {
+                ...JSON.parse(JSON.stringify(noAuth.NFRLL['NO_WAIT'].calls)),
+                'CHECK_AUTH': 1
+            }
+        },
+        'WAIT_AUTH': {
+            ...JSON.parse(JSON.stringify(noAuth.NFRLL['WAIT_AUTH'])),
+            calls: {
+                ...JSON.parse(JSON.stringify(noAuth.NFRLL['WAIT_AUTH'].calls)),
+                'CHECK_AUTH': 1,
+                'SETUP': {
+                    'count': 1,
+                    'breakCount': 0
+                },
+                'SETUP_FIRST': {
+                    'count': 0,
+                    'breakCount': 0
+                },
+            }
+        },
+        'WAIT_AUTH/REDIRECT': {
+            ...JSON.parse(JSON.stringify(noAuth.NFRLL['WAIT_AUTH/REDIRECT'])),
+            calls: {
+                ...JSON.parse(JSON.stringify(noAuth.NFRLL['WAIT_AUTH/REDIRECT'].calls)),
+                'CHECK_AUTH': 1,
+                'SETUP': {
+                    'count': 1,
+                    'breakCount': 0
+                },
+                'SETUP_FIRST': {
+                    'count': 0,
+                    'breakCount': 0
+                },
+            }
+        }
+    },
 };
 //! AUTH +$
     //? FIRST_RENDER +

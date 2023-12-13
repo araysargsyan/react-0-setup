@@ -630,8 +630,12 @@ class StateSetup {
                     && this.pageOptionsMap[this.currentRoute].isActionsCalling/*&& this.flowStatus === type*/
                 ) {
                     console.log('%csetUp->PAGE_IS_READY', 'color: #ed149a', flowState.get());
-                    if (!flowState['useEffect: Update'].____RedirectModal_____.MODAL) {
-                        flowState.reset();
+
+                    if (this.loading === null && this.loadingCount !== null && Math.round(this.loadingCount) === this.loadingCount) {
+                        if (!flowState['useEffect: Update'].____RedirectModal_____.MODAL) {
+                            flowState.reset();
+                        }
+                        this.loadingCount = 0;
                     }
                     this.prevRoute = {
                         pathname,
@@ -1072,8 +1076,15 @@ class StateSetup {
                     if (pathname === this.currentRoute) {
                         this.pageOptionsMap[pathname].isPageLoaded = true;
                     }
+
                     this.loading = null;
                     dispatch(this.setLoading(false));
+                    if (this.prevRoute?.ready && this.loadingCount && Math.round(this.loadingCount) === this.loadingCount) {
+                        if (!flowState['useEffect: Update'].____RedirectModal_____.MODAL) {
+                            flowState.reset();
+                        }
+                        this.loadingCount = 0;
+                    }
                     console.log(`__________FIRST_RENDER____________{${pathname}}`, { $AppState: this.$AppState });
                 }
             };

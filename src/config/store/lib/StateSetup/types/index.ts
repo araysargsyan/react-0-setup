@@ -159,6 +159,8 @@ type TInitAuth = AsyncThunkPayloadCreator<
     IThunkConfig
 >;
 
+type TypeFromConstValues<T extends Record<string, string>> = T[keyof T];
+
 export {
     TCb,
     TMode,
@@ -186,4 +188,6 @@ export {
     TCheckAuthorizationFn,
     TCheckAuthorizationAsyncThunk,
     TInitAuth,
+
+    TypeFromConstValues
 };

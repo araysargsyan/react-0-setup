@@ -28,7 +28,6 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import until from 'app/dubag/util/wait';
 import { ERoutes } from 'config/router';
-import { appActionCreators } from 'store/app';
 
 import {
     auth, login, logout, noAuth
@@ -1193,10 +1192,13 @@ class StateSetup {
                     searchParams,
                     mode: 'APP'
                 }).then((result) => {
-                    console.log(8888, {
-                        currentPageCount,
-                        pathname
-                    });
+                    console.log('%c____usePageStateSetUp____', 'color: #ae54bf',
+                        '============CheckAuth=============: AFTER', {
+                            $AppState: this.$AppState,
+                            result,
+                            pathname,
+                        }
+                    );
                     if (this.checkAuthorization.fulfilled.match(result)) {
                         // if (!this.pageOptionsMap[this.currentRoute]._break?.[currentPageCount]) {
                         if (!this.pageOptionsMap[this.currentRoute!].isActionsCalling && (
@@ -1564,12 +1566,8 @@ class StateSetup {
         return {
             reducer: this.reducer,
             actionCreators: {
-                singIn: () => {
-                    return this.setIsAuthenticated.apply(this, [ true, true ]);
-                },
-                singOut: () => {
-                    return this.setIsAuthenticated.apply(this, [ false, true ]);
-                }
+                singIn: () => this.setIsAuthenticated(true, true),
+                singOut: () => this.setIsAuthenticated(false, true)
             },
         };
     }

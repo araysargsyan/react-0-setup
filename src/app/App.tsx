@@ -6,7 +6,6 @@ import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import { useEffect, useLayoutEffect } from 'react';
 import { USER_LOCALSTORAGE_KEY } from 'shared/const';
 import { useNavigate } from 'react-router-dom';
-import { noAuth } from 'config/store/lib/StateSetup/core/testScenarios';
 
 import { useTheme } from './providers/theme';
 

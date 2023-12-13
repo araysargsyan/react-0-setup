@@ -6,9 +6,7 @@ import {
     type ThunkDispatch
 } from '@reduxjs/toolkit';
 import { type ActionCreator } from 'redux';
-import {
-    type ComponentType, type MutableRefObject, ReactElement, type ReactNode
-} from 'react';
+import { type ComponentType } from 'react';
 
 
 interface IAppSchema {

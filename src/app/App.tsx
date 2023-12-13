@@ -6,6 +6,7 @@ import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import { useEffect, useLayoutEffect } from 'react';
 import { USER_LOCALSTORAGE_KEY } from 'shared/const';
 import { useNavigate } from 'react-router-dom';
+import { noAuth } from 'config/store/lib/StateSetup/core/testScenarios';
 
 import { useTheme } from './providers/theme';
 
@@ -13,20 +14,19 @@ import { useTheme } from './providers/theme';
 function App() {
     const { theme } = useTheme();
     const navigate = useNavigate();
-
     useLayoutEffect(() => {
         // setTimeout(() => {
         //     navigate('/');
-        //     // setTimeout(() => {
-        //     //     navigate('/');
-        //     //     setTimeout(() => {
-        //     //         navigate('/about');
-        //     //         setTimeout(() => {
-        //     //             navigate('/profile');
-        //     //         }, 100);
-        //     //     }, 1500);
-        //     // }, 600);
-        // }, 1300);
+        //     setTimeout(() => {
+        //         navigate('/');
+        //         setTimeout(() => {
+        //             navigate('/about');
+        //             setTimeout(() => {
+        //                 navigate('/profile');
+        //             }, 100);
+        //         }, 0);
+        //     }, 600);
+        // }, 100);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

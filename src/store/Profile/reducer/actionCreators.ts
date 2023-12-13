@@ -15,7 +15,8 @@ const fetchData = createAsyncThunk<
         extra: { api }, rejectWithValue, fulfillWithValue
     }) => {
         try {
-            await until(1000);
+            console.log('...........profile/fetchData');
+            await until(300);
             const { data } = await api.get<IProfile>('/profile');
 
             if (!data) {

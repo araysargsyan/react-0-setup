@@ -13,11 +13,11 @@ import {
 
 interface IAppSchema {
     isAppReady: boolean;
-    loadingCount: number;
+    // loadingCount: number;
     loading: boolean;
     isPageReady: boolean | null;
     isAuthenticated: boolean;
-    showRedirectionModal: boolean;
+    isRedirectionModalActive: boolean;
 }
 interface IStateSchema {
     app: IAppSchema;

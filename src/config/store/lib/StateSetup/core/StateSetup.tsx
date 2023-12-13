@@ -28,6 +28,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import until from 'app/dubag/util/wait';
 import { ERoutes } from 'config/router';
+import { appActionCreators } from 'store/app';
 
 import {
     auth, login, logout, noAuth
@@ -97,6 +98,7 @@ class FlowStateInitial {
             },
         },
         'calls': {
+            'LOADING': 0,
             'SETUP': {
                 count: 0,
                 breakCount: 0
@@ -430,6 +432,7 @@ class StateSetup {
     private redirectTo: string | null = null;
     private hasRedirectionModal: boolean = false;
     private loading: TLoading | null = null;
+    private loadingCount: number | null = null;
     private waitUntil = false; //* for not lazy loaded components
     private restart: TRestartTypes | null = null;
     private flowStatus: TFlowStatuses | null = null;
@@ -446,7 +449,6 @@ class StateSetup {
         return this._prevRoute;
     }
     private set prevRoute(value: Exclude<typeof this._prevRoute, undefined>) {
-        console.log(value, 555555);
         if (value.pathname) {
             this._prevRoute = value;
         } else {
@@ -466,6 +468,7 @@ class StateSetup {
             currentRoute: this.currentRoute,
             redirectTo: this.redirectTo,
             loading: this.loading,
+            loadingCount: this.loadingCount,
             waitUntil: this.waitUntil,
             restart: this.restart,
             prevRoute: JSON.parse(JSON.stringify(this.prevRoute || {})),
@@ -481,7 +484,7 @@ class StateSetup {
     private setIsAppReady!: ActionCreatorWithPayload<boolean>;
     private setLoading!: ActionCreatorWithPayload<boolean>;
     private setIsPageReady!: ActionCreatorWithPayload<boolean>;
-    private setShowRedirectionModal!: ActionCreatorWithPayload<boolean>;
+    private setRedirectionModal!: ActionCreatorWithPayload<boolean>;
 
     constructor(
         getStateSetupConfig: TStateSetupFn,
@@ -627,8 +630,8 @@ class StateSetup {
             `${appReducerName}/setIsPageReady`,
             (payload: boolean) => ({ payload })
         );
-        this.setShowRedirectionModal = createAction(
-            `${appReducerName}/setShowRedirectionModal`,
+        this.setRedirectionModal = createAction(
+            `${appReducerName}/setRedirectionModal`,
             (payload: boolean) => ({ payload })
         );
     }
@@ -638,9 +641,9 @@ class StateSetup {
             isAppReady: false,
             isPageReady: false,
             isAuthenticated: false,
-            loadingCount: 0,
+            // loadingCount: 0,
             loading: false,
-            showRedirectionModal: false,
+            isRedirectionModalActive: false,
         }, (builder) => {
             builder
                 .addCase(this.checkAuthorization.fulfilled, (
@@ -656,7 +659,8 @@ class StateSetup {
                             this.waitUntil = false;
                             this.loading = null;
                             state.loading = false;
-                            state.loadingCount = state.loadingCount + 0.5;
+                            // state.loadingCount = state.loadingCount + 0.5;
+                            this.loadingCount = (this.loadingCount || 0) + 0.5;
                         }
                         this.redirectTo = redirectTo;
                         state.isAppReady = true;
@@ -676,6 +680,7 @@ class StateSetup {
                 })
                 .addCase(this.setup.fulfilled, (state, { payload }) => {
                     if (payload?.mode === 'APP') {
+                        // this.redirectTo = null
                         state.isAppReady = Boolean(payload.isAppReady);
                         state.isPageReady = Boolean(payload.isAppReady);
                     } /*else {
@@ -708,14 +713,16 @@ class StateSetup {
                 })
                 .addCase(this.setLoading, (state, { payload }) => {
                     console.log('..........this.setLoading', payload);
+                    // flowState.calls.LOADING = state.loadingCount + 0.5;
+                    flowState.calls.LOADING = (this.loadingCount || 0) + 0.5;
                     state.loading = payload;
-                    state.loadingCount = state.loadingCount + 0.5;
+                    this.loadingCount = (this.loadingCount || 0) + 0.5;
                 })
                 .addCase(this.setIsPageReady, (state, { payload }) => {
                     state.isPageReady = payload;
                 })
-                .addCase(this.setShowRedirectionModal, (state, { payload }) => {
-                    state.showRedirectionModal = payload;
+                .addCase(this.setRedirectionModal, (state, { payload }) => {
+                    state.isRedirectionModalActive = payload;
                 });
         });
     }
@@ -738,6 +745,7 @@ class StateSetup {
         state: IStateSchema,
         dispatch: TDispatch
     ) {
+        console.log('************callReducerManager', { state, method });
         let asyncActionCreatorsOption: Awaited<ReturnType<TAsyncReducersOptions>>[1] = null;
         const call = async (options: unknown[])=> {
             if (method === 'add') {
@@ -994,14 +1002,14 @@ class StateSetup {
     );
 
     private useContext = () => {
-        const show = useSelector(({ app }: IStateSchema) => app.showRedirectionModal);
+        const show = useSelector(({ app }: IStateSchema) => app.isRedirectionModalActive);
         const dispatch = useDispatch();
 
         return {
             closeRedirectionModal: () => {
                 if (this.redirectionContext) {
                     this.redirectionContext = null;
-                    dispatch(this.setShowRedirectionModal(false));
+                    dispatch(this.setRedirectionModal(false));
                 }
             },
             context: this.redirectionContext,
@@ -1024,7 +1032,7 @@ class StateSetup {
         const { pathname, state } = useLocation();
         const [ searchParams ] = useSearchParams();
         const navigate = useNavigate();
-        const prevRoute = this.currentRoute || pathname;
+        // const prevRoute = this.currentRoute || pathname;
         const isLoadingActivated = useRef(false);
         let stopActionsRecall = false;
         console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'INIT: START', {
@@ -1039,6 +1047,10 @@ class StateSetup {
                 this.prevRoute = { pathname: this.currentRoute };
             }
             this.currentRoute = pathname;
+        }
+        if (this.prevRoute && this.prevRoute.pathname !== pathname) {
+            console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'mustDestroy', this.prevRoute);
+            this.prevRoute.mustDestroy = true;
         }
         if (!this.pageOptionsMap[pathname]) {
             this.updateBasePageOptions(pathname, searchParams);
@@ -1057,7 +1069,7 @@ class StateSetup {
         console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'INIT: END', {
             $AppState: this.$AppState,
             pathname,
-            prevRoute,
+            // prevRoute,
             waitUntil,
             stateFrom: state?.from
         });
@@ -1072,7 +1084,7 @@ class StateSetup {
             if (this.prevRoute.pathname !== this.currentRoute) {
                 if (this.pageOptionsMap[this.prevRoute!.pathname].isActionsCalling) {
                     console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'SET_BREAK');
-                    this.setBreakPageActions(prevRoute, this.pageOptionsMap[prevRoute].pageNumber!);
+                    this.setBreakPageActions(this.prevRoute!.pathname, this.pageOptionsMap[this.prevRoute!.pathname].pageNumber!);
                 }
             } else {
                 this.pageOptionsMap[this.currentRoute].pageNumber = this.pageNumber;
@@ -1084,10 +1096,6 @@ class StateSetup {
             console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'PRE-SET_LOADING');
             isLoadingActivated.current = false;
             this.loading = LoadingTypes.Loading;
-        }
-        if (this.prevRoute && this.prevRoute.pathname !== pathname) {
-            console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'mustDestroy', this.prevRoute);
-            this.prevRoute.mustDestroy = true;
         }
         console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '::START', {
             pathname,
@@ -1159,7 +1167,7 @@ class StateSetup {
                 };
                 if (this.isAuth === false) {
                     console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '=========SHOW_REDIRECTION_MODAL=========');
-                    dispatch(this.setShowRedirectionModal(true));
+                    dispatch(this.setRedirectionModal(true));
                 }
             }
 
@@ -1191,7 +1199,12 @@ class StateSetup {
                     });
                     if (this.checkAuthorization.fulfilled.match(result)) {
                         // if (!this.pageOptionsMap[this.currentRoute]._break?.[currentPageCount]) {
-                        if (!this.pageOptionsMap[this.currentRoute!].isActionsCalling && result.payload.waitUntil) {
+                        if (!this.pageOptionsMap[this.currentRoute!].isActionsCalling && (
+                            result.payload.redirectTo
+                                ? (!mustRedirectTo || this.restart === RestartTypes.AuthExpired)
+                                : result.payload.waitUntil
+                        )
+                        ) {
                             console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '============SetUp>>>CheckAuth=============', {
                                 result,
                                 pathname,
@@ -1217,11 +1230,11 @@ class StateSetup {
                                 type: this.restart || RedirectionTypes.FirstRender,
                                 isPageLoaded: this.isPageLoaded(result.payload.redirectTo)
                             };
-                            this.hasRedirectionModal && dispatch(this.setShowRedirectionModal(true));
+                            this.hasRedirectionModal && dispatch(this.setRedirectionModal(true));
                             navigate(result.payload.redirectTo, { state: { from: this.currentRoute } });
                         } else if (this.hasRedirectionModal && this.redirectionContext?.type === RedirectionTypes.NotFirstRender) {
                             console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '=========SHOW_REDIRECTION_MODAL=========');
-                            dispatch(this.setShowRedirectionModal(true));
+                            dispatch(this.setRedirectionModal(true));
                         }
                     }
                 });
@@ -1292,9 +1305,10 @@ class StateSetup {
         type: TLoading,
         waitUntil?: Exclude<IPageOptions['onNavigate'], undefined>['waitUntil']
     ) => createSelector(
-        ({ app }: IStateSchema) => app.loadingCount,
-        (loadingCount) => {
-            let loading = false;
+        // ({ app }: IStateSchema) => app.loadingCount,
+        ({ app }: IStateSchema) => app.loading,
+        (loading) => {
+            let willLoading = false;
 
             if (!this.isPageLoaded(this.currentRoute!) || this.restart === RestartTypes.OnAuth) {
                 if (
@@ -1302,20 +1316,20 @@ class StateSetup {
                     && type === LoadingTypes.Suspense
                     && this.loading !== LoadingTypes.Loading
                 ) {
-                    loading = true;
+                    willLoading = true;
                 } else if (type === LoadingTypes.Loading && this.loading === LoadingTypes.Loading) {
-                    loading = true;
+                    willLoading = true;
                 }
             }
 
             console.log(`%c$$$getLoading$$$-${this.currentRoute}`, 'color: #dbd518', {
                 type,
                 waitUntil,
-                loadingCount,
                 loading,
+                willLoading,
                 $AppState: this.$AppState
             });
-            return loading;
+            return willLoading;
         }
     );
 
@@ -1460,7 +1474,7 @@ class StateSetup {
                 dispatch(this.setLoading(true));
             }
             if (this.hasRedirectionModal && this.restart && this.redirectionContext?.type === RedirectionTypes.OnAuth) {
-                dispatch(this.setShowRedirectionModal(true));
+                dispatch(this.setRedirectionModal(true));
             }
         }, [ isPageReady, dispatch, pathname, redirectTo ]);
 
@@ -1549,7 +1563,14 @@ class StateSetup {
     public getStore() {
         return {
             reducer: this.reducer,
-            actionCreators: { setIsAuthenticated: this.setIsAuthenticated, },
+            actionCreators: {
+                singIn: () => {
+                    return this.setIsAuthenticated.apply(this, [ true, true ]);
+                },
+                singOut: () => {
+                    return this.setIsAuthenticated.apply(this, [ false, true ]);
+                }
+            },
         };
     }
 }

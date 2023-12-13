@@ -10,5 +10,5 @@ export const logout = createAsyncThunk<
     IThunkConfig<string>
 >('logout/submit', async (_, { dispatch }) => {
     dispatch(userActionCreators.clearAuthData());
-    dispatch(appActionCreators.setIsAuthenticated(false, true));
+    dispatch(appActionCreators.singOut());
 });

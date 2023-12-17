@@ -28,10 +28,13 @@ export default (env: IBuildEnv) => {
         mustAnalyzeBundle
     };
 
-    console.log({ paths, options });
     const config: Configuration = BuildWebpackConfig({
         ...options,
         isDev: options.mode === 'development'
+    });
+
+    console.log('WEBPACK', {
+        paths, options, config
     });
 
     return config;

@@ -1,7 +1,6 @@
 import { type useNavigate } from 'react-router-dom';
 import until from 'app/dubag/util/wait';
 import { ERoutes } from 'config/router';
-import * as process from 'process';
 
 import {
     auth, authExpired, login, logout, noAuth

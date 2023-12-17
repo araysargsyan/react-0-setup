@@ -1,5 +1,6 @@
 /dist
 node_modules
 .idea
+.env
 build-storybook.log
 /storybook-static

@@ -1,11 +1,8 @@
 import { type ComponentType, memo } from 'react';
 import  { type PathRouteProps } from 'react-router-dom';
 import { lazyImport } from 'app/router';
-import {
-    type IStateSchema, type TAddAsyncReducerParameters, type TAsyncReducerOptions
-} from 'config/store';
+import { type TAddAsyncReducerParameters, } from 'config/store';
 import { type TAddAsyncReducerOp } from 'config/store/types';
-import { type DeepPartial } from '@reduxjs/toolkit';
 
 
 export const enum ERoutes {

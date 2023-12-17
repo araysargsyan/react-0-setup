@@ -3,10 +3,10 @@ import { resolve } from 'path';
 
 import BuildWebpackConfig from './config/build/buildWebpackConfig';
 import  {
-    type IBuildEnv, type IBuildOptions, type IBuildPaths 
+    type IBuildEnv, type IBuildOptions, type IBuildPaths
 } from './config/build/types/config';
 
- 
+
 export default (env: IBuildEnv) => {
     //* run scripts with [-- analyzer | analyzer] flag
     const mustAnalyzeBundle = process.argv.includes('analyzer');
@@ -28,6 +28,7 @@ export default (env: IBuildEnv) => {
         mustAnalyzeBundle
     };
 
+    console.log({ paths, options });
     const config: Configuration = BuildWebpackConfig({
         ...options,
         isDev: options.mode === 'development'

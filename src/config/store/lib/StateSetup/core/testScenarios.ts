@@ -217,55 +217,6 @@ export const noAuth = {
         },
     }
 };
-//! NO_AUTH +$
-    //? FIRST_RENDER +
-        //? NO_WAIT(LAZY) +
-            //* {
-            //* ____usePageStateSetUp____: 1,
-            //* ____ProtectedElement_____: 1,
-            //* ____LOADER_____: SUSPENSE=1,
-            //* ____RedirectModal_____: NULL=1
-            //* }
-        //? WAIT_AUTH(LAZY) +
-        //! NO_REDIRECT
-            //* {
-            //* ____usePageStateSetUp____: 1,
-            //* ____ProtectedElement_____: 2,
-            //* ____LOADER_____: LOADING=2, SUSPENSE=1,
-            //* ____RedirectModal_____: NULL=1
-            //* }
-        //? WAIT_AUTH(LAZY) +
-        //! REDIRECT
-            //* {
-            //* ____usePageStateSetUp____: 2,
-            //* ____ProtectedElement_____: 2,
-            //* ____LOADER_____: LOADING=3, SUSPENSE=1,
-            //* ____RedirectModal_____: NULL=2, MODAL=1
-            //* }
-    //? NOT_FIRST_RENDER +
-        //? NO_WAIT(LAZY) +
-            //* {
-            //* ____usePageStateSetUp____: 1,
-            //* ____ProtectedElement_____: 1,
-            //* ____LOADER_____: SUSPENSE=1 | 0,
-            //* ____RedirectModal_____: 0
-            //* }
-        //? WAIT_AUTH(LAZY) +
-        //! NO_REDIRECT
-            //* {
-            //* ____usePageStateSetUp____: 1,
-            //* ____ProtectedElement_____: 1,
-            //* ____LOADER_____: (LOADING=2, SUSPENSE=1) | 0,
-            //* ____RedirectModal_____: 0
-            //* }
-        //? WAIT_AUTH(LAZY) +
-        //! REDIRECT
-            //* {
-            //* ____usePageStateSetUp____: 2,
-            //* ____ProtectedElement_____: 2,
-            //* ____LOADER_____: (LOADING=3, SUSPENSE=1) | 0,
-            //* ____RedirectModal_____: NULL=1, MODAL=1
-            //* }
 
 export const auth = {
     paths: {
@@ -398,62 +349,15 @@ export const auth = {
         }
     },
 };
-//! AUTH +$
-    //? FIRST_RENDER +
-        //? NO_WAIT(LAZY) +
-            //* {
-            //* ____usePageStateSetUp____: 1,
-            //* ____ProtectedElement_____: 1,
-            //* ____LOADER_____: SUSPENSE=1,
-            //* ____RedirectModal_____: NULL=1
-            //* }
-        //? WAIT_AUTH(LAZY) +
-        //! NO_REDIRECT
-            //* {
-            //* ____usePageStateSetUp____: 1,
-            //* ____ProtectedElement_____: 2,
-            //* ____LOADER_____: LOADING=2, SUSPENSE=1,
-            //* ____RedirectModal_____: NULL=1
-            //* }
-        //? WAIT_AUTH(LAZY) +
-        //! REDIRECT
-            //* {
-            //* ____usePageStateSetUp____: 2,
-            //* ____ProtectedElement_____: 2,
-            //* ____LOADER_____: LOADING=3, SUSPENSE=1,
-            //* ____RedirectModal_____: NULL=2, MODAL=1
-            //* }
-    //? NOT_FIRST_RENDER +
-        //? NO_WAIT(LAZY) +
-            //* {
-            //* ____usePageStateSetUp____: 1,
-            //* ____ProtectedElement_____: 1,
-            //* ____LOADER_____: SUSPENSE=1 | 0,
-            //* ____RedirectModal_____: 0
-            //* }
-        //? WAIT_AUTH(LAZY) +
-        //! NO_REDIRECT
-            //* {
-            //* ____usePageStateSetUp____: 1,
-            //* ____ProtectedElement_____: 1,
-            //* ____LOADER_____: (LOADING=2, SUSPENSE=1) | 0,
-            //* ____RedirectModal_____: 0
-            //* }
-        //? WAIT_AUTH(LAZY) +
-        //! REDIRECT
-            //* {
-            //* ____usePageStateSetUp____: 2,
-            //* ____ProtectedElement_____: 2,
-            //* ____LOADER_____: (LOADING=3, SUSPENSE=1) | 0,
-            //* ____RedirectModal_____: NULL=1, MODAL=1
-            //* }
 
 export const login = {
     config: {
+        //! REDIRECT_FIRST_RENDER(LAZY)
         RFRL: {
             'NO_WAIT': { authorized: '/' },
             'WAIT_AUTH': { authorized: '/profile' }
         },
+        //! REDIRECT_NOT_FIRST_RENDER(LAZY)
         RNFRL: {
             'NO_WAIT': { authorized: '/' },
             'WAIT_AUTH': { authorized: '/profile' }
@@ -476,8 +380,20 @@ export const login = {
             ____LOADER_____: { SUSPENSE: 1, LOADING: 0 },
             ____RedirectModal_____: {
                 NULL: 1, MODAL: 1, types: [ 'ON_AUTH' ]
+            },
+            calls: {
+                'LOADING': 1,
+                'SETUP': {
+                    'count': 0,
+                    'breakCount': 0
+                },
+                'SETUP_FIRST': {
+                    'count': 1,
+                    'breakCount': 0
+                },
+                'CHECK_AUTH': 1,
+                'BREAK': 0
             }
-
         },
         'WAIT_AUTH': {
             ____usePageStateSetUp____: 1,
@@ -485,6 +401,19 @@ export const login = {
             ____LOADER_____: { SUSPENSE: 1, LOADING: 3 },
             ____RedirectModal_____: {
                 NULL: 1, MODAL: 1, types: [ 'ON_AUTH' ]
+            },
+            calls: {
+                'LOADING': 1,
+                'SETUP': {
+                    'count': 1,
+                    'breakCount': 0
+                },
+                'SETUP_FIRST': {
+                    'count': 0,
+                    'breakCount': 0
+                },
+                'CHECK_AUTH': 1,
+                'BREAK': 0
             }
         }
     },
@@ -495,6 +424,19 @@ export const login = {
             ____LOADER_____: { SUSPENSE: 0, LOADING: 0 },
             ____RedirectModal_____: {
                 NULL: 1, MODAL: 1, types: [ 'ON_AUTH' ]
+            },
+            calls: {
+                'LOADING': 0,
+                'SETUP': {
+                    'count': 0,
+                    'breakCount': 0
+                },
+                'SETUP_FIRST': {
+                    'count': 1,
+                    'breakCount': 0
+                },
+                'CHECK_AUTH': 1,
+                'BREAK': 0
             }
         },
         'WAIT_AUTH': {
@@ -503,52 +445,24 @@ export const login = {
             ____LOADER_____: { SUSPENSE: 0, LOADING: 0 },
             ____RedirectModal_____: {
                 NULL: 1, MODAL: 1, types: [ 'ON_AUTH' ]
+            },
+            calls: {
+                'LOADING': 0,
+                'SETUP': {
+                    'count': 1,
+                    'breakCount': 0
+                },
+                'SETUP_FIRST': {
+                    'count': 0,
+                    'breakCount': 0
+                },
+                'CHECK_AUTH': 1,
+                'BREAK': 0
             }
         }
     },
-    NR: {
-        ____usePageStateSetUp____: 0,
-        ____ProtectedElement_____: 0,
-        ____LOADER_____: { SUSPENSE: 0, LOADING: 0 },
-        ____RedirectModal_____: {
-            NULL: 0, MODAL: 0, types: []
-        }
-    }
+    NR: '__ZERO__'
 };
-//! LOGIN +$
-    //! REDIRECT +
-    //? FIRST_RENDER +
-        //? NO_WAIT(LAZY) +
-        //* {
-        //* ____usePageStateSetUp____: 1,
-        //* ____ProtectedElement_____: 2,
-        //* ____LOADER_____: SUSPENSE=1,
-        //* ____RedirectModal_____: MODAL=1, NULL=1
-        //* }
-        //? WAIT_AUTH(LAZY) +
-        //* {
-        //* ____usePageStateSetUp____: 1,
-        //* ____ProtectedElement_____: 2,
-        //* ____LOADER_____: LOADING=3, SUSPENSE=1,
-        //* ____RedirectModal_____: MODAL=1, NULL=1
-        //* }
-    //? NOT_FIRST_RENDER +
-        //? NO_WAIT(LAZY) +
-        //* {
-        //* ____usePageStateSetUp____: 1,
-        //* ____ProtectedElement_____: 2,
-        //* ____LOADER_____: 0,
-        //* ____RedirectModal_____: MODAL=1, NULL=1
-        //* }
-        //? WAIT_AUTH(LAZY) +
-        //* {
-        //* ____usePageStateSetUp____: 1,
-        //* ____ProtectedElement_____: 2,
-        //* ____LOADER_____: 0,
-        //* ____RedirectModal_____: MODAL=1, NULL=1
-        //* }
-    //! NO_REDIRECT +
-        //* NOT_RENDERING
 
 export const logout = {
     config: {
@@ -571,55 +485,193 @@ export const logout = {
             'WAIT_AUTH': '/profile'
         }
     },
-    RFRL: JSON.parse(JSON.stringify(login.RFRL)),
-    RNFRL: JSON.parse(JSON.stringify(login.RNFRL)),
-    NR: {
-        ____usePageStateSetUp____: 0,
-        ____ProtectedElement_____: 0,
-        ____LOADER_____: { SUSPENSE: 0, LOADING: 0 },
-        ____RedirectModal_____: {
-            NULL: 0, MODAL: 0, types: []
+    RFRL: {
+        'NO_WAIT': {
+            ...JSON.parse(JSON.stringify(login.RFRL['NO_WAIT'])),
+            calls: {
+                ...JSON.parse(JSON.stringify(login.RFRL['NO_WAIT'].calls)),
+                'CHECK_AUTH': 0
+            }
+        },
+        'WAIT_AUTH': {
+            ...JSON.parse(JSON.stringify(login.RFRL['WAIT_AUTH'])),
+            calls: {
+                ...JSON.parse(JSON.stringify(login.RFRL['WAIT_AUTH'].calls)),
+                'CHECK_AUTH': 0,
+                'SETUP': { count: 0, breakCount: 0 },
+                'SETUP_FIRST': { count: 1, breakCount: 0 }
+            }
         }
+    },
+    RNFRL: {
+        'NO_WAIT': {
+            ...JSON.parse(JSON.stringify(login.RNFRL['NO_WAIT'])),
+            calls: {
+                ...JSON.parse(JSON.stringify(login.RNFRL['NO_WAIT'].calls)),
+                'CHECK_AUTH': 0,
+            }
+        },
+        'WAIT_AUTH': {
+            ...JSON.parse(JSON.stringify(login.RNFRL['WAIT_AUTH'])),
+            calls: {
+                ...JSON.parse(JSON.stringify(login.RNFRL['WAIT_AUTH'].calls)),
+                'CHECK_AUTH': 0,
+                'SETUP': { count: 0, breakCount: 0 },
+                'SETUP_FIRST': { count: 1, breakCount: 0 }
+            }
+        }
+    },
+    NR: '__ZERO__'
+};
+
+const noRedirectCaseBaseOptions = {
+    ____usePageStateSetUp____: 2,
+    ____ProtectedElement_____: 2,
+    ____RedirectModal_____: {
+        NULL: 1,
+        MODAL: 1,
+        types: [
+            'AUTH_EXPIRED'
+        ]
+    },
+    calls: {
+        'LOADING': 1,
+        'SETUP': {
+            'count': 1,
+            'breakCount': 0
+        },
+        'SETUP_FIRST': {
+            'count': 0,
+            'breakCount': 0
+        },
+        'CHECK_AUTH': 1,
+        'BREAK': 0
     }
 };
-//! LOGOUT +$
-    //! REDIRECT +
-    //? FIRST_RENDER +
-        //? NO_WAIT(LAZY) +
-            //* {
-            //* ____usePageStateSetUp____: 1,
-            //* ____ProtectedElement_____: 2,
-            //* ____LOADER_____: SUSPENSE=1,
-            //* ____RedirectModal_____: MODAL=1, NULL=1
-            //* }
-        //? WAIT_AUTH(LAZY) +
-            //* {
-            //* ____usePageStateSetUp____: 1,
-            //* ____ProtectedElement_____: 2,
-            //* ____LOADER_____: LOADING=3, SUSPENSE=1,
-            //* ____RedirectModal_____: MODAL=1, NULL=1
-            //* }
-    //? NOT_FIRST_RENDER +
-        //? NO_WAIT(LAZY) +
-            //* {
-            //* ____usePageStateSetUp____: 1,
-            //* ____ProtectedElement_____: 2,
-            //* ____LOADER_____: 0,
-            //* ____RedirectModal_____: MODAL=1, NULL=1
-            //* }
-        //? WAIT_AUTH(LAZY) +
-            //* {
-            //* ____usePageStateSetUp____: 1,
-            //* ____ProtectedElement_____: 2,
-            //* ____LOADER_____: 0,
-            //* ____RedirectModal_____: MODAL=1, NULL=1
-            //* }
-    //! NO_REDIRECT +
-        //* NOT_RENDERING
-
+const redirectCaseBaseOptions = {
+    ____usePageStateSetUp____: 3,
+    ____ProtectedElement_____: 3,
+    ____RedirectModal_____: {
+        NULL: 1,
+        MODAL: 1,
+        types: [
+            'AUTH_EXPIRED'
+        ]
+    },
+    calls: {
+        'LOADING': 1,
+        'SETUP': {
+            'count': 1,
+            'breakCount': 0
+        },
+        'SETUP_FIRST': {
+            'count': 0,
+            'breakCount': 0
+        },
+        'CHECK_AUTH': 1,
+        'BREAK': 0
+    }
+};
+//! ON_NAVIGATE
+export const authExpired = {
+    paths: {
+        //! NO_REDIRECT_PAGE_FIRST_RENDER_LAZY
+        NRPFRL: {
+            'NO_WAIT': '/',
+            'WAIT_AUTH/REDIRECTION_PAGE_FIRST_RENDER': '/profile',
+            'WAIT_AUTH/REDIRECTION_PAGE_NOT_FIRST_RENDER': '/profile'
+        },
+        //! NO_REDIRECT_PAGE_NOT_FIRST_RENDER_LAZY
+        NRPNFRL: {
+            'NO_WAIT': '/',
+            'WAIT_AUTH/REDIRECTION_PAGE_FIRST_RENDER': '/profile',
+            'WAIT_AUTH/REDIRECTION_PAGE_NOT_FIRST_RENDER': '/profile'
+        },
+        //! REDIRECT_PAGE_FIRST_RENDER_LAZY
+        RPFRL: {
+            'REDIRECTED_PAGE_FIRST_RENDER': '/about',
+            'REDIRECTED_PAGE_NOT_FIRST_RENDER': '/about',
+        },
+        //! REDIRECT_PAGE_NOT_FIRST_RENDER_LAZY
+        RPNFRL: {
+            'REDIRECTED_PAGE_FIRST_RENDER': '/about',
+            'REDIRECTED_PAGE_NOT_FIRST_RENDER': '/about',
+        }
+    },
+    //! NAVIGATE TO -> ANY_NO_REDIRECT_PAGE
+    //! (PAGE MUST BE REDIRECTED WHEN NAVIGATE TO PROTECTED_PAGE
+    //! AND THERE ARE 2 SCENARIOS WHEN REDIRECTION PAGE IS LOADED OR NOT)
+    //! ['NRPFRL', 'NRPNFRL']
+    NRPFRL: {
+        'NO_WAIT': {
+            ...JSON.parse(JSON.stringify(noAuth.NFRL['NO_WAIT'])),
+            calls: {
+                ...JSON.parse(JSON.stringify(noAuth.NFRL['NO_WAIT'].calls)),
+                'CHECK_AUTH': 1
+            }
+        },
+        'WAIT_AUTH/REDIRECTION_PAGE_FIRST_RENDER': {
+            ...JSON.parse(JSON.stringify(noRedirectCaseBaseOptions)),
+            ____LOADER_____: { SUSPENSE: 2, LOADING: 3 },
+        },
+        'WAIT_AUTH/REDIRECTION_PAGE_NOT_FIRST_RENDER': {
+            ...JSON.parse(JSON.stringify(noRedirectCaseBaseOptions)),
+            ____LOADER_____: { SUSPENSE: 1, LOADING: 2 },
+        },
+    },
+    NRPNFRL: {
+        'NO_WAIT': {
+            ...JSON.parse(JSON.stringify(noAuth.NFRLL['NO_WAIT'])),
+            calls: {
+                ...JSON.parse(JSON.stringify(noAuth.NFRLL['NO_WAIT'].calls)),
+                'CHECK_AUTH': 1
+            }
+        },
+        'WAIT_AUTH/REDIRECTION_PAGE_FIRST_RENDER': {
+            ...JSON.parse(JSON.stringify(noRedirectCaseBaseOptions)),
+            ____LOADER_____: { SUSPENSE: 1, LOADING: 0 },
+        },
+        'WAIT_AUTH/REDIRECTION_PAGE_NOT_FIRST_RENDER': {
+            ...JSON.parse(JSON.stringify(noRedirectCaseBaseOptions)),
+            ____LOADER_____: { SUSPENSE: 0, LOADING: 0 },
+            calls: {
+                ...JSON.parse(JSON.stringify(noRedirectCaseBaseOptions.calls)),
+                'LOADING': 0
+            }
+        },
+    },
+    //! NAVIGATE TO -> ANY_REDIRECT_PAGE
+    //! (PAGE MUST BE REDIRECTED TO PROTECTED_PAGE THEN MUST REDIRECT TO NOT_PROTECTED_PAGE
+    //! AND THERE ARE 4 SCENARIOS, WHEN PROTECTED_PAGE, NOT_PROTECTED_PAGE ARE LOADED OR NOT)
+    //! ['RPFRL', 'RPNFRL']
+    RPFRL: {
+        'REDIRECTED_PAGE_FIRST_RENDER': {
+            ...JSON.parse(JSON.stringify(redirectCaseBaseOptions)),
+            ____LOADER_____: { SUSPENSE: 2, LOADING: 4 },
+        },
+        'REDIRECTED_PAGE_NOT_FIRST_RENDER': {
+            ...JSON.parse(JSON.stringify(redirectCaseBaseOptions)),
+            ____LOADER_____: { SUSPENSE: 1, LOADING: 0 },
+        },
+    },
+    RPNFRL: {
+        'REDIRECTED_PAGE_FIRST_RENDER': {
+            ...JSON.parse(JSON.stringify(redirectCaseBaseOptions)),
+            ____LOADER_____: { SUSPENSE: 1, LOADING: 3 },
+        },
+        'REDIRECTED_PAGE_NOT_FIRST_RENDER': {
+            ...JSON.parse(JSON.stringify(redirectCaseBaseOptions)),
+            ____LOADER_____: { SUSPENSE: 0, LOADING: 0 },
+            calls: {
+                ...JSON.parse(JSON.stringify(redirectCaseBaseOptions.calls)),
+                'LOADING': 0
+            }
+        },
+    }
+};
 //! AUTH_EXPIRED +$
     //! NAVIGATE TO -> ANY_NO_REDIRECT_PAGE
-    //! (PAGE MUST BE REDIRECTED WHEN NAVIGATE TO NOT_PROTECTED_PAGE
+    //! (PAGE MUST BE REDIRECTED WHEN NAVIGATE TO PROTECTED_PAGE
     //! AND THERE ARE 2 SCENARIOS WHEN REDIRECTION PAGE IS LOADED OR NOT)
     //? FIRST_RENDER
         //? NO_WAIT(LAZY) +

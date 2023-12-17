@@ -10,52 +10,47 @@ import { type DeepPartial } from '@reduxjs/toolkit';
 
 export const enum ERoutes {
     MAIN = '/',
-    MAIN2 = '/2',
+    MAIN2 = '/main2',
     TEST = '/test',
-    LOGIN = '/login',
+    // LOGIN = '/login',
     ABOUT = '/about',
     ABOUT2 = '/about2',
     PROFILE = '/profile',
     NOT_FOUND = '*',
 }
 
-// export const CRoutes = {
-//     MAIN: '/',
-//     LOGIN: '/login',
-//     ABOUT: '/about',
-//     PROFILE: '/profile',
-//     NOT_FOUND: '*',
-// };
-
-export interface IRouterConfig {
+interface IRouterConfig extends PathRouteProps {
     Element: ComponentType;
-    path: ERoutes;
+    // path: ERoutes;
     asyncReducers?: TAddAsyncReducerOp;
     state?: TAddAsyncReducerParameters[1];
 }
-export const routesConfig: Array<PathRouteProps & IRouterConfig> = [
-    {
-        path: ERoutes.MAIN,
+type TRoutesConfig = {
+    [KEY in ERoutes]: IRouterConfig
+};
+export const routesConfig: TRoutesConfig = {
+    [ERoutes.MAIN]: {
+        // path: ERoutes.MAIN,
         Element: memo(lazyImport(() => import('pages/Main')))
     },
-    {
-        path: ERoutes.MAIN2,
+    [ERoutes.MAIN2]: {
+        // path: ERoutes.MAIN2,
         Element: memo(lazyImport(() => import('pages/Main')))
     },
-    {
-        path: ERoutes.TEST,
+    [ERoutes.TEST]: {
+        // path: ERoutes.TEST,
         Element: memo(lazyImport(() => import('pages/Main')))
     },
-    {
-        path: ERoutes.ABOUT,
+    [ERoutes.ABOUT]: {
+        // path: ERoutes.ABOUT,
         Element: memo(lazyImport(() => import('pages/About')))
     },
-    {
-        path: ERoutes.ABOUT2,
+    [ERoutes.ABOUT2]: {
+        // path: ERoutes.ABOUT2,
         Element: memo(lazyImport(() => import('pages/About')))
     },
-    {
-        path: ERoutes.PROFILE,
+    [ERoutes.PROFILE]: {
+        // path: ERoutes.PROFILE,
         Element: memo(lazyImport(() => import('pages/Profile'))),
     },
     //     // asyncReducers: async () => {
@@ -68,10 +63,10 @@ export const routesConfig: Array<PathRouteProps & IRouterConfig> = [
     //     // },
     // },
     //! must be last
-    {
-        path: ERoutes.NOT_FOUND,
+    [ERoutes.NOT_FOUND]: {
+        // path: ERoutes.NOT_FOUND,
         Element: memo(lazyImport(() => import('pages/NotFound')))
     },
-];
+};
 
 

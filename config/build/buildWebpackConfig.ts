@@ -5,8 +5,8 @@ import buildPlugins from './buildPlugins';
 import buildLoaders from './buildLoaders';
 import buildResolvers from './buildResolvers';
 import buildDevServer from './buildDevServer';
- 
- 
+
+
 export default function({
     paths, mode, port, isDev, styleMode, apiUrl, mustAnalyzeBundle, project
 }: IBuildOptions): Configuration {
@@ -16,6 +16,7 @@ export default function({
         output: {
             filename: '[name][contenthash].js',
             path: paths.build,
+            publicPath: '/',
             clean: true
         },
         plugins: buildPlugins(isDev, {
@@ -29,8 +30,8 @@ export default function({
         devtool: isDev ? 'inline-source-map' : undefined,
         devServer: isDev ? buildDevServer(port) : undefined,
         performance: {
-            maxEntrypointSize: 400000,
-            maxAssetSize: 400000
+            maxEntrypointSize: 600000,
+            maxAssetSize: 600000
         },
     };
 }

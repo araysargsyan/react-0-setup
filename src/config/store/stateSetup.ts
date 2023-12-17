@@ -15,7 +15,7 @@ import {
 
 const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = (_) =>  {
     return {
-        [ERoutes.LOGIN]: { authRequirement: false, },
+        // [ERoutes.LOGIN]: { authRequirement: false, },
         [ERoutes.MAIN]: {
             authRequirement: null,
             actions: [ //! if async is true this action call will wait in initial setup, by default false

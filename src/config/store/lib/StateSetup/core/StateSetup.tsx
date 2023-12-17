@@ -228,7 +228,7 @@ class StateSetup {
             const prevRedirectTo = this.getRedirectTo(this.flowStatus === FlowStatuses.Start
                 ? this.currentRoute! : pathname
             );
-            const isAuth = await checkAuthorization({ isAuth: this.isAuth }, thunkAPI);
+            const isAuth = await checkAuthorization({ isAuth: this.isAuth }, thunkAPI as never as IThunkConfig);
             const isAuthExpired = typeof isAuth === 'boolean' && this.isAuth && isAuth !== this.isAuth;
 
             if (typeof isAuth === 'boolean') {
@@ -266,6 +266,7 @@ class StateSetup {
                 redirectTo,
                 mode,
                 waitUntil: waitUntil || null,
+                isAuthExpired
             });
         } catch (e) {
             console.log(e);
@@ -378,6 +379,8 @@ class StateSetup {
                         if (redirectTo) {
                             this.restart = RestartTypes.OnAuth;
                             state.isPageReady = false;
+                        } else {
+                            flowState.reset();
                         }
 
                         console.log('RESTART::this.setIsAuthenticated', {
@@ -632,7 +635,7 @@ class StateSetup {
                     console.log('%csetUp->PAGE_IS_READY', 'color: #ed149a', flowState.get());
 
                     if (this.loading === null && this.loadingCount !== null && Math.round(this.loadingCount) === this.loadingCount) {
-                        if (!flowState['useEffect: Update'].____RedirectModal_____.MODAL) {
+                        if (!flowState['useEffect: Update'].____RedirectModal_____.MODAL && this.restart !== RestartTypes.AuthExpired) {
                             flowState.reset();
                         }
                         this.loadingCount = 0;

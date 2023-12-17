@@ -1,9 +1,10 @@
 import { type useNavigate } from 'react-router-dom';
 import until from 'app/dubag/util/wait';
 import { ERoutes } from 'config/router';
+import * as process from 'process';
 
 import {
-    auth, login, logout, noAuth
+    auth, authExpired, login, logout, noAuth
 } from './testScenarios';
 
 
@@ -49,7 +50,48 @@ export default class FlowStateChecker {
         this['calls'] = JSON.parse(JSON.stringify(this.initialFlowState['calls']));
         this['useEffect: Update'] = JSON.parse(JSON.stringify(this.initialFlowState['useEffect: Update']));
     }
+    private deepEqual(obj1: any, obj2: any): boolean {
+        if (obj1 === obj2) {
+            return true;
+        }
+
+        if (typeof obj1 !== 'object' || obj1 === null || typeof obj2 !== 'object' || obj2 === null) {
+            return false;
+        }
+
+        const keys1 = Object.keys(obj1);
+        const keys2 = Object.keys(obj2);
+
+        if (keys1.length !== keys2.length) {
+            return false;
+        }
+
+        for (const key of keys1) {
+            if (!keys2.includes(key) || !this.deepEqual(obj1[key], obj2[key])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    public removeCheckKey = (key: string, value?: string) => {
+        this.checks.errors = [];
+        if (value) {
+            delete this.checks[key][value];
+        } else {
+            delete this.checks[key];
+        }
+        localStorage.setItem('checks', JSON.stringify(this.checks));
+    };
     public reset = () => {
+        if (!__IS_DEV__) {
+            localStorage.removeItem('flowState');
+            localStorage.removeItem('flowStateMap');
+            localStorage.removeItem('$authProtectionConfig');
+            this['calls'] = JSON.parse(JSON.stringify(this.initialFlowState['calls']));
+            this['useEffect: Update'] = JSON.parse(JSON.stringify(this.initialFlowState['useEffect: Update']));
+            return;
+        }
         const waitingTime = 1000;
 
         if (window.location.pathname !== noAuth.paths.FRL['NO_WAIT']
@@ -71,7 +113,7 @@ export default class FlowStateChecker {
                 ...this[ 'useEffect: Update' ],
                 calls: { ...this[ 'calls' ] }
             };
-            const isAsAspect: boolean = localStorage.getItem('flowState') === JSON.stringify(original);
+            const isAsAspect: boolean = this.deepEqual(JSON.parse(localStorage.getItem('flowState') || '{}'), original);
             const flowStateMap: string[] | string = JSON.parse(localStorage.getItem('flowStateMap') || '[]');
 
             console.log('$__reset__$: INIT', {
@@ -112,7 +154,9 @@ export default class FlowStateChecker {
             const object: any = type === 'noAuth' ? noAuth
                 : type === 'auth' ? auth
                     : type === 'login' ? login
-                        : type === 'logout' ? logout : null;
+                        : type === 'logout' ? logout
+                            : type === 'authExpired' ? authExpired : null;
+            console.log({ type, object });
             if ([ 'noAuth', 'auth' ].includes(type) && object) {
                 if (this.checks[type]['FRL->WAIT_AUTH'] === undefined) {
                     until(waitingTime).then(() => {
@@ -219,7 +263,7 @@ export default class FlowStateChecker {
                             this.navigate(path);
                         });
                     }
-                }  else if (!localStorage.getItem('user') && this.checks.auth === undefined) {
+                } else if (!localStorage.getItem('user') && this.checks.auth === undefined) {
                     localStorage.setItem('user', JSON.stringify({
                         id: '1',
                         password: '123',
@@ -237,8 +281,6 @@ export default class FlowStateChecker {
                     });
                 }
             } else if ([ 'login', 'logout' ].includes(type) && object) {
-                debugger;
-
                 const loginBtnId = 'FAST_SIGN_IN';
                 const logoutBtnId = 'SIGN_OUT';
 
@@ -309,17 +351,310 @@ export default class FlowStateChecker {
                             }
                         });
                     }
-                } else if (this.checks['login']['RNFRL->WAIT_AUTH'] && this.checks.logout === undefined) {
-                    document.getElementById(loginBtnId)?.click();
-                    until(waitingTime + 1000).then(() => {
+                } else if (this.checks[type]['NR'] === undefined) {
+                    document.getElementById(type === 'login' ? logoutBtnId : loginBtnId)?.click();
+                    until(waitingTime).then(() => {
+                        if (window.location.pathname !== ERoutes.TEST) {
+                            localStorage.setItem('flowStateMap', JSON.stringify(type));
+                            window.location.replace(ERoutes.TEST);
+                        } else {
+                            localStorage.setItem('flowState', JSON.stringify({
+                                ...this.initialFlowState['useEffect: Update'],
+                                calls: { ...this.initialFlowState['calls'] }
+                            }));
+                            localStorage.setItem('flowStateMap', JSON.stringify([ type, 'NR' ]));
+                            document.getElementById(type === 'login' ? loginBtnId : logoutBtnId)?.click();
+                        }
+                    });
+                } else if (this.checks.login?.['NR'] && this.checks.logout === undefined) {
+                    until(waitingTime).then(() => {
+                        localStorage.setItem('user', JSON.stringify({
+                            id: '1',
+                            password: '123',
+                            username: 'admin',
+                        }));
                         localStorage.setItem('flowStateMap', JSON.stringify('logout'));
                         localStorage.setItem('$authProtectionConfig', JSON.stringify(logout.config['RFRL']['NO_WAIT']));
                         window.location.replace(logout.paths['RFRL']['NO_WAIT']);
                     });
+                } else if (this.checks.logout?.['NR']) {
+                    localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
+                    localStorage.setItem('user', JSON.stringify({
+                        id: '1',
+                        password: '123',
+                        username: 'admin',
+                    }));
+                    window.location.replace(ERoutes.TEST);
+                }
+            } else if (type === 'authExpired' && object) {
+                const clearLocalStorageBtnId = 'CLEAR_STORAGE';
+                const isRendered = localStorage.getItem('rendered');
+                if (this.checks[type]?.['NRPFRL->NO_WAIT'] === undefined) {
+                    if (window.location.pathname !== ERoutes.TEST) {
+                        localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
+                        localStorage.setItem('user', JSON.stringify({
+                            id: '1',
+                            password: '123',
+                            username: 'admin',
+                        }));
+                        window.location.replace(ERoutes.TEST);
+                    } else {
+                        until(waitingTime).then(() => {
+                            document.getElementById(clearLocalStorageBtnId)?.click();
+                            localStorage.setItem('flowStateMap', JSON.stringify([ 'authExpired', 'NRPFRL', 'NO_WAIT' ]));
+                            localStorage.setItem('flowState', JSON.stringify(object.NRPFRL['NO_WAIT']));
+                            this.navigate(object.paths.NRPFRL['NO_WAIT']);
+                        });
+                    }
+                } else if (this.checks[type]?.['NRPFRL->WAIT_AUTH/REDIRECTION_PAGE_FIRST_RENDER'] === undefined) {
+                    if (window.location.pathname !== ERoutes.TEST) {
+                        until(waitingTime).then(() => {
+                            localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
+                            localStorage.setItem('user', JSON.stringify({
+                                id: '1',
+                                password: '123',
+                                username: 'admin',
+                            }));
+                            window.location.replace(ERoutes.TEST);
+                        });
+                    } else {
+                        until(waitingTime).then(() => {
+                            document.getElementById(clearLocalStorageBtnId)?.click();
+                            localStorage.setItem('flowStateMap', JSON.stringify([ 'authExpired', 'NRPFRL', 'WAIT_AUTH/REDIRECTION_PAGE_FIRST_RENDER' ]));
+                            localStorage.setItem('flowState', JSON.stringify(object.NRPFRL['WAIT_AUTH/REDIRECTION_PAGE_FIRST_RENDER']));
+                            this.navigate(object.paths.NRPFRL['WAIT_AUTH/REDIRECTION_PAGE_FIRST_RENDER']);
+                        });
+                    }
+                } else if (this.checks[type]?.['NRPFRL->WAIT_AUTH/REDIRECTION_PAGE_NOT_FIRST_RENDER'] === undefined) {
+                    if (window.location.pathname !== ERoutes.TEST && !isRendered) {
+                        until(waitingTime).then(() => {
+                            localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
+                            localStorage.setItem('user', JSON.stringify({
+                                id: '1',
+                                password: '123',
+                                username: 'admin',
+                            }));
+                            localStorage.setItem('rendered', JSON.stringify(true));
+                            window.location.replace(ERoutes.TEST);
+                        });
+                    } else {
+                        if (window.location.pathname !== '/') {
+                            localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
+                            this.navigate('/');
+                        } else {
+                            until(waitingTime).then(() => {
+                                localStorage.removeItem('rendered');
+                                document.getElementById(clearLocalStorageBtnId)?.click();
+                                localStorage.setItem('flowStateMap', JSON.stringify([ 'authExpired', 'NRPFRL', 'WAIT_AUTH/REDIRECTION_PAGE_NOT_FIRST_RENDER' ]));
+                                localStorage.setItem('flowState', JSON.stringify(object.NRPFRL['WAIT_AUTH/REDIRECTION_PAGE_NOT_FIRST_RENDER']));
+                                this.navigate(object.paths.NRPFRL['WAIT_AUTH/REDIRECTION_PAGE_NOT_FIRST_RENDER']);
+                            });
+                        }
+                    }
+                } else if (this.checks[type]?.['NRPNFRL->NO_WAIT'] === undefined) {
+                    if (window.location.pathname !== ERoutes.TEST && !isRendered) {
+                        until(waitingTime).then(() => {
+                            localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
+                            localStorage.setItem('user', JSON.stringify({
+                                id: '1',
+                                password: '123',
+                                username: 'admin',
+                            }));
+                            localStorage.setItem('rendered', JSON.stringify(false));
+                            window.location.replace(ERoutes.TEST);
+                        });
+                    } else {
+                        until(waitingTime).then(() => {
+                            if (window.location.pathname !== object.paths['NRPNFRL']['NO_WAIT'] && isRendered === 'false') {
+                                localStorage.setItem('rendered', JSON.stringify(true));
+                                localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
+                                this.navigate(object.paths['NRPNFRL']['NO_WAIT']);
+                            } else {
+                                localStorage.removeItem('rendered');
+                                document.getElementById(clearLocalStorageBtnId)?.click();
+                                localStorage.setItem('flowStateMap', JSON.stringify([ 'authExpired', 'NRPNFRL', 'NO_WAIT' ]));
+                                localStorage.setItem('flowState', JSON.stringify(object.NRPNFRL['NO_WAIT']));
+                                this.navigate(object.paths.NRPNFRL['NO_WAIT']);
+                            }
+                        });
+                    }
+                } else if (this.checks[type]?.['NRPNFRL->WAIT_AUTH/REDIRECTION_PAGE_FIRST_RENDER'] === undefined) {
+                    if (window.location.pathname !== ERoutes.TEST && !isRendered) {
+                        until(waitingTime).then(() => {
+                            localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
+                            localStorage.setItem('user', JSON.stringify({
+                                id: '1',
+                                password: '123',
+                                username: 'admin',
+                            }));
+                            localStorage.setItem('rendered', JSON.stringify(false));
+                            window.location.replace(ERoutes.TEST);
+                        });
+                    } else if (window.location.pathname !== ERoutes.TEST && isRendered === 'true') {
+                        until(waitingTime).then(() => {
+                            localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
+                            this.navigate(ERoutes.TEST);
+                        });
+                    } else {
+                        until(waitingTime).then(() => {
+                            if (window.location.pathname !== object.paths['NRPNFRL']['WAIT_AUTH/REDIRECTION_PAGE_FIRST_RENDER'] && isRendered === 'false') {
+                                localStorage.setItem('rendered', JSON.stringify(true));
+                                localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
+                                this.navigate(object.paths['NRPNFRL']['WAIT_AUTH/REDIRECTION_PAGE_FIRST_RENDER']);
+                            } else {
+                                localStorage.removeItem('rendered');
+                                document.getElementById(clearLocalStorageBtnId)?.click();
+                                localStorage.setItem('flowStateMap', JSON.stringify([ 'authExpired', 'NRPNFRL', 'WAIT_AUTH/REDIRECTION_PAGE_FIRST_RENDER' ]));
+                                localStorage.setItem('flowState', JSON.stringify(object.NRPNFRL['WAIT_AUTH/REDIRECTION_PAGE_FIRST_RENDER']));
+                                this.navigate(object.paths.NRPNFRL['WAIT_AUTH/REDIRECTION_PAGE_FIRST_RENDER']);
+                            }
+                        });
+                    }
+                } else if (this.checks[type]?.['NRPNFRL->WAIT_AUTH/REDIRECTION_PAGE_NOT_FIRST_RENDER'] === undefined) {
+                    if (window.location.pathname !== ERoutes.TEST && !isRendered) {
+                        until(waitingTime).then(() => {
+                            localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
+                            localStorage.setItem('user', JSON.stringify({
+                                id: '1',
+                                password: '123',
+                                username: 'admin',
+                            }));
+                            localStorage.setItem('rendered', JSON.stringify(false));
+                            window.location.replace(ERoutes.TEST);
+                        });
+                    } else if (window.location.pathname !== ERoutes.TEST && isRendered === 'true') {
+                        until(waitingTime).then(() => {
+                            localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
+                            this.navigate(ERoutes.TEST);
+                        });
+                    } else {
+                        until(waitingTime).then(() => {
+                            if (window.location.pathname !== object.paths['NRPNFRL']['WAIT_AUTH/REDIRECTION_PAGE_NOT_FIRST_RENDER'] && isRendered === 'false') {
+                                this.navigate(object.paths['NRPNFRL']['WAIT_AUTH/REDIRECTION_PAGE_NOT_FIRST_RENDER']);
+                                until(waitingTime).then(() => {
+                                    localStorage.setItem('rendered', JSON.stringify(true));
+                                    localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
+                                    this.navigate('/');
+                                });
+                            } else if (isRendered === 'true') {
+                                localStorage.removeItem('rendered');
+                                document.getElementById(clearLocalStorageBtnId)?.click();
+                                localStorage.setItem('flowStateMap', JSON.stringify([ 'authExpired', 'NRPNFRL', 'WAIT_AUTH/REDIRECTION_PAGE_NOT_FIRST_RENDER' ]));
+                                localStorage.setItem('flowState', JSON.stringify(object.NRPNFRL['WAIT_AUTH/REDIRECTION_PAGE_NOT_FIRST_RENDER']));
+                                this.navigate(object.paths.NRPNFRL['WAIT_AUTH/REDIRECTION_PAGE_NOT_FIRST_RENDER']);
+                            }
+                        });
+                    }
+                } else if (this.checks[type]?.['RPFRL->REDIRECTED_PAGE_FIRST_RENDER'] === undefined) {
+                    if (window.location.pathname !== ERoutes.TEST) {
+                        localStorage.setItem('user', JSON.stringify({
+                            id: '1',
+                            password: '123',
+                            username: 'admin',
+                        }));
+                        localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
+                        window.location.replace(ERoutes.TEST);
+                    } else {
+                        until(waitingTime).then(() => {
+                            document.getElementById(clearLocalStorageBtnId)?.click();
+                            localStorage.setItem('flowStateMap', JSON.stringify([ type, 'RPFRL', 'REDIRECTED_PAGE_FIRST_RENDER' ]));
+                            localStorage.setItem('flowState', JSON.stringify(object['RPFRL']['REDIRECTED_PAGE_FIRST_RENDER']));
+                            this.navigate(object.paths['RPFRL']['REDIRECTED_PAGE_FIRST_RENDER']);
+                        });
+                    }
+                } else if (this.checks[type]?.['RPFRL->REDIRECTED_PAGE_NOT_FIRST_RENDER'] === undefined) {
+                    if (window.location.pathname !== ERoutes.TEST && !isRendered) {
+                        localStorage.setItem('user', JSON.stringify({
+                            id: '1',
+                            password: '123',
+                            username: 'admin',
+                        }));
+                        localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
+                        window.location.replace(ERoutes.TEST);
+                    } else {
+                        if (!isRendered) {
+                            until(waitingTime).then(() => {
+                                this.navigate(object.paths['RPFRL']['REDIRECTED_PAGE_NOT_FIRST_RENDER']);
+                                until(waitingTime + 1000).then(() => {
+                                    localStorage.setItem('rendered', JSON.stringify('true'));
+                                    localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
+                                    this.navigate(ERoutes.TEST);
+                                });
+                            });
+                        } else {
+                            until(waitingTime).then(() => {
+                                localStorage.removeItem('rendered');
+                                document.getElementById(clearLocalStorageBtnId)?.click();
+                                localStorage.setItem('flowStateMap', JSON.stringify([ type, 'RPFRL', 'REDIRECTED_PAGE_NOT_FIRST_RENDER' ]));
+                                localStorage.setItem('flowState', JSON.stringify(object['RPFRL']['REDIRECTED_PAGE_NOT_FIRST_RENDER']));
+                                this.navigate(object.paths['RPFRL']['REDIRECTED_PAGE_NOT_FIRST_RENDER']);
+                            });
+                        }
+                    }
+                } else if (this.checks[type]?.['RPNFRL->REDIRECTED_PAGE_FIRST_RENDER'] === undefined) {
+                    if (window.location.pathname !== ERoutes.TEST && !isRendered) {
+                        localStorage.setItem('user', JSON.stringify({
+                            id: '1',
+                            password: '123',
+                            username: 'admin',
+                        }));
+                        localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
+                        window.location.replace(ERoutes.TEST);
+                    } else {
+                        if (!isRendered) {
+                            until(waitingTime).then(() => {
+                                this.navigate('/');
+                                until(waitingTime + 1000).then(() => {
+                                    localStorage.setItem('rendered', JSON.stringify('true'));
+                                    localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
+                                    this.navigate(ERoutes.TEST);
+                                });
+                            });
+                        } else {
+                            until(waitingTime).then(() => {
+                                localStorage.removeItem('rendered');
+                                document.getElementById(clearLocalStorageBtnId)?.click();
+                                localStorage.setItem('flowStateMap', JSON.stringify([ type, 'RPNFRL', 'REDIRECTED_PAGE_FIRST_RENDER' ]));
+                                localStorage.setItem('flowState', JSON.stringify(object['RPNFRL']['REDIRECTED_PAGE_FIRST_RENDER']));
+                                this.navigate(object.paths['RPNFRL']['REDIRECTED_PAGE_FIRST_RENDER']);
+                            });
+                        }
+                    }
+                } else if (this.checks[type]?.['RPNFRL->REDIRECTED_PAGE_NOT_FIRST_RENDER'] === undefined) {
+                    if (window.location.pathname !== ERoutes.TEST && !isRendered) {
+                        localStorage.setItem('user', JSON.stringify({
+                            id: '1',
+                            password: '123',
+                            username: 'admin',
+                        }));
+                        localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
+                        window.location.replace(ERoutes.TEST);
+                    } else {
+                        if (!isRendered) {
+                            until(waitingTime).then(() => {
+                                this.navigate('/');
+                                until(waitingTime + 1000).then(() => {
+                                    this.navigate(object.paths['RPNFRL']['REDIRECTED_PAGE_NOT_FIRST_RENDER']);
+                                    until(waitingTime + 1000).then(() => {
+                                        localStorage.setItem('rendered', JSON.stringify('true'));
+                                        localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
+                                        this.navigate(ERoutes.TEST);
+                                    });
+                                });
+                            });
+                        } else {
+                            until(waitingTime).then(() => {
+                                localStorage.removeItem('rendered');
+                                document.getElementById(clearLocalStorageBtnId)?.click();
+                                localStorage.setItem('flowStateMap', JSON.stringify([ type, 'RPNFRL', 'REDIRECTED_PAGE_NOT_FIRST_RENDER' ]));
+                                localStorage.setItem('flowState', JSON.stringify(object['RPNFRL']['REDIRECTED_PAGE_NOT_FIRST_RENDER']));
+                                this.navigate(object.paths['RPNFRL']['REDIRECTED_PAGE_NOT_FIRST_RENDER']);
+                            });
+                        }
+                    }
                 }
             }
         }
-
     };
 
     public get = () => {

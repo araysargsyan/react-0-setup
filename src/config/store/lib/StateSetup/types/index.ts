@@ -135,13 +135,7 @@ type TSetIsAuthenticated = ActionCreatorWithPreparedPayload<
     [isAuthenticated: boolean, restart?: boolean],
     {isAuthenticated: boolean; restart: boolean}
 >;
-type TCheckAuthorizationFn = AsyncThunkPayloadCreator<
-    boolean,
-    {
-        isAuth: boolean | null;
-    },
-    IThunkConfig
->;
+
 type TCheckAuthorizationReturn = { redirectTo: string | null; mode: TMode; waitUntil: INavigationOptions['waitUntil'] | null };
 type TCheckAuthorizationAsyncThunk = AsyncThunk<
     TCheckAuthorizationReturn,
@@ -153,6 +147,12 @@ type TCheckAuthorizationAsyncThunk = AsyncThunk<
     },
     IThunkConfig
 >;
+type TCheckAuthorizationFn = (
+    options: {
+        isAuth: boolean | null;
+    },
+    config: IThunkConfig,
+) => Promise<boolean>;
 type TInitAuth = AsyncThunkPayloadCreator<
     TCheckAuthorizationReturn,
     Parameters<TCheckAuthorizationAsyncThunk>[0] & {checkAuthorization: TCheckAuthorizationFn},

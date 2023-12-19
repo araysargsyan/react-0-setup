@@ -1,6 +1,6 @@
 import { loader as MiniCssExtractLoader } from 'mini-css-extract-plugin';
 
-import { type TStyleMode } from '../types/config';
+import { type TStyleMode } from '../types';
 
 
 export default function(isDev: boolean, styleMode: TStyleMode) {

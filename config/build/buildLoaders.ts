@@ -1,11 +1,11 @@
 import  { type RuleSetRule } from 'webpack';
 
-import  { type TStyleMode } from './types/config';
+import  { type TStyleMode } from './types';
 import buildCssLoader from './loaders/buildCssLoader';
 import buildTypescriptLoader from './loaders/buildTypescriptLoader';
 import buildSvgLoader from './loaders/buildSvgLoader';
 
- 
+
 export default function(isDev: boolean, styleMode: TStyleMode = 's[ac]ss'): RuleSetRule[] {
 
     const svgLoader = buildSvgLoader();
@@ -28,4 +28,4 @@ export default function(isDev: boolean, styleMode: TStyleMode = 's[ac]ss'): Rule
         fileLoader,
         svgLoader
     ];
-} 
+}

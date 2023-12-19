@@ -9,7 +9,7 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 
-import { type IBuildOptions } from './types/config';
+import { type IBuildOptions } from './types';
 
 // import Dotenv from 'dotenv-webpack';
 

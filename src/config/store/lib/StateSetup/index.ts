@@ -1,6 +1,6 @@
 export { default, RedirectionTypes } from './core/StateSetup';
 
-export {
+export type {
     TStateSetupFn,
     TCheckAuthorizationFn,
     IAppSchema,

@@ -6,7 +6,6 @@ import {
     useRef
 } from 'react';
 import { useDispatch, useStore } from 'react-redux';
-import { type DeepPartial } from '@reduxjs/toolkit';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 
 import { type IState, type IStore } from './types';

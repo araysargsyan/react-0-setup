@@ -3,8 +3,6 @@ import Modal from 'shared/ui/Modal';
 import lazyImport from 'shared/helpers/lazyImport';
 import Loader from 'shared/ui/Loader';
 
-import { type ILoginFormProps } from '../LoginForm/LoginForm';
-
 
 interface ILoginModalProps {
     className?: string;
@@ -12,7 +10,7 @@ interface ILoginModalProps {
     onClose: () => void;
 }
 
-const LoginForm = lazyImport<FC<ILoginFormProps>>(() => import('../LoginForm/LoginForm'));
+const LoginForm = lazyImport(() => import('../LoginForm/LoginForm'));
 const LoginModal: FC<ILoginModalProps> = ({
     className,
     isOpen,

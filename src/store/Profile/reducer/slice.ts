@@ -1,8 +1,15 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { type IProfileSchema } from 'store/Profile';
 
 import { fetchData, updateData } from './actionCreators';
+import { type IProfile } from '..';
 
+
+interface IProfileSchema {
+    data?: IProfile;
+    isLoading: boolean;
+    error?: string;
+    readonly: boolean;
+}
 
 const initialState: IProfileSchema = {
     readonly: true,
@@ -11,7 +18,7 @@ const initialState: IProfileSchema = {
     data: undefined,
 };
 
-export const profileSlice = createSlice({
+const profileSlice = createSlice({
     name: 'profile',
     initialState,
     reducers: {
@@ -63,12 +70,16 @@ export const profileSlice = createSlice({
     },
 });
 
-
-export const profileActionCreators = {
-    ...profileSlice.actions, fetchData, updateData 
+const profileActionCreators = {
+    ...profileSlice.actions, fetchData, updateData
 };
+type TProfileActions = typeof profileActionCreators;
 
-export type TProfileActions = typeof profileActionCreators;
+export {
+    profileActionCreators,
+    type TProfileActions,
+    type IProfileSchema
+};
 export default {
     name: profileSlice.name,
     reducer: profileSlice.reducer

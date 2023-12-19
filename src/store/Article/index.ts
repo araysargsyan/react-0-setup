@@ -1,7 +1,7 @@
 export {
     default,
     articleDetailsActionCreators,
-    IArticleDetailsSchema
+    type IArticleDetailsSchema
 } from './reducer/slice';
 export * from './selectors';
 export * from './model';

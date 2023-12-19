@@ -27,7 +27,7 @@ interface TNavigateOptions extends NavigateOptions {
 
 type TAppNavigateFunction = (to: To, options?: TNavigateOptions) => void;
 
-export {
+export type {
     TAction,
     TModule,
     TReturnedActions,

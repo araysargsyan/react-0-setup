@@ -4,12 +4,12 @@ import _c from 'shared/helpers/classNames';
 import cls from './Text.module.scss';
 
 
-export enum ETextTheme {
+enum ETextTheme {
     PRIMARY = 'primary',
     ERROR = 'error',
 }
 
-export enum ETextAlign {
+enum ETextAlign {
     RIGHT = 'right',
     LEFT = 'left',
     CENTER = 'center',
@@ -38,4 +38,8 @@ const AppText: FC<ITextProps> = ({
     );
 };
 
+export {
+    ETextTheme,
+    ETextAlign
+};
 export default memo(AppText);

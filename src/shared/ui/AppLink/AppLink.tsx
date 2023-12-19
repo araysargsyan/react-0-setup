@@ -10,7 +10,7 @@ import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import cls from './AppLink.module.scss';
 
 
-export enum EAppLinkTheme {
+enum EAppLinkTheme {
     PRIMARY = 'primary',
     SECONDARY = 'secondary'
 }
@@ -38,5 +38,7 @@ const AppLink: FC<PropsWithChildren<IAppLinkProps>> = ({
         </Link>
     );
 };
+
+export { EAppLinkTheme };
 
 export default memo(AppLink);

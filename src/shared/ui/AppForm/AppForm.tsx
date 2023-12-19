@@ -5,11 +5,7 @@ import React, {
     type PropsWithChildren,
     useMemo
 } from 'react';
-import {
-    AsyncReducer,
-    type IStateSchema,
-    type TAsyncReducerOptions
-} from 'config/store';
+import { AsyncReducer, type IStateSchema } from 'config/store';
 import AppText, { ETextTheme } from 'shared/ui/Text';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +14,7 @@ import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import { type TAddAsyncReducerOp } from 'config/store/types';
 
 
-export enum EFormComponent {
+enum EFormComponent {
     FORM = 'form',
     DIV = 'div',
 }
@@ -114,4 +110,5 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
     );
 };
 
+export { EFormComponent };
 export default AppForm;

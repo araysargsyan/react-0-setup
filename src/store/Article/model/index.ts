@@ -41,11 +41,11 @@ interface IArticle {
 }
 
 export {
-    IArticle,
-    IArticleBlock,
-    IArticleCodeBlock,
-    IArticleImageBlock,
-    IArticleTextBlock,
+    type IArticle,
+    type IArticleBlock,
+    type IArticleCodeBlock,
+    type IArticleImageBlock,
+    type IArticleTextBlock,
     ArticleBlockType,
     ArticleType
 };

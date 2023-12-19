@@ -1,7 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { dependencies } = require('./package.json');
-
-
 module.exports = {
     env: {
         browser: true,
@@ -15,6 +11,7 @@ module.exports = {
     ],
     parser: '@typescript-eslint/parser',
     parserOptions: {
+        project: './tsconfig.json',
         ecmaFeatures: { jsx: true, },
         ecmaVersion: 'latest',
         sourceType: 'module',
@@ -145,14 +142,16 @@ module.exports = {
             fixStyle: 'inline-type-imports',
             prefer: 'type-imports'
         } ],
+        '@typescript-eslint/consistent-type-exports': [ 'error', { fixMixedExportsWithInlineTypeSpecifier: true, } ],
         //! import
+        'import/exports-last': 'error',
         'import/order': [
             'error',
             {
                 groups: [
                     [ 'builtin', 'external' ],
                     'internal',
-                    [ 'parent', 'sibling', 'index' ]
+                    [ 'parent', 'sibling', 'index' ],
                 ],
                 'newlines-between': 'always',
             },
@@ -165,6 +164,7 @@ module.exports = {
         } ],
         //! i18next
         'i18next/no-literal-string': [ 'warn', {
+            'jsx-attributes': { exclude: [ 'className' ] },
             validateTemplate: true, //Indicate whether to validate template strings or not. Default false
             markupOnly: false //If markupOnly option turn on, only JSX text and strings used as JSX attributes will be validated.
         } ],
@@ -177,11 +177,15 @@ module.exports = {
         __API__: true,
         __PROJECT__: true,
     },
-    settings: { 'react': { version: dependencies.react, } },
+    settings: { 'react': { version: '18' } },
     overrides: [
         {
             files: [ '**/*.test.{ts,tsx}' ],
             rules: { 'i18next/no-literal-string': 'off' },
+        },
+        {
+            files: [ '**/*.story.{ts,tsx}' ],
+            rules: { 'import/exports-last': 'off' },
         }
     ],
 };

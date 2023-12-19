@@ -166,7 +166,7 @@ type TInitAuth = AsyncThunkPayloadCreator<
 
 type TypeFromConstValues<T extends Record<string, string>> = T[keyof T];
 
-export {
+export type {
     TCb,
     TMode,
     IAppSchema,

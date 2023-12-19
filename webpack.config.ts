@@ -1,4 +1,4 @@
-import  { type Configuration } from 'webpack';
+import { type Configuration } from 'webpack';
 import { resolve } from 'path';
 
 import BuildWebpackConfig from './config/build/buildWebpackConfig';

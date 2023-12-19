@@ -8,7 +8,6 @@ import {
     useCallback,
     useEffect
 } from 'react';
-import { type TAsyncReducerOptions } from 'config/store';
 import AppForm from 'shared/ui/AppForm';
 import { useActions } from 'shared/hooks/redux';
 import { type TAddAsyncReducerOp } from 'config/store/types';
@@ -23,7 +22,7 @@ import loginReducer, {
 import cls from './LoginForm.module.scss';
 
 
-export interface ILoginFormProps {
+interface ILoginFormProps {
     className?: string;
     onSuccess: () => void;
 }

@@ -14,7 +14,7 @@ const ArticleDetails: FC<IArticleDetailsPageProps> = ({ className }) => {
 
     return (
         <div className={ _c(cls['article-details-page'],  [ className ]) }>
-            ARTICLE DETAILS
+            { 'ARTICLE DETAILS' }
         </div>
     );
 };

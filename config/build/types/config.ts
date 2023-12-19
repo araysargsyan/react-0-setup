@@ -1,4 +1,4 @@
-export interface IBuildPaths {
+interface IBuildPaths {
     entry: string;
     build: string;
     html: string;
@@ -6,9 +6,9 @@ export interface IBuildPaths {
 }
 
 type TBuildMode = 'development' | 'production';
-export type TStyleMode = 'scss' | 'sass' | 's[ac]ss';
+type TStyleMode = 'scss' | 'sass' | 's[ac]ss';
 
-export interface IBuildOptions {
+interface IBuildOptions {
     styleMode?: TStyleMode;
     mode: TBuildMode;
     paths: IBuildPaths;
@@ -19,8 +19,15 @@ export interface IBuildOptions {
     project: 'storybook' | 'frontend' | 'jest';
 }
 
-export interface IBuildEnv {
+interface IBuildEnv {
     MODE: TBuildMode;
     PORT: number;
     apiUrl: string;
 }
+
+export type {
+    IBuildPaths,
+    TStyleMode,
+    IBuildOptions,
+    IBuildEnv
+};

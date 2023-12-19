@@ -2,13 +2,10 @@ import { useTranslation } from 'react-i18next';
 import { shallowEqual, useSelector } from 'react-redux';
 import { getProfileData, getProfileReadonly } from 'store/Profile/selectors';
 import _c from 'shared/helpers/classNames';
-import {
-    type FC, memo, useEffect, 
-} from 'react';
+import { type FC, memo, } from 'react';
 import AppInput from 'shared/ui/AppInput';
 import AppForm, { EFormComponent } from 'shared/ui/AppForm';
-import { type TAsyncReducerOptions } from 'config/store';
-import { getEditProfileData, getEditProfileField } from 'features/forms/EditProfile/model/selectors';
+import { getEditProfileField } from 'features/forms/EditProfile/model/selectors';
 import { useDynamicActions } from 'shared/hooks/redux';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import AppSelect from 'shared/ui/AppSelect';
@@ -30,7 +27,7 @@ const asyncReducerOptions: TAddAsyncReducerOp = async () => {
         parentKey: 'forms'
     } ];
 };
-export interface IEditProfileProps {
+interface IEditProfileProps {
     className?: string;
 }
 

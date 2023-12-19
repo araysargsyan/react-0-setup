@@ -7,14 +7,14 @@ export const AsyncReducer = lazyImport(() => import('./lib/ReducerManager/AsyncR
 
 export {
     default as StateSetup,
-    TStateSetupFn,
-    TCheckAuthorizationFn,
-    IAppSchema
+    type TStateSetupFn,
+    type TCheckAuthorizationFn,
+    type IAppSchema
 } from './lib/StateSetup';
 
 
 export { default } from './store';
-export {
+export type {
     IStateSchema,
     TAppDispatch,
     TStore,

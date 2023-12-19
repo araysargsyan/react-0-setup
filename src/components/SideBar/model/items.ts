@@ -1,4 +1,4 @@
-import type React from 'react';
+import { type FC, type SVGProps } from 'react';
 import AboutIcon from 'shared/assets/icons/about-20-20.svg';
 import MainIcon from 'shared/assets/icons/main-20-20.svg';
 import ProfileIcon from 'shared/assets/icons/profile-20-20.svg';
@@ -9,7 +9,7 @@ import { Routes } from 'config/router';
 export interface ISidebarItem {
     path: string;
     text: string;
-    Icon?: React.FC<React.SVGProps<SVGSVGElement>>;
+    Icon?: FC<SVGProps<SVGSVGElement>>;
 }
 
 export const sidebarItemsList: ISidebarItem[] = [

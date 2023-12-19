@@ -20,7 +20,7 @@ import {
     type AnyAction,
 } from '@reduxjs/toolkit';
 import {
-    matchPath,
+    // matchPath,
     Navigate,
     useLocation,
     useNavigate,
@@ -80,6 +80,7 @@ type TRestartTypes = TypeFromConstValues<typeof RestartTypes>;
 type TRedirectionTypes = TypeFromConstValues<typeof RedirectionTypes>;
 
 
+// eslint-disable-next-line import/exports-last
 export const flowState = new FlowStateChecker();
 // @ts-ignore
 window.flowState = flowState;

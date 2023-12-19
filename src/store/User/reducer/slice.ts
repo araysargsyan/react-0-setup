@@ -2,9 +2,12 @@ import  { type PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { USER_LOCALSTORAGE_KEY } from 'shared/const';
 import { logout } from 'store/User/reducer/actionCreators';
 
-import  { type IUser, type IUserSchema } from '..';
+import { type IUser } from '../model';
 
 
+interface IUserSchema {
+    authData?: IUser;
+}
 const initialState: IUserSchema = {};
 
 const userSlice = createSlice({
@@ -27,10 +30,12 @@ const userSlice = createSlice({
     },
 });
 
-export const userActionCreators = {
+const userActionCreators = {
     ...userSlice.actions,
     logout
 };
+
+export { userActionCreators, type IUserSchema };
 export default {
     name: userSlice.name,
     reducer: userSlice.reducer

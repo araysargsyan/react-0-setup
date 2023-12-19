@@ -4,3 +4,4 @@ export default function() {
         use: [ '@svgr/webpack' ]
     };
 }
+

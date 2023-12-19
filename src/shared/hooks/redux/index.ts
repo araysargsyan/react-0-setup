@@ -2,7 +2,7 @@ import useActions from './lib/useActions';
 import useDynamicActions from './lib/useDynamicActions';
 
 
-export { TAppNavigateFunction } from './types';
+export type { TAppNavigateFunction } from './types';
 
 export {
     useAppLocation,

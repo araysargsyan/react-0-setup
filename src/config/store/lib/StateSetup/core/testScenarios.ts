@@ -1,3 +1,4 @@
+/* eslint-disable import/exports-last */
 //UPDATE SCENARIOS
 
 export const noAuth = {

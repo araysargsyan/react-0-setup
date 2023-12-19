@@ -11,7 +11,7 @@ export { default } from './reducer/slice';
 export * from './selectors';
 
 export {
-    TEditProfileActions,
     editProfileActionCreators,
-    IEditProfileSchema
+    type TEditProfileActions,
+    type IEditProfileSchema
 };

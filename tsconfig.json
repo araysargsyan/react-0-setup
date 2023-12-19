@@ -24,6 +24,9 @@
   },
   "include": [
     "./src",
+    "./.eslintrc.js",
+    "./webpack.config.ts",
+    "./config/build",
     "./config/storybook",
     "./config/jest"
   ]

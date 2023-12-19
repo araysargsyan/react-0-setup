@@ -1,1 +1,1 @@
-export { default, IEditProfileProps } from './ui/EditProfile';
+export { default } from './ui/EditProfile';

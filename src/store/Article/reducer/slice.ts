@@ -3,7 +3,7 @@ import { fetchById } from 'store/Article/reducer/actionCreators';
 import { type IArticle } from 'store/Article';
 
 
-export interface IArticleDetailsSchema {
+interface IArticleDetailsSchema {
     isLoading: boolean;
     error?: string;
     data?: IArticle;
@@ -15,7 +15,7 @@ const initialState: IArticleDetailsSchema = {
     data: undefined,
 };
 
-export const articleDetailsSlice = createSlice({
+const articleDetailsSlice = createSlice({
     name: 'articleDetails',
     initialState,
     reducers: {},
@@ -36,11 +36,12 @@ export const articleDetailsSlice = createSlice({
     },
 });
 
-export const articleDetailsActionCreators = {
+const articleDetailsActionCreators = {
     ...articleDetailsSlice.actions,
     fetchById
-
 };
+
+export { articleDetailsActionCreators, type IArticleDetailsSchema };
 export default {
     name: articleDetailsSlice.name,
     reducer: articleDetailsSlice.reducer

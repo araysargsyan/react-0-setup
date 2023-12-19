@@ -11,7 +11,7 @@ import { useSelector } from 'react-redux';
 import cls from './AppButton.module.scss';
 
 
-export enum EAppButtonTheme {
+enum EAppButtonTheme {
     CLEAR = 'clear',
     CLEAR_INVERTED = 'clear-inverted',
     OUTLINE = 'outline',
@@ -20,7 +20,7 @@ export enum EAppButtonTheme {
     BACKGROUND_INVERTED = 'background-inverted',
 }
 
-export enum EAppButtonSize {
+enum EAppButtonSize {
     M = 'size-m',
     L = 'size-l',
     XL = 'size-xl',
@@ -69,4 +69,8 @@ const AppButton: FC<PropsWithChildren<IAppButtonProps>> = ({
     );
 };
 
+export {
+    EAppButtonTheme,
+    EAppButtonSize 
+};
 export default memo(AppButton);

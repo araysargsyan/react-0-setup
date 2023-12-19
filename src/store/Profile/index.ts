@@ -2,7 +2,7 @@ import { type ECountry } from 'features/Country';
 import { type TCurrency } from 'features/Currency';
 
 
-export { default, profileActions } from './reducer/slice';
+export { default, profileActionCreators } from './reducer/slice';
 export * from './selectors';
 
 

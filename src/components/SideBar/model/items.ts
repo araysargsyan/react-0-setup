@@ -2,44 +2,43 @@ import type React from 'react';
 import AboutIcon from 'shared/assets/icons/about-20-20.svg';
 import MainIcon from 'shared/assets/icons/main-20-20.svg';
 import ProfileIcon from 'shared/assets/icons/profile-20-20.svg';
-import { ERoutes } from 'config/router';
+import ArticleIcon from 'shared/assets/icons/article-20-20.svg';
+import { Routes } from 'config/router';
 
 
 export interface ISidebarItem {
     path: string;
     text: string;
-    Icon: React.FC<React.SVGProps<SVGSVGElement>>;
+    Icon?: React.FC<React.SVGProps<SVGSVGElement>>;
 }
 
 export const sidebarItemsList: ISidebarItem[] = [
     {
-        path: ERoutes.MAIN,
+        path: Routes.MAIN,
         Icon: MainIcon,
         text: 'Main',
     },
     {
-        path: ERoutes.MAIN2,
-        Icon: MainIcon,
-        text: 'Main2',
-    },
-    {
-        path: ERoutes.TEST,
-        Icon: MainIcon,
-        text: 'TEST',
-    },
-    {
-        path: ERoutes.ABOUT,
+        path: Routes.ABOUT,
         Icon: AboutIcon,
         text: 'About us',
     },
     {
-        path: ERoutes.ABOUT2,
-        Icon: AboutIcon,
-        text: 'About us 2',
-    },
-    {
-        path: ERoutes.PROFILE,
+        path: Routes.PROFILE,
         Icon: ProfileIcon,
         text: 'Профиль',
+    },
+    {
+        path: Routes.ARTICLES,
+        Icon: ArticleIcon,
+        text: 'Статьи',
+    },
+    {
+        path: '/not-found',
+        text: 'Not Found',
+    },
+    {
+        path: Routes.TEST,
+        text: 'TEST',
     },
 ];

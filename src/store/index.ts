@@ -1,6 +1,7 @@
 import { type ReducersMapObject } from '@reduxjs/toolkit';
 import { type IAppSchema } from 'config/store';
 
+import { type IArticleDetailsSchema } from './Article';
 import { type IProfileSchema } from './Profile';
 import counter, { type ICounterSchema } from './Counter';
 import user, { type IUserSchema } from './User';
@@ -11,6 +12,7 @@ export interface IInitialStateSchema {
     app: IAppSchema;
     user: IUserSchema;
     profile?: IProfileSchema;
+    articleDetails?: IArticleDetailsSchema;
 
     counter: ICounterSchema;
 }

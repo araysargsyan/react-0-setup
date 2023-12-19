@@ -1,7 +1,7 @@
 import { type ReducersMapObject } from '@reduxjs/toolkit';
 
-import login, { loginActions, type ILoginSchema } from './Login/model';
-import editProfile, { editProfileActions, type IEditProfileSchema } from './EditProfile/model';
+import login, { loginActionCreators, type ILoginSchema } from './Login/model';
+import editProfile, { editProfileActionCreators, type IEditProfileSchema } from './EditProfile/model';
 
 
 export interface IFormStateSchema {
@@ -14,4 +14,4 @@ export const formReducers: ReducersMapObject<IFormStateSchema> = {
     [editProfile.name]: editProfile.reducer,
 };
 
-export const formActionCreators = { ...loginActions, ...editProfileActions };
+export const formActionCreators = { ...loginActionCreators, ...editProfileActionCreators };

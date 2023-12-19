@@ -1,4 +1,4 @@
-import counterSlice, { type ICounterSchema, counterActions } from '..';
+import counterSlice, { type ICounterSchema, counterActionCreators } from '..';
 
 
 const counterReducer = counterSlice.reducer;
@@ -8,20 +8,20 @@ describe('counterSlice', () => {
         const state: ICounterSchema = { value: 10 };
 
         expect(
-            counterReducer(state, counterActions.decrement()),
+            counterReducer(state, counterActionCreators.decrement()),
         ).toEqual({ value: 9 });
     });
     test('increment', () => {
         const state: ICounterSchema = { value: 10 };
 
         expect(
-            counterReducer(state, counterActions.increment()),
+            counterReducer(state, counterActionCreators.increment()),
         ).toEqual({ value: 11 });
     });
 
     test('should work with empty state', () => {
         expect(
-            counterReducer(undefined, counterActions.increment()),
+            counterReducer(undefined, counterActionCreators.increment()),
         ).toEqual({ value: 1 });
     });
 });

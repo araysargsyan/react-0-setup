@@ -1,7 +1,7 @@
 import { type IStateSchema, StateSetup } from 'config/store';
 import getStateSetupConfig, { checkAuthorization } from 'config/store/stateSetup';
 import { appReducerName } from 'shared/const';
-import { ERoutes } from 'config/router';
+import { Routes } from 'config/router';
 // import PageLoader from 'components/PageLoader';
 
 
@@ -11,8 +11,8 @@ const stateSetupConfig = new StateSetup(
     {
         appReducerName,
         authProtectionConfig: {
-            unAuthorized: ERoutes.MAIN,
-            authorized: ERoutes.PROFILE
+            unAuthorized: Routes.MAIN,
+            authorized: Routes.PROFILE
         },
         // PageLoader
     }

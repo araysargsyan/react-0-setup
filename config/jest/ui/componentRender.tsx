@@ -1,7 +1,7 @@
 import { MemoryRouter } from 'react-router-dom';
 import { render } from '@testing-library/react';
 import { type ReactNode } from 'react';
-import { ERoutes } from 'config/router';
+import { Routes } from 'config/router';
 import StoreProvider from 'app/providers/StoreProvider';
 import { type IStateSchema } from 'config/store';
 
@@ -12,7 +12,7 @@ export interface IComponentRenderOptions {
 }
 
 export function componentRender(component: ReactNode, options: IComponentRenderOptions = {}) {
-    const { route = ERoutes.MAIN, initialState } = options;
+    const { route = Routes.MAIN, initialState } = options;
 
     return render(
         <MemoryRouter initialEntries={ [ route ] }>

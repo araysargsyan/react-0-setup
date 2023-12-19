@@ -37,7 +37,7 @@ export const loginSlice = createSlice({
     },
 });
 
-export const loginActions = {
+export const loginActionCreators = {
     ...loginSlice.actions,
     login
 };

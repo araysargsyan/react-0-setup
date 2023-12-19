@@ -93,6 +93,11 @@ interface IPageOptions<
     asyncReducerOptions?: ARO;
     onNavigate?: INavigationOptions;
 }
+interface IBasePageOptions extends IPageOptions {
+    isPageLoaded: boolean;
+    isActionsCalling: boolean;
+    pageNumber?: number;
+}
 
 type TAsyncReducersOptions<
     AR extends TAsyncReducersOptionsReturn = TAsyncReducersOptionsReturn,
@@ -175,6 +180,7 @@ export {
     IOptionsParameter,
 
     IPageOptions,
+    IBasePageOptions,
     TGetStateSetupConfig,
     TStateSetupFn,
 

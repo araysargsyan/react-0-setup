@@ -1,6 +1,6 @@
-import { ERoutes } from 'config/router';
+import { Routes, type TRoutes } from 'config/router';
 import { USER_LOCALSTORAGE_KEY } from 'shared/const';
-import { counterActions } from 'store/Counter';
+import { counterActionCreators } from 'store/Counter';
 import { userActionCreators } from 'store/User';
 import until from 'app/dubag/util/wait';
 import { type TProfileActions } from 'store/Profile/reducer/slice';
@@ -13,19 +13,19 @@ import {
 } from '.';
 
 
-const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = (_) =>  {
+const getStateSetupConfig: TStateSetupFn<TRoutes, TAsyncReducerOptions<true>> = (_) =>  {
     return {
-        // [ERoutes.LOGIN]: { authRequirement: false, },
-        [ERoutes.MAIN]: {
+        [Routes.ARTICLE_DETAILS]: { authRequirement: null },
+        [Routes.MAIN]: {
             authRequirement: null,
             actions: [ //! if async is true this action call will wait in initial setup, by default false
                 {
-                    cb: counterActions.fetchTest,
+                    cb: counterActionCreators.fetchTest,
                     canRefetch: true,
                     async: true,
                 },
                 {
-                    cb: counterActions.increment,
+                    cb: counterActionCreators.increment,
                     canRefetch: (state) => { //! Boolean or cb with state param and returned boolean
                         return (state as IStateSchema).counter.value < 18;
                     },
@@ -33,18 +33,18 @@ const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = 
             ],
             // onNavigate: { waitUntil: 'CHECK_AUTH', }
         },
-        [ERoutes.TEST]: {
+        [Routes.TEST]: {
             authRequirement: null,
             actions: [ //! if async is true this action call will wait in initial setup, by default false
                 {
-                    cb: counterActions.increment,
+                    cb: counterActionCreators.increment,
                     canRefetch: (state) => { //! Boolean or cb with state param and returned boolean
                         return (state as IStateSchema).counter.value < 18;
                     },
                 },
             ],
         },
-        [ERoutes.PROFILE]: {
+        [Routes.PROFILE]: {
             authRequirement: true,
             asyncReducerOptions: async (_) => {
                 const profileModule = await import('store/Profile');
@@ -61,52 +61,37 @@ const getStateSetupConfig: TStateSetupFn<ERoutes, TAsyncReducerOptions<true>> = 
                         { counter: { value: 4, testData: 'REPLACED TEST DATA' } }
                     ],
                     //! asyncActionCreators, key of this object needed to be in cb.key
-                    { profile: profileModule.profileActions }
+                    { profile: profileModule.profileActionCreators }
                 ];
             },
             actions: [ //! async actions must be first
                 {
                     cb: {
                         key: 'profile',
-                        getAction: (profileActions) => (profileActions as TProfileActions).fetchData
+                        getAction: (profileActionCreators) => (profileActionCreators as TProfileActions).fetchData
                     },
                     async: true,
                     canRefetch: true
                 },
-                { cb: counterActions.decrement, canRefetch: true },
+                { cb: counterActionCreators.decrement, canRefetch: true },
             ],
             onNavigate: { waitUntil: 'CHECK_AUTH', }
         },
-        [ERoutes.ABOUT]: {
+        [Routes.ABOUT]: {
             authRequirement: false,
             actions: [
                 {
-                    cb: counterActions.fetchTest,
+                    cb: counterActionCreators.fetchTest,
                     canRefetch: true,
                     async: true,
                 },
-                { cb: counterActions.decrement, canRefetch: true },
-                { cb: counterActions.increment },
-                { cb: counterActions.increment },
-                { cb: counterActions.increment },
+                { cb: counterActionCreators.decrement, canRefetch: true },
+                { cb: counterActionCreators.increment },
+                { cb: counterActionCreators.increment },
+                { cb: counterActionCreators.increment },
             ],
             onNavigate: { waitUntil: 'CHECK_AUTH', }
         },
-        [ERoutes.ABOUT2]: {
-            authRequirement: null,
-            actions: [
-                {
-                    cb: counterActions.fetchTest,
-                    canRefetch: true,
-                    async: true,
-                },
-                { cb: counterActions.decrement, canRefetch: true },
-                { cb: counterActions.increment },
-                { cb: counterActions.increment },
-                { cb: counterActions.increment },
-            ],
-            onNavigate: { waitUntil: 'CHECK_AUTH', }
-        }
     };
 };
 

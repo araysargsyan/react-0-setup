@@ -23,7 +23,7 @@ const SidebarItem: FC<ISidebarItemProps> = ({ item, collapsed }) => {
             to={ item.path }
             className={ _c(cls.item, [], { [cls.collapsed]: collapsed }) }
         >
-            <item.Icon className={ cls.icon } />
+            { item.Icon && <item.Icon className={ cls.icon } /> }
             <span className={ cls.link }>
                 { t(item.text) }
             </span>

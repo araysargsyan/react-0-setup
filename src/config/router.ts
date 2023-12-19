@@ -5,49 +5,47 @@ import { type TAddAsyncReducerParameters, } from 'config/store';
 import { type TAddAsyncReducerOp } from 'config/store/types';
 
 
-export const enum ERoutes {
+export const enum Routes {
     MAIN = '/',
     MAIN2 = '/main2',
     TEST = '/test',
     // LOGIN = '/login',
     ABOUT = '/about',
-    ABOUT2 = '/about2',
     PROFILE = '/profile',
+    ARTICLES = '/articles',
+    ARTICLE_DETAILS = '/articles/:id',
     NOT_FOUND = '*',
 }
+export type TRoutes = ValueOf<typeof Routes>;
 
 interface IRouterConfig extends PathRouteProps {
     Element: ComponentType;
-    // path: ERoutes;
+    // path: Routes;
     asyncReducers?: TAddAsyncReducerOp;
     state?: TAddAsyncReducerParameters[1];
 }
 type TRoutesConfig = {
-    [KEY in ERoutes]: IRouterConfig
+    [KEY in TRoutes]: IRouterConfig
 };
 export const routesConfig: TRoutesConfig = {
-    [ERoutes.MAIN]: {
-        // path: ERoutes.MAIN,
+    [Routes.MAIN]: {
+        // path: Routes.MAIN,
         Element: memo(lazyImport(() => import('pages/Main')))
     },
-    [ERoutes.MAIN2]: {
-        // path: ERoutes.MAIN2,
+    [Routes.MAIN2]: {
+        // path: Routes.MAIN2,
         Element: memo(lazyImport(() => import('pages/Main')))
     },
-    [ERoutes.TEST]: {
-        // path: ERoutes.TEST,
+    [Routes.TEST]: {
+        // path: Routes.TEST,
         Element: memo(lazyImport(() => import('pages/Main')))
     },
-    [ERoutes.ABOUT]: {
-        // path: ERoutes.ABOUT,
+    [Routes.ABOUT]: {
+        // path: Routes.ABOUT,
         Element: memo(lazyImport(() => import('pages/About')))
     },
-    [ERoutes.ABOUT2]: {
-        // path: ERoutes.ABOUT2,
-        Element: memo(lazyImport(() => import('pages/About')))
-    },
-    [ERoutes.PROFILE]: {
-        // path: ERoutes.PROFILE,
+    [Routes.PROFILE]: {
+        // path: Routes.PROFILE,
         Element: memo(lazyImport(() => import('pages/Profile'))),
     },
     //     // asyncReducers: async () => {
@@ -60,8 +58,10 @@ export const routesConfig: TRoutesConfig = {
     //     // },
     // },
     //! must be last
-    [ERoutes.NOT_FOUND]: {
-        // path: ERoutes.NOT_FOUND,
+    [Routes.ARTICLES]: { Element: memo(lazyImport(() => import('pages/Articles'))), },
+    [Routes.ARTICLE_DETAILS]: { Element: memo(lazyImport(() => import('pages/Articles/[id]'))), },
+    [Routes.NOT_FOUND]: {
+        // path: Routes.NOT_FOUND,
         Element: memo(lazyImport(() => import('pages/NotFound')))
     },
 };

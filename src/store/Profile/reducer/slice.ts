@@ -64,11 +64,11 @@ export const profileSlice = createSlice({
 });
 
 
-export const profileActions = {
+export const profileActionCreators = {
     ...profileSlice.actions, fetchData, updateData 
 };
 
-export type TProfileActions = typeof profileActions;
+export type TProfileActions = typeof profileActionCreators;
 export default {
     name: profileSlice.name,
     reducer: profileSlice.reducer

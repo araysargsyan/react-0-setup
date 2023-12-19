@@ -49,7 +49,7 @@ export const editProfileSlice = createSlice({
     //         });
     // },
 });
-export const editProfileActions = { ...editProfileSlice.actions, };
+export const editProfileActionCreators = { ...editProfileSlice.actions, };
 
 export default {
     name: editProfileSlice.name,

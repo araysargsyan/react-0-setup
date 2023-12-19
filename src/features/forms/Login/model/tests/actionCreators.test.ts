@@ -1,6 +1,6 @@
 import { userActionCreators } from 'store/User';
 import { TestAsyncThunk } from '@config/jest/lib/TestAsyncThunk';
-import { loginActions } from 'features/forms/Login/model';
+import { loginActionCreators } from 'features/forms/Login/model';
 
 
 jest.mock('store/app');
@@ -9,7 +9,7 @@ describe('login.test', () => {
     test('success login', async () => {
         const userValue = { username: '123', id: '1' };
         const thunk = new TestAsyncThunk(
-            loginActions.login,
+            loginActionCreators.login,
             { forms: { login: { username: '123', password: '123' } } }
         );
         thunk.api.post.mockReturnValue(Promise.resolve({ data: userValue }));
@@ -23,7 +23,7 @@ describe('login.test', () => {
     });
 
     test('error login', async () => {
-        const thunk = new TestAsyncThunk(loginActions.login,
+        const thunk = new TestAsyncThunk(loginActionCreators.login,
             { forms: { login: { username: '123', password: '123' } } });
         thunk.api.post.mockReturnValue(Promise.resolve({ status: 403 }));
         const result = await thunk.callThunk();

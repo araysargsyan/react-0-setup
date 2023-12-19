@@ -29,7 +29,7 @@ const counterSlice = createSlice({
     },
 });
 
-export const counterActions = { ...counterSlice.actions, fetchTest };
+export const counterActionCreators = { ...counterSlice.actions, fetchTest };
 export default {
     name: counterSlice.name,
     reducer: counterSlice.reducer

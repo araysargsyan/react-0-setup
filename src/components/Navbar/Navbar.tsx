@@ -10,7 +10,7 @@ import LoginModal from 'features/forms/Login';
 import { useActions } from 'shared/hooks/redux';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import { getIsAuthenticated } from 'store/app';
-import loginReducer, { loginActions } from 'features/forms/Login/model';
+import loginReducer, { loginActionCreators } from 'features/forms/Login/model';
 import { type IReduxStoreWithManager } from 'config/store';
 import { USER_LOCALSTORAGE_KEY } from 'shared/const';
 
@@ -25,7 +25,7 @@ const Navbar: FC<INavbarProps> = ({ className }) => {
     const [ isAuthModal, setIsAuthModal ] = useState(false);
     const isAuthenticated = useSelector(getIsAuthenticated);
     const { logout } = useActions(userActionCreators, [ 'logout', 'setAuthData' ]);
-    const { login } = useActions(loginActions);
+    const { login } = useActions(loginActionCreators);
     const store = useStore() as IReduxStoreWithManager;
 
 

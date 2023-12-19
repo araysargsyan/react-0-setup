@@ -44,7 +44,7 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
         {
             when: !readonly,
             deps: [ readonly ],
-            moduleKey: 'editProfileActions'
+            moduleKey: 'editProfileActionCreators'
         }
     );
 

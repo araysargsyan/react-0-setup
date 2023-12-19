@@ -1,8 +1,8 @@
 import { type FC, useCallback, } from 'react';
-import { Route, Routes, } from 'react-router-dom';
+import { Route, Routes as Router } from 'react-router-dom';
 import {
-    type ERoutes,
-    routesConfig
+    routesConfig,
+    type TRoutes
 } from 'config/router';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import { AsyncReducer } from 'config/store';
@@ -11,11 +11,11 @@ import PageLoader from 'components/PageLoader';
 
 
 const AppRouter: FC = () => {
-    const enrichmentRender = useCallback((path: ERoutes) => {
+    const enrichmentRender = useCallback((path: TRoutes) => {
         const {
             Element, asyncReducers, state
         } = routesConfig[path];
-        
+
         return (
             <Route
                 key={ path }
@@ -47,9 +47,9 @@ const AppRouter: FC = () => {
     return (
         <div className="page-wrapper">
             <>
-                <Routes>
-                    { (Object.keys(routesConfig) as ERoutes[]).map((path) => enrichmentRender(path)) }
-                </Routes>
+                <Router>
+                    { (Object.keys(routesConfig) as TRoutes[]).map((path) => enrichmentRender(path)) }
+                </Router>
             </>
         </div>
     );

@@ -1,4 +1,4 @@
-export { default } from './core/StateSetup';
+export { default, RedirectionTypes } from './core/StateSetup';
 
 export {
     TStateSetupFn,

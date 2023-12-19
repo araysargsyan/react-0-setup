@@ -9,7 +9,7 @@ declare module '*.scss' {
 declare module '*.png';
 declare module '*.jpeg';
 declare module '*.jpg';
- 
+
 declare module '*.svg' {
     import { type FC, type SVGProps } from 'react';
 
@@ -17,7 +17,7 @@ declare module '*.svg' {
     const SVG: FC<SVGProps<SVGSVGElement>>;
     export default SVG;
 }
- 
+
 declare const __IS_DEV__: boolean;
 declare const __API__: string;
 declare const __PROJECT__: 'storybook' | 'frontend' | 'jest';
@@ -31,4 +31,4 @@ type AnyFunction = (...args: any[]) => any;
 interface EmptyObject {}
 
 type ValueOf<T extends object> = T[keyof T];
-type PromiseReturnType<T extends Promise<any>> = T extends Promise<infer U> ? U : never;
+// type PromiseReturnType<T extends Promise<any>> = T extends Promise<infer U> ? U : never;

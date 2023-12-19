@@ -3,7 +3,7 @@ import _c from 'shared/helpers/classNames';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useActions } from 'shared/hooks/redux';
-import { profileActions, getProfileReadonly } from 'store/Profile';
+import { profileActionCreators, getProfileReadonly } from 'store/Profile';
 import AppButton, { EAppButtonTheme } from 'shared/ui/AppButton';
 import AppText from 'shared/ui/Text';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
@@ -22,7 +22,7 @@ const ProfilePageHeader: FC<IProfilePageHeaderProps> = ({ className }) => {
         setReadonly,
         cancelEdit,
         updateData
-    } = useActions(profileActions, [ 'setReadonly', 'cancelEdit', 'updateData' ]);
+    } = useActions(profileActionCreators, [ 'setReadonly', 'cancelEdit', 'updateData' ]);
 
     useRenderWatcher(ProfilePageHeader.name, JSON.stringify(readonly));
     return (

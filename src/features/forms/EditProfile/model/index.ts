@@ -1,9 +1,9 @@
 import { type IProfile } from 'store/Profile';
 
-import { editProfileActions } from  './reducer/slice';
+import { editProfileActionCreators } from  './reducer/slice';
 
 
-type TEditProfileActions = typeof editProfileActions;
+type TEditProfileActions = typeof editProfileActionCreators;
 interface IEditProfileSchema extends Partial<IProfile> {}
 
 
@@ -12,6 +12,6 @@ export * from './selectors';
 
 export {
     TEditProfileActions,
-    editProfileActions,
+    editProfileActionCreators,
     IEditProfileSchema
 };

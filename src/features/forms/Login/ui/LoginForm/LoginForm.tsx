@@ -18,7 +18,7 @@ import loginReducer, {
     getLoginIsLoading,
     getLoginPassword,
     getLoginUsername,
-    loginActions
+    loginActionCreators
 } from '../../model';
 import cls from './LoginForm.module.scss';
 
@@ -41,7 +41,7 @@ const LoginForm: FC<ILoginFormProps> = ({ className, onSuccess }) => {
         login,
         setUsername,
         setPassword
-    } = useActions(loginActions);
+    } = useActions(loginActionCreators);
 
     useEffect(() => {
         console.log('RENDER::LoginForm');

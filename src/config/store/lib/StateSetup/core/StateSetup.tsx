@@ -20,6 +20,7 @@ import {
     type AnyAction,
 } from '@reduxjs/toolkit';
 import {
+    matchPath,
     Navigate,
     useLocation,
     useNavigate,
@@ -33,6 +34,7 @@ import {
     type IAuthProtection,
     type IOptionsParameter,
     type IPageOptions,
+    type IBasePageOptions,
     type TGetStateSetupConfig,
     type TStateSetUpArgs,
     type TCheckAuthorizationFn,
@@ -49,7 +51,7 @@ import {
     type TMode,
     type TStateSetup,
     type TUseRedirectionContext,
-    type TypeFromConstValues
+    type TypeFromConstValues,
 } from '../types';
 import FlowStateChecker from './FlowStateChecker';
 
@@ -92,13 +94,14 @@ class StateSetup {
             this.authProtectionConfig.unAuthorized = unAuthorized;
         }
     }
-    private readonly basePageOptions: IPageOptions & {isPageLoaded: boolean; isActionsCalling: boolean; pageNumber?: number} = {
+    private readonly basePageOptions: IBasePageOptions = {
         actions: [],
         authRequirement: null,
         isPageLoaded: false,
         isActionsCalling: false
     };
     private readonly getStateSetupConfig: TGetStateSetupConfig;
+    private readonly stateSetupConfigDynamicPaths: string[];
     private readonly checkAuthorization: TCheckAuthorizationAsyncThunk;
     private readonly PageLoader: ComponentType | null;
 
@@ -107,6 +110,7 @@ class StateSetup {
         mustDestroy?: boolean;
         ready?: boolean;
     };
+    private initiated = false;
     private isAuth: boolean | null = null;
     private redirectTo: string | null = null;
     private hasRedirectionModal: boolean = false;
@@ -116,8 +120,9 @@ class StateSetup {
     private restart: TRestartTypes | null = null;
     private flowStatus: TFlowStatuses | null = null;
     private currentRoute: string | null = null;
-    private pageOptionsMap: Record<string, IPageOptions & {
-        isPageLoaded: boolean; isActionsCalling: boolean; _break?: Record<number, boolean>; pageNumber?: number;
+    private pageOptionsMap: Record<string, IBasePageOptions & {
+        _break?: Record<number, boolean>;
+        _notFound?: true;
     }> = {};
     private asyncReducer: TAsyncReducer | null = null;
     private redirectionContext: ReturnType<TUseRedirectionContext<TRedirectionTypes>>['context'] = null;
@@ -141,6 +146,7 @@ class StateSetup {
 
     private get $AppState() {
         return {
+            initiated: this.initiated,
             isAuth: this.isAuth,
             isAuthChecking: this.isAuthChecking,
             flowStatus: this.flowStatus,
@@ -179,6 +185,9 @@ class StateSetup {
     ) {
         console.log('StateSetup::__constructor__', { getStateSetupConfig, options: { appReducerName, authProtectionConfig } });
         this.getStateSetupConfig = getStateSetupConfig as TGetStateSetupConfig;
+        this.stateSetupConfigDynamicPaths = Object.keys(this.getStateSetupConfig(new URLSearchParams()))
+            .filter((path) => /:[^\/]+/.test(path));
+        console.log(this.stateSetupConfigDynamicPaths);
         StateSetup.$authProtectionConfig = {
             ...authProtectionConfig,
             ...JSON.parse(localStorage.getItem('$authProtectionConfig') || '{}') as IAuthProtection,
@@ -408,18 +417,46 @@ class StateSetup {
                 });
         });
     }
-    private updateBasePageOptions(path: string, searchParams: URLSearchParams) {
-        if (!this.pageOptionsMap[path]) {
-            this.pageOptionsMap[path] = {
-                ...this.basePageOptions,
-                ...this.getStateSetupConfig(searchParams)[path]
-            };
+    private updateBasePageOptions(path: string, searchParams: URLSearchParams, replace: string | false = false) {
+        if (!replace) {
+            if (!this.pageOptionsMap[path]) {
+                this.pageOptionsMap[path] = {
+                    ...this.basePageOptions,
+                    ...this.getStateSetupConfig(searchParams)[path]
+                };
+            }
+        } else {
+            if (!this.pageOptionsMap[path]) {
+                this.pageOptionsMap[path] = this.pageOptionsMap[replace];
+                this.pageOptionsMap[replace]._notFound = true;
+            } else if (this.pageOptionsMap[replace]) {
+                this.pageOptionsMap[replace]._notFound = true;
+            }
         }
     };
 
     private getPageOption<K extends keyof IPageOptions>(pathname: string, key: K): IPageOptions[K] {
-        return this.pageOptionsMap[pathname][key];
+        console.log(this.pageOptionsMap[pathname], 666, pathname);
+        return this.pageOptionsMap[pathname]?.[key];
     }
+
+    private getRedirectTo(pathname: string) {
+        const authRequirement = this.getPageOption(pathname, 'authRequirement');
+
+        let redirectTo = null;
+
+        if (authRequirement !== null) {
+            redirectTo = authRequirement
+                ? (!this.isAuth
+                        ? StateSetup.authProtectionConfig.unAuthorized
+                        : null)
+                : (this.isAuth
+                        ? StateSetup.authProtectionConfig.authorized
+                        : null);
+        }
+
+        return redirectTo !== pathname ? redirectTo : null;
+    };
 
     private async callReducerManager(
         method: 'add' | 'remove',
@@ -452,6 +489,20 @@ class StateSetup {
 
         return asyncActionCreatorsOption;
     }
+
+    private isPageLoaded = (pathname: string) => Boolean(this.pageOptionsMap[pathname]?.isPageLoaded);
+    private isActionsCalling = (pathname: string) => Boolean(this.pageOptionsMap[pathname]?.isActionsCalling);
+
+    private isElementLazyLoaded(Element: any) {
+        let element = Element;
+
+        while (Boolean(element.type)) {
+            element = element.type;
+        }
+
+        return element.$$typeof === Symbol.for('react.lazy');
+    }
+
     private async callActions(
         pathname: string,
         dispatch: TDispatch,
@@ -521,36 +572,6 @@ class StateSetup {
 
         return isLoopBroken;
     }
-
-    private getRedirectTo(pathname: string) {
-        const authRequirement = this.getPageOption(pathname, 'authRequirement');
-
-        let redirectTo = null;
-
-        if (authRequirement !== null) {
-            redirectTo = authRequirement
-                ? (!this.isAuth
-                        ? StateSetup.authProtectionConfig.unAuthorized
-                        : null)
-                : (this.isAuth
-                        ? StateSetup.authProtectionConfig.authorized
-                        : null);
-        }
-
-        return redirectTo !== pathname ? redirectTo : null;
-    };
-
-    private isPageLoaded = (pathname: string) => Boolean(this.pageOptionsMap[pathname]?.isPageLoaded);
-    private isElementLazyLoaded(Element: any) {
-        let element = Element;
-
-        while (Boolean(element.type)) {
-            element = element.type;
-        }
-
-        return element.$$typeof === Symbol.for('react.lazy');
-    }
-
     private setup = createAsyncThunk<
         { isAppReady: boolean | null; mode: TMode } | void,
         TStateSetUpArgs,
@@ -613,6 +634,7 @@ class StateSetup {
                 }
 
                 const isBroken = await this.callActions(pathname, dispatch, getState(), asyncActionCreatorsOption);
+                const isPageNotFound = this.pageOptionsMap[this.currentRoute!]._notFound;
                 if (isBroken) {
                     flowState.calls[type].breakCount = flowState.calls[type].breakCount + 1;
                 }
@@ -629,23 +651,30 @@ class StateSetup {
 
                 if (
                     !isBroken
-                    && this.currentRoute === pathname
-                    && this.pageOptionsMap[this.currentRoute].isActionsCalling/*&& this.flowStatus === type*/
+                    && (this.currentRoute === pathname || isPageNotFound)
+                    && this.isActionsCalling(this.currentRoute!)/*&& this.flowStatus === type*/
                 ) {
                     console.log('%csetUp->PAGE_IS_READY', 'color: #ed149a', flowState.get());
 
-                    if (this.loading === null && this.loadingCount !== null && Math.round(this.loadingCount) === this.loadingCount) {
-                        if (!flowState['useEffect: Update'].____RedirectModal_____.MODAL && this.restart !== RestartTypes.AuthExpired) {
-                            flowState.reset();
-                        }
-                        this.loadingCount = 0;
-                    }
                     this.prevRoute = {
                         pathname,
                         ready: true,
                     };
+                    if (this.redirectTo) {
+                        this.redirectTo = null;
+                    }
                     this.flowStatus = null;
-                    this.pageOptionsMap[pathname].isActionsCalling = false;
+                    this.pageOptionsMap[isPageNotFound ? this.currentRoute! : pathname].isActionsCalling = false;
+                    if (this.loading === null && this.loadingCount !== null && Math.round(this.loadingCount) === this.loadingCount) {
+                        if (!flowState['useEffect: Update'].____RedirectModal_____.MODAL && this.restart !== RestartTypes.AuthExpired) {
+                            flowState.reset();
+                        }
+
+                        this.loadingCount = 0;
+                        if (isPageNotFound) {
+                            delete this.pageOptionsMap[this.currentRoute!];
+                        }
+                    }
                     return fulfillWithValue({ isAppReady: true, mode });
                 }
                 // if (
@@ -668,13 +697,9 @@ class StateSetup {
                 // }
             } catch (err) {
                 console.error('setUp::catch', err);
+                this.pageOptionsMap[pathname].isActionsCalling = false;
                 return rejectWithValue('Something went wrong!');
             } finally {
-                this.pageOptionsMap[pathname].isActionsCalling = false;
-                if (this.redirectTo) {
-                    this.redirectTo = null;
-                }
-
                 // if (mustClearInitiated) {
                 //     console.log('%csetUp->ClearInitiated', 'color: #ed149a');
                 //     this.flowStatus = null;
@@ -703,6 +728,22 @@ class StateSetup {
         };
     };
 
+    private getPathnameWithPattern = (pathname: string) => {
+        for (let i = 0; i < this.stateSetupConfigDynamicPaths.length; i++) {
+            const pattern = this.stateSetupConfigDynamicPaths[i];
+            const regexPattern = pattern.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
+                .replace(/:[^/]+/g, '([^/]+)');
+            const regex = new RegExp(`^${regexPattern}${pathname.endsWith('/') && pathname !== '/' ? '|$' : '$'}`);
+
+            console.log(regex.test(pathname), {
+                pattern, regexPattern, regex
+            });
+
+            if (regex.test(pathname)) {
+                return pattern;
+            }
+        }
+    };
     private usePageStateSetup = (
         asyncReducer?: TAsyncReducer
     ) => {
@@ -716,45 +757,48 @@ class StateSetup {
             [ dispatch ]
         );
         const { pathname, state } = useLocation();
+        const pathnameWithPattern = this.getPathnameWithPattern(pathname) || pathname;
         const [ searchParams ] = useSearchParams();
         const navigate = useNavigate();
-        // const prevRoute = this.currentRoute || pathname;
         const isLoadingActivated = useRef(false);
         let stopActionsRecall = false;
         console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'INIT: START', {
             $AppState: this.$AppState,
-            pathname
+            pathname,
+            pathnameWithPattern
         });
 
-        this.pageNumber = this.pageNumber + 1;
-        if (this.currentRoute !== pathname) {
+        if (!this.initiated) {
+            this.initiated = true;
+            this.pageNumber = this.pageNumber + 1;
+        }
+        if (this.currentRoute !== pathnameWithPattern) {
             console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'SET_CURRENT_ROUTE');
             if (this.currentRoute) {
                 this.prevRoute = { pathname: this.currentRoute };
             }
-            this.currentRoute = pathname;
+            this.currentRoute = pathnameWithPattern;
         }
-        if (this.prevRoute && this.prevRoute.pathname !== pathname) {
+        if (this.prevRoute && this.prevRoute.pathname !== pathnameWithPattern) {
             console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'mustDestroy', this.prevRoute);
             this.prevRoute.mustDestroy = true;
         }
-        if (!this.pageOptionsMap[pathname]) {
-            this.updateBasePageOptions(pathname, searchParams);
-        }
+        this.updateBasePageOptions(pathnameWithPattern, searchParams);
 
         const currentPageCount = this.pageNumber;
-        const { waitUntil } = this.getPageOption(pathname, 'onNavigate') || {};
-        const redirectTo = this.getRedirectTo(pathname);
+        const { waitUntil } = this.getPageOption(pathnameWithPattern, 'onNavigate') || {};
+        const redirectTo = this.getRedirectTo(pathnameWithPattern);
         const mustRedirectTo = this.isAuth !== null && redirectTo;
         const mustActivateLoading = this.loading !== LoadingTypes.Loading
             && waitUntil
-            && !this.pageOptionsMap[mustRedirectTo || pathname]?.isPageLoaded
+            && !this.isPageLoaded(mustRedirectTo || pathnameWithPattern)
             && (!state?.from || this.restart === RestartTypes.AuthExpired)
             && this.prevRoute?.pathname !== redirectTo;
 
         console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'INIT: END', {
             $AppState: this.$AppState,
             pathname,
+            pathnameWithPattern,
             // prevRoute,
             waitUntil,
             stateFrom: state?.from
@@ -768,7 +812,7 @@ class StateSetup {
             && !state?.from
         ) {
             if (this.prevRoute.pathname !== this.currentRoute) {
-                if (this.pageOptionsMap[this.prevRoute!.pathname].isActionsCalling) {
+                if (this.isActionsCalling(this.prevRoute!.pathname)) {
                     console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'SET_BREAK');
                     this.setBreakPageActions(this.prevRoute!.pathname, this.pageOptionsMap[this.prevRoute!.pathname].pageNumber!);
                 }
@@ -785,6 +829,7 @@ class StateSetup {
         }
         console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '::START', {
             pathname,
+            pathnameWithPattern,
             waitUntil,
             redirectTo,
             mustRedirectTo,
@@ -800,11 +845,9 @@ class StateSetup {
             }
             if (mustRedirectTo) {
                 console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'useLayoutEffect', 'REDIRECT');
-                if (!this.pageOptionsMap[redirectTo]) {
-                    this.updateBasePageOptions(redirectTo, searchParams);
-                }
+                this.updateBasePageOptions(redirectTo, searchParams);
 
-                navigate(redirectTo, { state: { from: pathname } });
+                navigate(redirectTo, { state: { from: pathnameWithPattern } });
             }
             if (!isLoadingActivated.current
                 && this.loading === LoadingTypes.Loading
@@ -823,7 +866,7 @@ class StateSetup {
                 && this.flowStatus === FlowStatuses.Start
                 && (this.isAuth === null || Boolean(this.isAuth));
             const mustCallActions = (!waitUntil || this.isAuth === false)
-                && !this.pageOptionsMap[pathname].isActionsCalling
+                && !this.isActionsCalling(pathnameWithPattern)
                 && !stopActionsRecall
                 && !this.redirectTo
                 && (!state?.from || (this.restart && this.restart !== RestartTypes.AuthExpired));
@@ -836,6 +879,7 @@ class StateSetup {
             console.log('%c____usePageStateSetUp____: UPDATE', 'color: #ae54bf', {
                 stateFrom: state?.from,
                 pathname,
+                pathnameWithPattern,
                 waitUntil,
                 mustCheckAuth,
                 mustCallActions,
@@ -849,7 +893,7 @@ class StateSetup {
                     redirectTo: pathname,
                     from: state.from,
                     type: RedirectionTypes.NotFirstRender,
-                    isPageLoaded: this.isPageLoaded(pathname)
+                    isPageLoaded: this.isPageLoaded(pathnameWithPattern)
                 };
                 if (this.isAuth === false) {
                     console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '=========SHOW_REDIRECTION_MODAL=========');
@@ -863,8 +907,8 @@ class StateSetup {
                 );
                 setup({
                     mode: 'APP',
-                    pathname: mustRedirectTo || this.currentRoute!,
-                    pageNumber: currentPageCount,
+                    pathname: mustRedirectTo || pathnameWithPattern,
+                    pageNumber: mustRedirectTo ? currentPageCount + 1 : currentPageCount,
                     type: FlowStatuses.SetupFirst,
                     asyncReducer
                 });
@@ -875,7 +919,7 @@ class StateSetup {
                     '============CheckAuth=============', { $AppState: this.$AppState }
                 );
                 checkAuth({
-                    pathname,
+                    pathname: pathnameWithPattern,
                     searchParams,
                     mode: 'APP'
                 }).then((result) => {
@@ -884,11 +928,12 @@ class StateSetup {
                             $AppState: this.$AppState,
                             result,
                             pathname,
+                            pathnameWithPattern,
                         }
                     );
                     if (this.checkAuthorization.fulfilled.match(result)) {
                         // if (!this.pageOptionsMap[this.currentRoute]._break?.[currentPageCount]) {
-                        if (!this.pageOptionsMap[this.currentRoute!].isActionsCalling && (
+                        if (!this.isActionsCalling(this.currentRoute!) && (
                             result.payload.redirectTo
                                 ? (!mustRedirectTo || this.restart === RestartTypes.AuthExpired)
                                 : result.payload.waitUntil
@@ -897,6 +942,7 @@ class StateSetup {
                             console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '============SetUp>>>CheckAuth=============', {
                                 result,
                                 pathname,
+                                pathnameWithPattern,
                                 $AppState: this.$AppState
                             });
                             setup({
@@ -939,11 +985,14 @@ class StateSetup {
                 delete state.from;
                 window.history.replaceState(state, document.title);
             }
+
+            this.initiated = false;
         });
         console.log('%c____usePageStateSetUp____', 'color: #ae54bf', '::END', {
             redirectTo,
             waitUntil,
             pathname,
+            pathnameWithPattern,
             from: state?.from,
             'this.$AppState': this.$AppState,
         });
@@ -1058,6 +1107,7 @@ class StateSetup {
             }
 
             return () => {
+                const isPageNotFound = this.pageOptionsMap[this.currentRoute!]._notFound;
                 console.log(`%c____LOADER_____{${pathname}}`, 'color: #dbd518', 'useLayoutEffect', 'UNMOUNT', {
                     type,
                     loading,
@@ -1069,6 +1119,7 @@ class StateSetup {
                     type === LoadingTypes.Suspense
                         ? !this.isPageLoaded(pathname)
                             && (pathname === this.currentRoute
+                                || isPageNotFound
                                 // || (this.isPageLoaded(this.currentRoute!) && !loading)
                                 || (this.restart === RestartTypes.AuthExpired && this.isPageLoaded(this.currentRoute!))
                             )
@@ -1076,7 +1127,7 @@ class StateSetup {
                         // (this.redirectTo && this.isPageLoaded(this.redirectTo) && this.loading && pathname !== this.currentRoute && !loading)
                 ) {
                     console.log(`%c____LOADER_____{${pathname}}`, 'color: #dbd518', 'useLayoutEffect', 'UNMOUNT', '+++Clear+++');
-                    if (pathname === this.currentRoute) {
+                    if (pathname === this.currentRoute || isPageNotFound) {
                         this.pageOptionsMap[pathname].isPageLoaded = true;
                     }
 
@@ -1087,6 +1138,9 @@ class StateSetup {
                             flowState.reset();
                         }
                         this.loadingCount = 0;
+                        if (isPageNotFound) {
+                            delete this.pageOptionsMap[this.currentRoute!];
+                        }
                     }
                     console.log(`__________FIRST_RENDER____________{${pathname}}`, { $AppState: this.$AppState });
                 }
@@ -1110,6 +1164,7 @@ class StateSetup {
     private getIsPageReady = (pathname: string) => createSelector(
         ({ app }: IStateSchema) => app.isPageReady,
         (isPageReady) => {
+            console.log(pathname);
             const { waitUntil } = this.getPageOption(pathname, 'onNavigate') || {};
 
             console.log('%c$$$getIsPageReady$$$', 'color: #22af2c', {
@@ -1135,6 +1190,9 @@ class StateSetup {
         const lazy = this.isElementLazyLoaded(children);
         const dispatch = useDispatch<TDispatch>();
         const [ searchParams ] = useSearchParams();
+        if (pathname === '*') {
+            this.updateBasePageOptions(pathname, searchParams, this.currentRoute!);
+        }
 
         console.log('%c____ProtectedElement_____', 'color: #22af2c', '::START', {
             lazy,
@@ -1176,10 +1234,8 @@ class StateSetup {
 
         if (redirectTo && this.restart === RestartTypes.OnAuth) {
             console.log('%c____ProtectedElement_____', 'color: #22af2c', 'redirecting', { $AppState: this.$AppState });
+            this.updateBasePageOptions(redirectTo, searchParams);
 
-            if (!this.pageOptionsMap[redirectTo]) {
-                this.updateBasePageOptions(redirectTo, searchParams);
-            }
             const { waitUntil } = this.getPageOption(redirectTo, 'onNavigate') || {};
             if (!this.loading && waitUntil && !this.isPageLoaded(redirectTo)) {
                 console.log('%c____ProtectedElement_____', 'color: #22af2c', 'PRE_SET-LOADING');
@@ -1269,4 +1325,5 @@ class StateSetup {
 
 // @ts-ignore
 window.StateSetup = StateSetup;
+export { RedirectionTypes };
 export default StateSetup;

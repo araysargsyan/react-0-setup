@@ -1,4 +1,4 @@
-export { default, loginActions } from './reducer/slice';
+export { default, loginActionCreators } from './reducer/slice';
 export * from './selectors';
 
 export interface ILoginSchema {

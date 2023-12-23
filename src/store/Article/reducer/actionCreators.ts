@@ -16,7 +16,7 @@ const fetchById = createAsyncThunk<
 
         try {
             const response = await extra.api.get<IArticle>(`/articles/${articleId}`);
-            await until(600);
+            // await until(600);
 
             if (!response.data) {
                 throw new Error();

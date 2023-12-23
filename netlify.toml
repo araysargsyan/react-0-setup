@@ -1,0 +1,12 @@
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[build]
+  command = "npm run build:prod"
+
+[context.production.environment]
+  PORT = 8080
+  API_URL = "https://react-0-server.vercel.app/"
+  CHROMATIC_PROJECT_TOKEN="chpt_68142ee61976993"

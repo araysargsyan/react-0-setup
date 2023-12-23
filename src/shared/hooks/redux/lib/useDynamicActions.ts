@@ -45,7 +45,7 @@ const useDynamicActions = <
         K extends keyof T,
         R extends TReturnedActions<T, K> = TReturnedActions<T, K>
     >(key: K): Promise<(...args: Parameters<R[K]>) => R[K]> => {
-        return await importModule().then(modules => (modules[moduleKey] as R)[key]);
+        return await importModule().then(modules => (modules[moduleKey] as R)[key]) as (...args: Parameters<R[K]>) => R[K];
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

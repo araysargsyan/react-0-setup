@@ -15,7 +15,7 @@ const ArticleDetails: FC<IArticleDetailsPageProps> = ({ className }) => {
 
     return (
         <div className={ _c(cls['article-details-page'],  [ className ]) }>
-            <ArticleDetailsComponent id={ '1' } />
+            <ArticleDetailsComponent />
         </div>
     );
 };

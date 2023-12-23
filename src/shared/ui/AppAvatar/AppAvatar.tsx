@@ -1,6 +1,4 @@
-import {
-    type CSSProperties, type FC, useMemo
-} from 'react';
+import { type FC } from 'react';
 import _c from 'shared/helpers/classNames';
 import { type IStateSchema } from 'config/store';
 import { useSelector } from 'react-redux';

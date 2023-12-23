@@ -83,9 +83,9 @@ const StoreProvider:FC<IStoreProviderProps> = ({
     asyncReducers,
     withStateSetup = true
 }) => {
-    // const navigate = useAppNavigate();
+    const navigate = useAppNavigate();
     const store = useMemo(() => {
-        return createStore(initialState as IStateSchema, asyncReducers/*, navigate*/) as IReduxStoreWithManager;
+        return createStore(initialState as IStateSchema, asyncReducers, navigate) as IReduxStoreWithManager;
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

@@ -28,10 +28,9 @@ import ArticleTextBlock from './ArticleTextBlock';
 
 interface IArticleDetailsProps {
     className?: string;
-    id: string;
 }
 
-const ArticleDetailsComponent: FC<IArticleDetailsProps> = ({ className, id }) => {
+const ArticleDetailsComponent: FC<IArticleDetailsProps> = ({ className }) => {
     const { t } = useTranslation();
     const isLoading = useSelector(getArticleDetailsIsLoading);
     const article = useSelector(getArticleDetailsData);

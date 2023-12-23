@@ -2,7 +2,6 @@ import { type IStateSchema, StateSetup } from 'config/store';
 import getStateSetupConfig, { checkAuthorization } from 'config/store/stateSetup';
 import { appReducerName } from 'shared/const';
 import { Routes } from 'config/router';
-import { useSelector } from 'react-redux';
 import { createSelector } from '@reduxjs/toolkit';
 // import PageLoader from 'components/PageLoader';
 

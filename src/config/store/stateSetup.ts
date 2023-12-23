@@ -51,15 +51,12 @@ const getStateSetupConfig: TStateSetupFn<TRoutes, TAsyncReducerOptions<true>> = 
             authRequirement: null,
             actions: [ //! if async is true this action call will wait in initial setup, by default false
                 {
-                    cb: (pageOptions) => {
-                        console.log(9999999, pageOptions);
-                        return counterActionCreators.fetchTest;
-                    },
+                    actionCreator: counterActionCreators.fetchTest,
                     canRefetch: true,
                     async: true,
                 },
                 {
-                    actionCreator: counterActionCreators.increment,
+                    cb: ({ pageNumber }) => counterActionCreators.increment.bind(null, pageNumber),
                     canRefetch: (state) => { //! Boolean or cb with state param and returned boolean
                         return (state as IStateSchema).counter.value < 18;
                     },

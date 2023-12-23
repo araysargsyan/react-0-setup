@@ -18,7 +18,7 @@ export default (env: IBuildEnv) => {
         html: resolve(__dirname, 'public', 'index.html'),
         src: resolve(__dirname, 'src'),
         locales: resolve(__dirname, 'public', 'locales'),
-        buildLocales: resolve(__dirname, 'build', 'locales'),
+        buildLocales: resolve(__dirname, 'dist', 'locales'),
     };
 
     const options: Omit<IBuildOptions, 'isDev'> = {
@@ -27,7 +27,7 @@ export default (env: IBuildEnv) => {
         styleMode: 'scss',
         project: 'frontend',
         paths,
-        apiUrl: env.apiUrl || 'http://localhost:8000',
+        apiUrl: env.API_URL || 'http://localhost:8000',
         mustAnalyzeBundle
     };
 

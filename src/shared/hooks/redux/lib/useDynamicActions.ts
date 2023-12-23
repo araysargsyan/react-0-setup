@@ -27,30 +27,13 @@ const useDynamicActions = <
     const dispatch = useAppDispatch();
     const isModuleLoaded = useRef(false);
 
-    useEffect(() => {
-        if (when) {
-            importModule()
-                .then(() => {
-                    isModuleLoaded.current = true;
-                })
-                .catch((e) => {
-                    console.log('__CUSTOM__::load dynamic module', e);
-                });
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, deps);
-
-
     const getAction = useCallback(async <
         K extends keyof T,
         R extends TReturnedActions<T, K> = TReturnedActions<T, K>
     >(key: K): Promise<(...args: Parameters<R[K]>) => R[K]> => {
-        return await importModule().then(modules => (modules[moduleKey] as R)[key]) as (...args: Parameters<R[K]>) => R[K];
+        return await importModule().then(modules => (modules[moduleKey] as R)[key]) as never;
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-
-
 
     const getAsyncAction = useCallback(<
         K extends keyof T,
@@ -66,6 +49,19 @@ const useDynamicActions = <
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    useEffect(() => {
+        if (when) {
+            importModule()
+                .then(() => {
+                    isModuleLoaded.current = true;
+                })
+                .catch((e) => {
+                    console.log('__CUSTOM__::load dynamic module', e);
+                });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, deps);
 
     return getAsyncAction;
 };

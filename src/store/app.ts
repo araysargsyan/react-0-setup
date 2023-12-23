@@ -29,7 +29,7 @@ const {
 } = stateSetupConfig;
 const getIsAuthenticated = ({ app }: IStateSchema) => app.isAuthenticated;
 const getIsAppReady = createSelector(
-    ({ app }: IStateSchema) => app.isAppReady && !app.loading,
+    ({ app }: IStateSchema) => app.isAppReady,
     (isReady) => isReady);
 
 

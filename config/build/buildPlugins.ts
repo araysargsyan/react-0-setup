@@ -8,6 +8,7 @@ import {
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
+import CopyPlugin from 'copy-webpack-plugin';
 
 import { type IBuildOptions } from './types';
 
@@ -16,17 +17,17 @@ import { type IBuildOptions } from './types';
 
 export default function(
     isDev: boolean, {
-        template,
         apiUrl,
         mustAnalyzeBundle,
         project,
-    }: Partial<IBuildOptions> & {template: string}
+        paths
+    }: Pick<IBuildOptions, 'paths' | 'project' | 'apiUrl' | 'mustAnalyzeBundle'>
 ): WebpackPluginInstance[] {
     const plugins: WebpackPluginInstance[] = [
         // new Dotenv({
         //     path: resolve(__dirname, '../../.env')
         // }),
-        new HTMLWebpackPlugin({ template }),
+        new HTMLWebpackPlugin({ template: paths.html }),
         new ProgressPlugin(),
         new MiniCssExtractPlugin({
             filename: 'css/[name][contenthash:8].css',
@@ -37,6 +38,7 @@ export default function(
             __API__: JSON.stringify(apiUrl),
             __PROJECT__: JSON.stringify(project),
         }),
+        new CopyPlugin({ patterns: [ { from: paths.locales, to: paths.buildLocales } ] }),
     ];
 
     if (isDev || mustAnalyzeBundle) {

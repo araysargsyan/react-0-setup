@@ -2,7 +2,7 @@ import {
     type ChangeEvent,
     type FC,
     type InputHTMLAttributes,
-    memo,
+    memo, type RefObject,
     useEffect,
     useRef,
 } from 'react';

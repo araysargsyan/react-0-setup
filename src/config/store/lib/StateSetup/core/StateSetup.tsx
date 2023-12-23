@@ -858,6 +858,9 @@ class StateSetup {
 
             if (this.initiatedState.mustActivateLoading) {
                 console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'PRE-SET_LOADING');
+                if (this.loading === LoadingTypes.Suspense) {
+                    this.initiatedState.mustActivateLoading = false;
+                }
                 this.loading = LoadingTypes.Loading;
             }
 
@@ -889,7 +892,6 @@ class StateSetup {
             if (this.initiatedState.mustActivateLoading
                 && this.loading === LoadingTypes.Loading
                 // this.flowStatus === FlowStatuses.Start
-                // && this.loading === LoadingTypes.Loading
                 // && !isLoadingActivated.current
             ) {
                 console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'useLayoutEffect', 'SET_LOADING');
@@ -1200,7 +1202,6 @@ class StateSetup {
     private getIsPageReady = (pathname: string) => createSelector(
         ({ app }: IStateSchema) => app.isPageReady,
         (isPageReady) => {
-            console.log(pathname);
             const { waitUntil } = this.getPageOption(pathname, 'onNavigate') || {};
 
             console.log('%c$$$getIsPageReady$$$', 'color: #22af2c', {

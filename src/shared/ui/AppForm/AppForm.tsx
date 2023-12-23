@@ -2,14 +2,14 @@ import React, {
     type FC,
     type FormEvent,
     type HTMLAttributes,
-    type PropsWithChildren,
+    type PropsWithChildren, Suspense, useCallback,
     useMemo
 } from 'react';
 import { AsyncReducer, type IStateSchema } from 'config/store';
 import AppText, { EAppTextTheme } from 'shared/ui/Text';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import Index from 'shared/ui/DynamicComponent';
+import DynamicComponent from 'shared/ui/DynamicComponent';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import { type TAddAsyncReducerOp } from 'config/store/types';
 
@@ -63,11 +63,9 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
         return props;
     }, [ formComponent, defaultProps, onSubmit ]);
 
-
-    useRenderWatcher(AppForm.name);
-    if (!reducersOption) {
+    const FormComponent = useCallback(() => {
         return (
-            <Index
+            <DynamicComponent
                 tagName={ formComponent }
                 { ...formProps }
             >
@@ -81,32 +79,24 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
                 ) }
 
                 { children }
-            </Index>
+            </DynamicComponent>
         );
+    }, [ children, err, formComponent, formProps, t, title ]);
+    useRenderWatcher(AppForm.name);
+    if (!reducersOption) {
+        return <FormComponent />;
     }
 
     return (
-        <AsyncReducer
-            removeAfterUnmount
-            options={ reducersOption as never }
-            state={ state }
-        >
-            <Index
-                tagName={ formComponent }
-                { ...formProps }
+        <Suspense fallback={ <FormComponent /> }>
+            <AsyncReducer
+                removeAfterUnmount
+                options={ reducersOption as never }
+                state={ state }
             >
-                { title && <AppText title={ title } /> }
-
-                { err && (
-                    <AppText
-                        text={ t(err) }
-                        theme={ EAppTextTheme.ERROR }
-                    />
-                ) }
-
-                { children }
-            </Index>
-        </AsyncReducer>
+                <FormComponent />
+            </AsyncReducer>
+        </Suspense>
     );
 };
 

@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux';
 import _c from 'shared/helpers/classNames';
 import React, {
-    type FC, memo, Suspense 
+    type FC, memo, Suspense
 } from 'react';
 import ProfilePageHeader from 'pages/Profile/ProfilePageHeader';
 import EditProfile from 'features/forms/EditProfile';
@@ -62,9 +62,7 @@ const ProfileCard: FC<IProfileCardProps> = ({ className }) => {
     return (
         <div className={ _c(cls['profile-card'],  [ className ]) }>
             <ProfilePageHeader />
-            <Suspense fallback={ <h1>EDIT PROFILE SKELETON</h1> }>
-                <EditProfile />
-            </Suspense>
+            <EditProfile />
         </div>
     );
 };

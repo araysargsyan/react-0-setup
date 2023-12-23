@@ -24,7 +24,7 @@ interface IBuildOptions {
 interface IBuildEnv {
     MODE: TBuildMode;
     PORT: number;
-    apiUrl: string;
+    API_URL: string;
 }
 
 export type {

@@ -20,7 +20,7 @@ export default function({
             clean: true
         },
         plugins: buildPlugins(isDev, {
-            template: paths.html,
+            paths,
             apiUrl,
             mustAnalyzeBundle,
             project

@@ -1,15 +1,15 @@
-import  { type ResolveOptions } from 'webpack';
- 
+import { type ResolveOptions } from 'webpack';
 
-export default function(srcPath: string): ResolveOptions {
+
+export default function(srcPath: string, localesPath: string): ResolveOptions {
     return {
-        extensions: [ '.tsx', '.ts', '.js' ],
+        extensions: [ '.tsx', '.ts', '.js', '.json' ],
         preferAbsolute: true,
-        modules: [ 
+        modules: [
             srcPath,
             'node_modules'
         ],
         mainFiles: [ 'index' ],
-        alias: {}
+        alias: { '@locales': localesPath }
     };
 }

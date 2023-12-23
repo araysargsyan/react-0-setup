@@ -3,6 +3,8 @@ interface IBuildPaths {
     build: string;
     html: string;
     src: string;
+    locales: string;
+    buildLocales: string;
 }
 
 type TBuildMode = 'development' | 'production';

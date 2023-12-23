@@ -12,11 +12,12 @@ body {
 }
 
 .content-page {
-    height: calc(100vh - var(--navbar-height));
+    height: calc(100vh - $navbar-height);
     display: flex;
 }
 
 .page-wrapper {
     flex-grow: 1;
-    padding: 20px;
+    padding: 20px 20px 20px 45px;
+    overflow-y: auto;
 }

@@ -7,6 +7,7 @@ import {
 } from '@reduxjs/toolkit';
 import { type ActionCreator } from 'redux';
 import { type ComponentType } from 'react';
+import { type Params } from 'react-router-dom';
 
 
 interface IAppSchema {
@@ -29,16 +30,17 @@ interface IThunkConfig<R = string> {
     dispatch: TDispatch;
 }
 
-type TCb = ActionCreator<any>; //| ThunkAction<any, any, any, AnyAction>;
+type TCb = ((pageOptions: IBasePageOptions) => ActionCreator<any>);
 type TMode = 'APP' | 'PAGE';
 interface IActionCreatorsOptions {
-    //* callback is action creator or returning action creator
-    // cb: (<T = Record<string, TCb>>(module: T) => T[keyof T]) | TCb;
-    // key?: string;
-    cb: TCb | {
-        getAction: (module: Record<string, TCb>) => TCb;
+    //* callback is function returning action creator
+    //* or for async reducers u can use object with getActions that returning action creator
+    cb?: TCb | {
+        getAction: (module: Record<string, ReturnType<TCb>>, pageOptions: IBasePageOptions) => ReturnType<TCb>;
+        //*
         key: string;
     };
+    actionCreator?: ActionCreator<any>; //| ThunkAction<any, any, any, AnyAction>;
     //* cb are sync if not defined
     async?: true;
     //* cb calling once if not defined, not working with API action creators(they are calling once by default)
@@ -85,24 +87,25 @@ interface IPageOptions<
     AR extends TAsyncReducersOptionsReturn = TAsyncReducersOptionsReturn,
     ARO extends TAsyncReducersOptions<AR> = TAsyncReducersOptions<AR>
 > {
-    actions: O extends string ? Array<Omit<IActionCreatorsOptions, O>> : Array<IActionCreatorsOptions>;
+    readonly actions: O extends string ? Array<Omit<IActionCreatorsOptions, O>> : Array<IActionCreatorsOptions>;
     //* By default null.
     //* If false it's mean that page will be enabled only for unauthenticated users.
     //* If true you know.
-    authRequirement: null | boolean;
-    asyncReducerOptions?: ARO;
-    onNavigate?: INavigationOptions;
+    readonly authRequirement: null | boolean;
+    readonly asyncReducerOptions?: ARO;
+    readonly onNavigate?: INavigationOptions;
 }
 interface IBasePageOptions extends IPageOptions {
     isPageLoaded: boolean;
     isActionsCalling: boolean;
     pageNumber?: number;
+    params?: Params<string>;
 }
 
 type TAsyncReducersOptions<
     AR extends TAsyncReducersOptionsReturn = TAsyncReducersOptionsReturn,
     ARR extends Promise<any> = ReturnType<AR>,
-> = (...args: Parameters<AR>) => Promise<[Awaited<ARR>, Record<string, Record<string, TCb>> | null]> /*| PromiseReturnType<ARR>*/;
+> = (...args: Parameters<AR>) => Promise<[Awaited<ARR>, Record<string, Record<string, ReturnType<TCb>>> | null]> /*| PromiseReturnType<ARR>*/;
 type TGetStateSetupConfig<
     T extends string = string,
     O extends string | false = false,
@@ -165,6 +168,13 @@ type TInitAuth = AsyncThunkPayloadCreator<
 >;
 
 type TypeFromConstValues<T extends Record<string, string>> = T[keyof T];
+interface IinitiatedState {
+    stopActionsRecall: boolean;
+    mustActivateLoading: boolean;
+    currentPageCount: number;
+    mustRedirectTo: string | null;
+    _initiated: boolean;
+}
 
 export type {
     TCb,
@@ -188,6 +198,7 @@ export type {
     TAsyncReducer,
     TStateSetUpArgs,
     TStateSetup,
+    IinitiatedState,
 
     TSetIsAuthenticated,
     TCheckAuthorizationReturn,

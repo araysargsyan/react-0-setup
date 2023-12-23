@@ -40,8 +40,13 @@ const articleDetailsActionCreators = {
     ...articleDetailsSlice.actions,
     fetchById
 };
+type TArticleDetailsActionCreators =  typeof articleDetailsActionCreators;
 
-export { articleDetailsActionCreators, type IArticleDetailsSchema };
+export {
+    articleDetailsActionCreators,
+    type IArticleDetailsSchema,
+    type TArticleDetailsActionCreators
+};
 export default {
     name: articleDetailsSlice.name,
     reducer: articleDetailsSlice.reducer

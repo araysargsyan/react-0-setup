@@ -4,34 +4,46 @@ import _c from 'shared/helpers/classNames';
 import cls from './Text.module.scss';
 
 
-enum ETextTheme {
+enum EAppTextTheme {
     PRIMARY = 'primary',
     ERROR = 'error',
 }
 
-enum ETextAlign {
+enum EAppTextAlign {
     RIGHT = 'right',
     LEFT = 'left',
     CENTER = 'center',
+}
+
+enum EAppTextSize {
+    M = 'size-m',
+    L = 'size-l',
 }
 
 interface ITextProps {
     className?: string;
     title?: string;
     text?: string;
-    theme?: ETextTheme;
-    align?: ETextAlign;
+    theme?: EAppTextTheme;
+    align?: EAppTextAlign;
+    size?: EAppTextSize;
 }
 
 const AppText: FC<ITextProps> = ({
     className,
     text,
     title,
-    theme = ETextTheme.PRIMARY,
-    align = ETextAlign.LEFT,
+    theme = EAppTextTheme.PRIMARY,
+    align = EAppTextAlign.LEFT,
+    size = EAppTextSize.M,
 }) => {
     return (
-        <div className={ _c(cls.Text, [ className ], { [cls[theme]]: true, [cls[align]]: true }) }>
+        <div className={ _c(cls.Text, [ className ], {
+            [cls[theme]]: true,
+            [cls[align]]: true,
+            [cls[size]]: true,
+        }) }
+        >
             { title && <p className={ cls.title }>{ title }</p> }
             { text && <p className={ cls.text }>{ text }</p> }
         </div>
@@ -39,7 +51,8 @@ const AppText: FC<ITextProps> = ({
 };
 
 export {
-    ETextTheme,
-    ETextAlign
+    EAppTextTheme,
+    EAppTextAlign,
+    EAppTextSize
 };
 export default memo(AppText);

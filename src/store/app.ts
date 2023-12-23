@@ -2,6 +2,8 @@ import { type IStateSchema, StateSetup } from 'config/store';
 import getStateSetupConfig, { checkAuthorization } from 'config/store/stateSetup';
 import { appReducerName } from 'shared/const';
 import { Routes } from 'config/router';
+import { useSelector } from 'react-redux';
+import { createSelector } from '@reduxjs/toolkit';
 // import PageLoader from 'components/PageLoader';
 
 
@@ -27,6 +29,9 @@ const {
     createRedirectionModal
 } = stateSetupConfig;
 const getIsAuthenticated = ({ app }: IStateSchema) => app.isAuthenticated;
+const getIsAppReady = createSelector(
+    ({ app }: IStateSchema) => app.isAppReady && !app.loading,
+    (isReady) => isReady);
 
 
 export default {
@@ -40,4 +45,5 @@ export {
     createRedirectionModal,
     appActionCreators,
     getIsAuthenticated,
+    getIsAppReady,
 };

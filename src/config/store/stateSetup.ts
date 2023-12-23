@@ -3,7 +3,8 @@ import { USER_LOCALSTORAGE_KEY } from 'shared/const';
 import { counterActionCreators } from 'store/Counter';
 import { userActionCreators } from 'store/User';
 import until from 'app/dubag/util/wait';
-import { type TProfileActions } from 'store/Profile/reducer/slice';
+import { type TProfileActions } from 'store/Profile';
+import { type TArticleDetailsActionCreators } from 'store/Article';
 
 import {
     type TAsyncReducerOptions,
@@ -15,17 +16,50 @@ import {
 
 const getStateSetupConfig: TStateSetupFn<TRoutes, TAsyncReducerOptions<true>> = (_) =>  {
     return {
-        [Routes.ARTICLE_DETAILS]: { authRequirement: null },
+        [Routes.ARTICLE_DETAILS]: {
+            authRequirement: null,
+            asyncReducerOptions: async (_) => {
+                const articleModule = await import('store/Article');
+
+                return [
+                    [
+                        [ //! asyncReducerOptions can be multiple
+                            {
+                                key: articleModule.default.name,
+                                reducer: articleModule.default.reducer,
+                            },
+                        ],
+                    ],
+                    //! asyncActionCreators, key of this object needed to be in cb.key
+                    { article: articleModule.articleDetailsActionCreators }
+                ];
+            },
+            actions: [ //! async actions must be first
+                {
+                    cb: {
+                        key: 'article',
+                        getAction: (articleActionCreators, { params }) => {
+                            return (articleActionCreators as TArticleDetailsActionCreators).fetchById.bind(null, (params as {id: string}).id);
+                        }
+                    },
+                    async: true,
+                    canRefetch: true
+                },
+            ],
+        },
         [Routes.MAIN]: {
             authRequirement: null,
             actions: [ //! if async is true this action call will wait in initial setup, by default false
                 {
-                    cb: counterActionCreators.fetchTest,
+                    cb: (pageOptions) => {
+                        console.log(9999999, pageOptions);
+                        return counterActionCreators.fetchTest;
+                    },
                     canRefetch: true,
                     async: true,
                 },
                 {
-                    cb: counterActionCreators.increment,
+                    actionCreator: counterActionCreators.increment,
                     canRefetch: (state) => { //! Boolean or cb with state param and returned boolean
                         return (state as IStateSchema).counter.value < 18;
                     },
@@ -37,7 +71,7 @@ const getStateSetupConfig: TStateSetupFn<TRoutes, TAsyncReducerOptions<true>> = 
             authRequirement: null,
             actions: [ //! if async is true this action call will wait in initial setup, by default false
                 {
-                    cb: counterActionCreators.increment,
+                    actionCreator: counterActionCreators.increment,
                     canRefetch: (state) => { //! Boolean or cb with state param and returned boolean
                         return (state as IStateSchema).counter.value < 18;
                     },
@@ -73,7 +107,7 @@ const getStateSetupConfig: TStateSetupFn<TRoutes, TAsyncReducerOptions<true>> = 
                     async: true,
                     canRefetch: true
                 },
-                { cb: counterActionCreators.decrement, canRefetch: true },
+                { actionCreator: counterActionCreators.decrement, canRefetch: true },
             ],
             onNavigate: { waitUntil: 'CHECK_AUTH', }
         },
@@ -81,14 +115,14 @@ const getStateSetupConfig: TStateSetupFn<TRoutes, TAsyncReducerOptions<true>> = 
             authRequirement: false,
             actions: [
                 {
-                    cb: counterActionCreators.fetchTest,
+                    actionCreator: counterActionCreators.fetchTest,
                     canRefetch: true,
                     async: true,
                 },
-                { cb: counterActionCreators.decrement, canRefetch: true },
-                { cb: counterActionCreators.increment },
-                { cb: counterActionCreators.increment },
-                { cb: counterActionCreators.increment },
+                { actionCreator: counterActionCreators.decrement, canRefetch: true },
+                { actionCreator: counterActionCreators.increment },
+                { actionCreator: counterActionCreators.increment },
+                { actionCreator: counterActionCreators.increment },
             ],
             onNavigate: { waitUntil: 'CHECK_AUTH', }
         },

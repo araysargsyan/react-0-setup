@@ -1,5 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { type IThunkConfig } from 'config/store';
+import until from 'app/dubag/util/wait';
 
 import { type IArticle } from '..';
 
@@ -15,6 +16,7 @@ const fetchById = createAsyncThunk<
 
         try {
             const response = await extra.api.get<IArticle>(`/articles/${articleId}`);
+            await until(3600);
 
             if (!response.data) {
                 throw new Error();

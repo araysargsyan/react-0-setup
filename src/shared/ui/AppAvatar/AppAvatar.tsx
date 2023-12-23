@@ -1,5 +1,5 @@
 import {
-    type CSSProperties, type FC, useMemo 
+    type CSSProperties, type FC, useMemo
 } from 'react';
 import _c from 'shared/helpers/classNames';
 import { type IStateSchema } from 'config/store';
@@ -10,18 +10,18 @@ import cls from './AppAvatar.module.scss';
 
 interface IAppAvatarProps {
     className?: string;
-    srcSelector: (state: IStateSchema) => string;
-    src?: string;
     size?: number;
     alt?: string;
+    src?: string;
+    srcSelector?: (state: IStateSchema) => string;
 }
 
 const AppAvatar: FC<IAppAvatarProps> = ({
     className,
-    src,
-    srcSelector,
-    size,
+    size = 100,
     alt,
+    src,
+    srcSelector
 }) => {
     const srcValue = src
         ? src
@@ -30,21 +30,20 @@ const AppAvatar: FC<IAppAvatarProps> = ({
             ? useSelector<IStateSchema, string | undefined>(srcSelector) || ''
             : '';
 
-    const styles = useMemo<CSSProperties>(() => ({
-        width: size || 100,
-        height: size || 100,
-    }), [ size ]);
-
     if (!srcValue) {
         return null;
     }
 
     return (
-        <div className={ cls['app-avatar-wrapper'] }>
+        <div
+            className={ cls['app-avatar-wrapper'] }
+            // style={{ maxWidth: size }}
+        >
             <img
+                width={ `${size}px` }
+                height={ `${size}px` }
                 src={ srcValue }
                 alt={ alt }
-                style={ styles }
                 className={ _c(cls['app-avatar'], [ className ]) }
             />
         </div>

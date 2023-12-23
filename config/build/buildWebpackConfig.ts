@@ -26,7 +26,7 @@ export default function({
             project
         }),
         module: { rules: buildLoaders(isDev, styleMode), },
-        resolve: buildResolvers(paths.src),
+        resolve: buildResolvers(paths.src, paths.locales),
         devtool: isDev ? 'inline-source-map' : undefined,
         devServer: isDev ? buildDevServer(port) : undefined,
         performance: {

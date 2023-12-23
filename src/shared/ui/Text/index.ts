@@ -1,3 +1,6 @@
 export {
-    default, ETextTheme, ETextAlign 
+    default,
+    EAppTextTheme,
+    EAppTextAlign,
+    EAppTextSize
 } from './Text';

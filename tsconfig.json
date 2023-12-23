@@ -10,21 +10,22 @@
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     //"noImplicitThis": false
     "baseUrl": ".",
     "paths": {
       "*": ["./src/*"],
-      "@config/*": ["./config/*"]
+      "@config/*": ["./config/*"],
+      "@locales/*": ["./public/locales/*"],
     }
   },
   "ts-node": {
     "compilerOptions": {
-      "module": "CommonJS"
+      "module": "CommonJS",
     }
   },
   "include": [
     "./src",
-    "./.eslintrc.js",
     "./webpack.config.ts",
     "./config/build",
     "./config/storybook",

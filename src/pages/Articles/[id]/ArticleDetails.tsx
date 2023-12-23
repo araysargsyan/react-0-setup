@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { type FC } from 'react';
 
 import cls from './ArticleDetails.module.scss';
+import ArticleDetailsComponent from './ArticleDetailsComponent';
 
 
 interface IArticleDetailsPageProps {
@@ -14,7 +15,7 @@ const ArticleDetails: FC<IArticleDetailsPageProps> = ({ className }) => {
 
     return (
         <div className={ _c(cls['article-details-page'],  [ className ]) }>
-            { 'ARTICLE DETAILS' }
+            <ArticleDetailsComponent id={ '1' } />
         </div>
     );
 };

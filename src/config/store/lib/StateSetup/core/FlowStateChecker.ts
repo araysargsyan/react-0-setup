@@ -91,7 +91,7 @@ export default class FlowStateChecker {
             this['useEffect: Update'] = JSON.parse(JSON.stringify(this.initialFlowState['useEffect: Update']));
             return;
         }
-        const waitingTime = 1000;
+        const waitingTime = 1200;
 
         if (window.location.pathname !== noAuth.paths.FRL['NO_WAIT']
             && this.checks?.noAuth?.['FRL->NO_WAIT'] === undefined
@@ -329,25 +329,58 @@ export default class FlowStateChecker {
                     }
                 } else if (this.checks[type]['RNFRL->WAIT_AUTH'] === undefined) {
                     const rendered = localStorage.getItem('rendered');
-                    if (window.location.pathname !== object.config['RNFRL']['WAIT_AUTH'][type === 'login'? 'authorized' : 'unAuthorized'] && !rendered) {
+                    const redirectionPath = object.config['RNFRL']['WAIT_AUTH'][type === 'login'? 'authorized' : 'unAuthorized'];
+                    if (window.location.pathname !== redirectionPath && !rendered) {
+                        if (type === 'login') {
+                            localStorage.setItem('user', JSON.stringify({
+                                id: '1',
+                                password: '123',
+                                username: 'admin',
+                            }));
+                        } else {
+                            localStorage.removeItem('user');
+                        }
                         localStorage.setItem('rendered', JSON.stringify(true));
                         localStorage.setItem('flowStateMap', JSON.stringify(type));
                         localStorage.setItem('$authProtectionConfig', JSON.stringify(object.config['RNFRL']['WAIT_AUTH']));
-                        window.location.replace(object.config['RNFRL']['WAIT_AUTH'][type === 'login'? 'authorized' : 'unAuthorized']);
+                        window.location.replace(redirectionPath);
                     } else {
-                        (document.getElementById(type === 'login' ? logoutBtnId : loginBtnId))?.click();
                         until(waitingTime).then(() => {
-                            if (window.location.pathname !== object.paths['RNFRL']['WAIT_AUTH']) {
-                                localStorage.setItem('flowStateMap', JSON.stringify(type));
-                                localStorage.setItem('$authProtectionConfig', JSON.stringify(object.config['RNFRL']['WAIT_AUTH']));
-                                this.navigate(object.paths['RNFRL']['WAIT_AUTH']);
-                            } else {
-                                localStorage.removeItem('rendered');
-                                localStorage.setItem('flowStateMap', JSON.stringify([ type, 'RNFRL', 'WAIT_AUTH' ]));
-                                localStorage.setItem('$authProtectionConfig', JSON.stringify(object.config['RNFRL']['WAIT_AUTH']));
-                                localStorage.setItem('flowState', JSON.stringify(object['RNFRL']['WAIT_AUTH']));
-                                (document.getElementById(type === 'login' ? loginBtnId : logoutBtnId))?.click();
-                            }
+                            (document.getElementById(type === 'login' ? logoutBtnId : loginBtnId))?.click();
+                            until(waitingTime + 1000).then(() => {
+                                this.navigate(Routes.TEST);
+                                until(waitingTime + 1000).then(() => {
+                                    this.navigate(object.paths['RNFRL']['WAIT_AUTH']);
+                                    until(waitingTime + 1000).then(() => {
+                                        localStorage.removeItem('rendered');
+                                        localStorage.setItem('flowStateMap', JSON.stringify([ type, 'RNFRL', 'WAIT_AUTH' ]));
+                                        localStorage.setItem('flowState', JSON.stringify(object['RNFRL']['WAIT_AUTH']));
+                                        localStorage.setItem('$authProtectionConfig', JSON.stringify(object.config['RNFRL']['WAIT_AUTH']));
+                                        (document.getElementById(type === 'login' ? loginBtnId : logoutBtnId))?.click();
+                                    });
+                                });
+                            });
+                        //     until(waitingTime).then(() => {
+                        //         console.log(window.location.pathname, 'AAAAAA');
+                        //         if (window.location.pathname !== object.paths['RNFRL']['WAIT_AUTH']) {
+                        //             // if (type === 'login') {
+                        //             //     localStorage.removeItem('user');
+                        //             // } else {
+                        //             //     localStorage.setItem('user', JSON.stringify({
+                        //             //         id: '1',
+                        //             //         password: '123',
+                        //             //         username: 'admin',
+                        //             //     }));
+                        //             // }
+                        //             localStorage.setItem('flowStateMap', JSON.stringify(type));
+                        //             this.navigate(object.paths['RNFRL']['WAIT_AUTH']);
+                        //         } else {
+                        //             localStorage.removeItem('rendered');
+                        //             localStorage.setItem('flowStateMap', JSON.stringify([ type, 'RNFRL', 'WAIT_AUTH' ]));
+                        //             localStorage.setItem('flowState', JSON.stringify(object['RNFRL']['WAIT_AUTH']));
+                        //             (document.getElementById(type === 'login' ? loginBtnId : logoutBtnId))?.click();
+                        //         }
+                        //     });
                         });
                     }
                 } else if (this.checks[type]['NR'] === undefined) {
@@ -376,7 +409,7 @@ export default class FlowStateChecker {
                         localStorage.setItem('$authProtectionConfig', JSON.stringify(logout.config['RFRL']['NO_WAIT']));
                         window.location.replace(logout.paths['RFRL']['NO_WAIT']);
                     });
-                } else if (this.checks.logout?.['NR']) {
+                } else if (this.checks.logout?.['NR'] && !localStorage.getItem('rendered')) {
                     localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
                     localStorage.setItem('user', JSON.stringify({
                         id: '1',

@@ -6,7 +6,7 @@ import React, {
     useMemo
 } from 'react';
 import { AsyncReducer, type IStateSchema } from 'config/store';
-import AppText, { ETextTheme } from 'shared/ui/Text';
+import AppText, { EAppTextTheme } from 'shared/ui/Text';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import Index from 'shared/ui/DynamicComponent';
@@ -76,7 +76,7 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
                 { err && (
                     <AppText
                         text={ t(err) }
-                        theme={ ETextTheme.ERROR }
+                        theme={ EAppTextTheme.ERROR }
                     />
                 ) }
 
@@ -100,7 +100,7 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
                 { err && (
                     <AppText
                         text={ t(err) }
-                        theme={ ETextTheme.ERROR }
+                        theme={ EAppTextTheme.ERROR }
                     />
                 ) }
 

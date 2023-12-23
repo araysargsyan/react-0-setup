@@ -3,6 +3,7 @@
     background: var(--inverted-bg-color);
     position: relative;
     transition: width .35s;
+    flex-shrink: 0;
 }
 
 .switchers {

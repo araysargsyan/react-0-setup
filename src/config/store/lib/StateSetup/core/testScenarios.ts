@@ -469,11 +469,11 @@ export const logout = {
     config: {
         RFRL: {
             'NO_WAIT': { unAuthorized: '/' },
-            'WAIT_AUTH': { unAuthorized: '/about2' }
+            'WAIT_AUTH': { unAuthorized: '/about' }
         },
         RNFRL: {
             'NO_WAIT': { unAuthorized: '/' },
-            'WAIT_AUTH': { unAuthorized: '/about2' }
+            'WAIT_AUTH': { unAuthorized: '/about' }
         }
     },
     paths: {

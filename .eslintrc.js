@@ -177,7 +177,7 @@ module.exports = {
         __API__: true,
         __PROJECT__: true,
     },
-    settings: { 'react': { version: '18' } },
+    settings: { 'react': { version: 'detect' } },
     overrides: [
         {
             files: [ '**/*.test.{ts,tsx}' ],

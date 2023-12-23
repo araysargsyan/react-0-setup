@@ -1,10 +1,11 @@
 import { type Configuration } from 'webpack';
 import { resolve } from 'path';
+
 import BuildWebpackConfig, {
     type IBuildEnv,
     type IBuildOptions,
     type IBuildPaths
-} from '@config/build';
+} from './config/build';
 
 
 export default (env: IBuildEnv) => {
@@ -16,6 +17,8 @@ export default (env: IBuildEnv) => {
         build: resolve(__dirname, 'dist'),
         html: resolve(__dirname, 'public', 'index.html'),
         src: resolve(__dirname, 'src'),
+        locales: resolve(__dirname, 'public', 'locales'),
+        buildLocales: resolve(__dirname, 'build', 'locales'),
     };
 
     const options: Omit<IBuildOptions, 'isDev'> = {
@@ -34,7 +37,7 @@ export default (env: IBuildEnv) => {
     });
 
     console.log('WEBPACK', {
-        paths, options, config
+        env, paths, options, config
     });
 
     return config;

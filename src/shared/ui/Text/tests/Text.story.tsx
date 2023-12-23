@@ -1,7 +1,7 @@
 import  { type Meta, type StoryObj } from '@storybook/react';
 import { ETheme } from 'app/providers/theme';
 
-import AppText, { ETextTheme } from '..';
+import AppText, { EAppTextTheme } from '..';
 
 
 const meta: Meta<typeof AppText> = {
@@ -23,7 +23,7 @@ export const Error: Story = {
     args: {
         title: 'Title lorem ipsun',
         text: 'Description Description Description Description',
-        theme: ETextTheme.ERROR,
+        theme: EAppTextTheme.ERROR,
     }
 };
 

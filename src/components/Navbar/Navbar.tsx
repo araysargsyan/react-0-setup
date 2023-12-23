@@ -9,7 +9,7 @@ import { userActionCreators } from 'store/User';
 import LoginModal from 'features/forms/Login';
 import { useActions } from 'shared/hooks/redux';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
-import { getIsAuthenticated } from 'store/app';
+import { getIsAppReady, getIsAuthenticated } from 'store/app';
 import loginReducer, { loginActionCreators } from 'features/forms/Login/model';
 import { type IReduxStoreWithManager } from 'config/store';
 import { USER_LOCALSTORAGE_KEY } from 'shared/const';
@@ -24,6 +24,7 @@ const Navbar: FC<INavbarProps> = ({ className }) => {
     const { t } = useTranslation();
     const [ isAuthModal, setIsAuthModal ] = useState(false);
     const isAuthenticated = useSelector(getIsAuthenticated);
+    const isAppReady = useSelector(getIsAppReady);
     const { logout } = useActions(userActionCreators, [ 'logout', 'setAuthData' ]);
     const { login } = useActions(loginActionCreators);
     const store = useStore() as IReduxStoreWithManager;
@@ -72,6 +73,7 @@ const Navbar: FC<INavbarProps> = ({ className }) => {
                 </AppButton>
                 <AppButton
                     id={ 'SIGN_OUT' }
+                    key={ 'SIGN_OUT' }
                     theme={ EAppButtonTheme.CLEAR_INVERTED }
                     className={ cls.links }
                     onClick={ logout }
@@ -84,15 +86,17 @@ const Navbar: FC<INavbarProps> = ({ className }) => {
 
     return (
         <div className={ _c(cls.navbar, [ className ]) }>
-            <AppButton
-                id={ 'FAST_SIGN_IN' }
-                key={ 'FAST' }
-                style={{ color: 'cyan' }}
-                theme={ EAppButtonTheme.CLEAR_INVERTED }
-                onClick={ fastLogin }
-            >
-                { 'Fast Login' }
-            </AppButton>
+            { isAppReady && (
+                <AppButton
+                    id={ 'FAST_SIGN_IN' }
+                    key={ 'FAST' }
+                    style={{ color: 'cyan' }}
+                    theme={ EAppButtonTheme.CLEAR_INVERTED }
+                    onClick={ fastLogin }
+                >
+                    { 'Fast Login' }
+                </AppButton>
+            ) }
             <AppButton
                 className={ _c(cls.links) }
                 theme={ EAppButtonTheme.CLEAR_INVERTED }

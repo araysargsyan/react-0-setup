@@ -69,7 +69,7 @@ const LoginForm: FC<ILoginFormProps> = ({ className, onSuccess }) => {
                 className={ cls.input }
                 placeholder={ t('Введите username') }
                 onChange={ setUsername }
-                selector={ getLoginUsername }
+                value={ getLoginUsername }
             />
             <AppInput
                 name="password"
@@ -77,7 +77,7 @@ const LoginForm: FC<ILoginFormProps> = ({ className, onSuccess }) => {
                 className={ cls.input }
                 placeholder={ t('Введите пароль') }
                 onChange={ setPassword }
-                selector={ getLoginPassword }
+                value={ getLoginPassword }
             />
             <AppButton
                 className={ cls['login-btn'] }

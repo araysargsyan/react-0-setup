@@ -1,22 +1,21 @@
 import { useTranslation } from 'react-i18next';
 import { shallowEqual, useSelector } from 'react-redux';
-import {
-    getProfileData, getProfileIsLoading, getProfileReadonly
-} from 'store/Profile/selectors';
+import { getProfileData, getProfileReadonly } from 'store/Profile/selectors';
 import _c from 'shared/helpers/classNames';
 import {
-    type FC, memo, Suspense, useCallback, useMemo, useRef,
+    type FC, memo, Suspense, useCallback, useState,
 } from 'react';
 import AppInput from 'shared/ui/AppInput';
 import AppForm, { EFormComponent } from 'shared/ui/AppForm';
 import { getEditProfileField } from 'features/forms/EditProfile/model/selectors';
-import { useDynamicActions } from 'shared/hooks/redux';
+import { useActions, useDynamicActions } from 'shared/hooks/redux';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import AppSelect from 'shared/ui/AppSelect';
 import AppAvatar from 'shared/ui/AppAvatar';
 import { CountrySelectOptions, type ECountry } from 'features/Country';
 import { CurrencySelectOptions } from 'features/Currency';
 import { type TAddAsyncReducerOp } from 'config/store/types';
+import { profileActionCreators } from 'store/Profile';
 
 import cls from './EditProfile.module.scss';
 import { type TEditProfileActions } from '../model';
@@ -37,25 +36,30 @@ interface IEditProfileProps {
 
 const EditProfile: FC<IEditProfileProps> = ({ className }) => {
     const { t } = useTranslation('profile');
-    const firstNameRef = useRef();
-    const readonly = useSelector(getProfileReadonly);
     const data = useSelector(getProfileData, shallowEqual);
-
+    const { updateData } = useActions(profileActionCreators, [ 'updateData' ]);
+    const [ isFormLoaded, setIsFormLoaded ] = useState(false);
+    const isReadonly = useSelector(getProfileReadonly);
     const getAsyncAction = useDynamicActions<TEditProfileActions>(
         () => import('../model'),
         {
-            when: !readonly,
-            deps: [ readonly ],
-            moduleKey: 'editProfileActionCreators'
+            when: !isReadonly,
+            deps: [ isReadonly ],
+            moduleKey: 'editProfileActionCreators',
+            // cb: () => setIsModuleLoaded(true)
         }
     );
 
     const EditProfileForm = useCallback(() => {
+        const readonly = isReadonly || !isFormLoaded;
         return (
             <AppForm
-                state={ !readonly ? { forms: { editProfile: data } } : undefined }
-                reducersOption={ !readonly ? asyncReducerOptions : undefined }
-                formComponent={ EFormComponent.DIV }
+                id={ 'edit-profile' }
+                onSubmit={ updateData }
+                afterLoad={ () => setIsFormLoaded(true) }
+                state={ !isReadonly ? { forms: { editProfile: data } } : undefined }
+                reducersOption={ !isReadonly ? asyncReducerOptions : undefined }
+                formComponent={ !isReadonly ? EFormComponent.FORM : EFormComponent.DIV }
                 className={ _c(cls['edit-profile-form'],  [ className ]) }
             >
                 <AppAvatar
@@ -64,10 +68,11 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
                     srcSelector={ getEditProfileField('avatar') }
                 />
                 <AppInput
+                    mask={ '##-##(##)' }
                     name="firsname"
                     className={ cls.input }
                     placeholder={ t('Ваше имя') }
-                    selector={ getEditProfileField('firstname') }
+                    value={ getEditProfileField('firstname') }
                     onChange={ !readonly ? getAsyncAction('setFirstname') : undefined }
                     readOnly={ readonly }
                     autofocus
@@ -76,16 +81,16 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
                     name="lastname"
                     className={ cls.input }
                     placeholder={ t('Ваша фамилия') }
-                    selector={ getEditProfileField('lastname') }
-                    onChange={ !readonly ? getAsyncAction('setLastname') : undefined }
-                    readOnly={ readonly }
+                    value={ getEditProfileField('lastname') }
+                    onChange={ !(readonly && isFormLoaded) ? getAsyncAction('setLastname') : undefined }
+                    readOnly={ (readonly && isFormLoaded) }
                 />
 
                 <AppInput
                     name="age"
                     className={ cls.input }
                     placeholder={ t('Ваш возраст') }
-                    selector={ getEditProfileField('age') }
+                    value={ getEditProfileField('age') }
                     onChange={ !readonly ? getAsyncAction('setAge') : undefined }
                     readOnly={ readonly }
                 />
@@ -93,7 +98,7 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
                     name="city"
                     className={ cls.input }
                     placeholder={ t('Город') }
-                    selector={ getEditProfileField('city') }
+                    value={ getEditProfileField('city') }
                     onChange={ !readonly ? getAsyncAction('setCity') : undefined  }
                     readOnly={ readonly }
                 />
@@ -101,7 +106,7 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
                     name="username"
                     className={ cls.input }
                     placeholder={ t('Введите имя пользователя') }
-                    selector={ getEditProfileField('username') }
+                    value={ getEditProfileField('username') }
                     onChange={ !readonly ? getAsyncAction('setUsername') : undefined  }
                     readOnly={ readonly }
                 />
@@ -109,7 +114,7 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
                     name="avatar"
                     className={ cls.input }
                     placeholder={ t('Введите ссылку на аватар') }
-                    selector={ getEditProfileField('avatar') }
+                    value={ getEditProfileField('avatar') }
                     onChange={ !readonly ? getAsyncAction('setAvatar') : undefined  }
                     readOnly={ readonly }
                 />
@@ -134,13 +139,13 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
             </AppForm>
         );
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [ data, readonly ]);
+    }, [ data, isReadonly, isFormLoaded ]);
 
-    useRenderWatcher(EditProfile.name, JSON.stringify({ ...data, readonly }));
+    useRenderWatcher(EditProfile.name, JSON.stringify({ ...data, isReadonly }));
     return (
-        <Suspense fallback={ <EditProfileForm /> }>
-            <EditProfileForm />
-        </Suspense>
+        // <Suspense fallback={ <EditProfileForm /> }>
+        <EditProfileForm />
+        // </Suspense>
     );
 };
 

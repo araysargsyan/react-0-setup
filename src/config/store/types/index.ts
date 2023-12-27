@@ -11,10 +11,8 @@ import { type TCreateStore } from '../store';
 export interface INestedStateSchema {
     forms: Partial<IFormStateSchema>;
 }
-
 export interface IStateSchema extends IInitialStateSchema, Partial<INestedStateSchema> {}
 export type TStateWithoutNestedSchema = Omit<IStateSchema, keyof INestedStateSchema>;
-
 
 export type TStore = ReturnType<TCreateStore>;
 export type TAppDispatch = TStore['dispatch'];
@@ -31,7 +29,7 @@ export type TAsyncReducerOptions<T extends boolean = false> = T extends false
     : (state?: DeepPartial<IStateSchema>) => Promise<TAddAsyncReducerParameters>;
 export interface IThunkExtraArg {
     api: AxiosInstance;
-    navigate?: TAppNavigateFunction;
+    getNavigate?: () => TAppNavigateFunction;
 }
 
 export interface IThunkConfig<R> {

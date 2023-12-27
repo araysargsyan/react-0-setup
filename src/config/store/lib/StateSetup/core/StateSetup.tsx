@@ -1122,6 +1122,16 @@ class StateSetup {
         const loading = useSelector(this.getLoading(type, waitUntil));
 
         useEffect(() => {
+            return () => {
+                if (loading && !this.loadingCount) {
+                    if (!flowState['useEffect: Update'].____RedirectModal_____.MODAL) {
+                        flowState.reset();
+                    }
+                }
+            };
+        });
+
+        useLayoutEffect(() => {
             flowState['useEffect: Update'].____LOADER_____[type] = flowState['useEffect: Update'].____LOADER_____[type] + 1;
             console.log(`%c____LOADER_____: UPDATE{${pathname}}`, 'color: #dbd518', {
                 type,
@@ -1172,9 +1182,6 @@ class StateSetup {
                     this.loading = null;
                     dispatch(this.setLoading(false));
                     if (this.prevRoute?.ready && this.loadingCount && Math.round(this.loadingCount) === this.loadingCount) {
-                        if (!flowState['useEffect: Update'].____RedirectModal_____.MODAL) {
-                            flowState.reset();
-                        }
                         this.loadingCount = 0;
                         if (isPageNotFound) {
                             delete this.pageOptionsMap[this.currentRoute!];

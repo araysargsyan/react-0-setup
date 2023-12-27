@@ -21,7 +21,6 @@ const ProfilePageHeader: FC<IProfilePageHeaderProps> = ({ className }) => {
     const {
         setReadonly,
         cancelEdit,
-        updateData
     } = useActions(profileActionCreators, [ 'setReadonly', 'cancelEdit', 'updateData' ]);
 
     useRenderWatcher(ProfilePageHeader.name, JSON.stringify(readonly));
@@ -46,9 +45,10 @@ const ProfilePageHeader: FC<IProfilePageHeaderProps> = ({ className }) => {
                         { t('Отменить') }
                     </AppButton>
                     <AppButton
+                        form={ 'edit-profile' }
+                        type={ 'submit' }
                         className={ cls['save-btn'] }
                         theme={ EAppButtonTheme.OUTLINE }
-                        onClick={ updateData }
                     >
                         { t('Сохранить') }
                     </AppButton>

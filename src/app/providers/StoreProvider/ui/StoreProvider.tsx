@@ -2,18 +2,18 @@ import {
     type FC,
     type ReactNode,
     useEffect,
-    useMemo, useRef
+    useRef
 } from 'react';
 import { type ReducersMapObject } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
 import createStore, {
-    type IReduxStoreWithManager,
     type IStateSchema,
     type TAddAsyncReducerParameters,
     type TRemoveAsyncReducerParameters,
     RMActionCreators,
+    useEnhancedStoreProvider,
+    withEnhancedStoreProvider,
 } from 'config/store';
-import { useAppNavigate } from 'shared/hooks/redux';
 import { createRedirectionModal, StateSetupProvider } from 'store/app';
 import Modal from 'shared/ui/Modal';
 import Portal from 'shared/ui/Portal';
@@ -83,11 +83,15 @@ const StoreProvider:FC<IStoreProviderProps> = ({
     asyncReducers,
     withStateSetup = true
 }) => {
-    const navigate = useAppNavigate();
-    const store = useMemo(() => {
-        return createStore(initialState as IStateSchema, asyncReducers, navigate) as IReduxStoreWithManager;
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    useEffect(() => {
+        console.log('StoreProvider', {
+            initialState,
+            asyncReducers,
+            withStateSetup
+        });
+    });
+    const { getNavigate } = useEnhancedStoreProvider();
+    const store = createStore(initialState as IStateSchema, asyncReducers, getNavigate);
 
     if (!withStateSetup) {
         return (
@@ -118,4 +122,4 @@ const StoreProvider:FC<IStoreProviderProps> = ({
     );
 };
 
-export default StoreProvider;
+export default withEnhancedStoreProvider(StoreProvider);

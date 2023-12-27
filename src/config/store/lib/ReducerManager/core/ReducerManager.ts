@@ -30,7 +30,7 @@ class ReducerManager {
             payload: {
                 parentKeysToRemove: this.parentKeysToRemove,
                 keysToRemove: this.keysToRemove
-            } 
+            }
         })
     );
     public destroyReducers = createAction(
@@ -57,7 +57,7 @@ class ReducerManager {
 
         return {
             getReducerMap: () => this.reducers,
-            reduce: (state, action) => {
+            reducer: (state, action) => {
                 // console.log(6666, {
                 //     state, thisState: this.state, action
                 // });

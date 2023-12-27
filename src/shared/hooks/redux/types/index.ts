@@ -19,6 +19,7 @@ type TUseDynamicActionsOptions = {
     moduleKey: string;
     when?: boolean;
     deps?: DependencyList;
+    cb?: () => void;
 };
 
 interface TNavigateOptions extends NavigateOptions {

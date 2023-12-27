@@ -2,7 +2,7 @@ import React, {
     type FC,
     type FormEvent,
     type HTMLAttributes,
-    type PropsWithChildren, Suspense, useCallback,
+    type PropsWithChildren, Suspense, useCallback, useEffect,
     useMemo
 } from 'react';
 import { AsyncReducer, type IStateSchema } from 'config/store';
@@ -26,13 +26,25 @@ interface IAppFormProps extends Omit<IAppFormDefaultProps, 'onSubmit'> {
     reducersOption?: TAddAsyncReducerOp;
     title?: string;
     state?: DeepPartial<IStateSchema>;
-    onSubmit?: (e: FormEvent<HTMLFormElement>) => Promise<void>;
+    onSubmit?: (e: FormEvent<HTMLFormElement>) => void;
     error?: string;
     errorSelector?: (state: IStateSchema) => string | undefined;
+    afterLoad?: () => void;
 }
+
+const Loader: FC<PropsWithChildren<{cb?: () => void}>> = ({ cb, children }) => {
+    useEffect(() => {
+        return () => {
+            cb?.();
+        };
+    }, [ cb ]);
+
+    return children;
+};
 
 const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
     children,
+    afterLoad,
     formComponent = EFormComponent.FORM,
     onSubmit,
     title,
@@ -66,7 +78,7 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
     const FormComponent = useCallback(() => {
         return (
             <DynamicComponent
-                tagName={ formComponent }
+                TagName={ formComponent }
                 { ...formProps }
             >
                 { title && <AppText title={ title } /> }
@@ -88,7 +100,7 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
     }
 
     return (
-        <Suspense fallback={ <FormComponent /> }>
+        <Suspense fallback={ <Loader cb={ afterLoad }><FormComponent /></Loader> }>
             <AsyncReducer
                 removeAfterUnmount
                 options={ reducersOption as never }

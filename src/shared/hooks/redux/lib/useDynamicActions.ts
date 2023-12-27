@@ -22,7 +22,8 @@ const useDynamicActions = <
     const {
         moduleKey = 'default',
         when = true,
-        deps = []
+        deps = [],
+        cb
     } = options;
     const dispatch = useAppDispatch();
     const isModuleLoaded = useRef(false);
@@ -55,6 +56,7 @@ const useDynamicActions = <
             importModule()
                 .then(() => {
                     isModuleLoaded.current = true;
+                    cb?.();
                 })
                 .catch((e) => {
                     console.log('__CUSTOM__::load dynamic module', e);

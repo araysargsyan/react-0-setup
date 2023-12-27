@@ -1,7 +1,5 @@
 import {
-    type CombinedState,
     configureStore,
-    type Reducer,
     type ReducersMapObject
 } from '@reduxjs/toolkit';
 import { initialReducers } from 'store';
@@ -11,7 +9,8 @@ import {
     type IStateSchema,
     type INestedStateSchema,
     type TStateWithoutNestedSchema,
-    type IThunkExtraArg
+    type IThunkExtraArg,
+    type IReduxStoreWithManager
 } from './types';
 import ReducerManager from './lib/ReducerManager';
 
@@ -19,7 +18,7 @@ import ReducerManager from './lib/ReducerManager';
 function createStore(
     initialState?: IStateSchema,
     asyncReducers?: ReducersMapObject<IStateSchema>,
-    navigate?: IThunkExtraArg['navigate'],
+    getNavigate?: IThunkExtraArg['getNavigate'],
 ) {
     const rootReducers: ReducersMapObject<IStateSchema> = {
         ...asyncReducers,
@@ -29,19 +28,17 @@ function createStore(
     const reducerManager = ReducerManager.create<TStateWithoutNestedSchema, INestedStateSchema>(rootReducers);
     const extraArg: IThunkExtraArg = {
         api: $api,
-        navigate,
+        getNavigate,
     };
 
     const store = configureStore({
-        reducer: reducerManager.reduce as Reducer<CombinedState<IStateSchema>>,
+        reducer: reducerManager.reducer,
         devTools: __IS_DEV__,
         preloadedState: initialState,
         middleware: (getDefaultMiddleware) => getDefaultMiddleware(
             { thunk: { extraArgument: extraArg }, }
         ),
-    });
-
-    // @ts-ignore
+    }) as IReduxStoreWithManager;
     store.reducerManager = reducerManager;
 
     return store;

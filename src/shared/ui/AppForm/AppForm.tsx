@@ -1,8 +1,12 @@
-import React, {
+import {
     type FC,
     type FormEvent,
     type HTMLAttributes,
-    type PropsWithChildren, Suspense, useCallback, useEffect,
+    type PropsWithChildren,
+    type ReactNode,
+    Suspense,
+    useCallback,
+    useEffect,
     useMemo
 } from 'react';
 import { AsyncReducer, type IStateSchema } from 'config/store';
@@ -32,14 +36,17 @@ interface IAppFormProps extends Omit<IAppFormDefaultProps, 'onSubmit'> {
     afterLoad?: () => void;
 }
 
-const Loader: FC<PropsWithChildren<{cb?: () => void}>> = ({ cb, children }) => {
+const FormLoader: FC<{
+    cb?: () => void;
+    Element: ReactNode;
+}> = ({ cb, Element }) => {
     useEffect(() => {
         return () => {
             cb?.();
         };
     }, [ cb ]);
 
-    return children;
+    return Element;
 };
 
 const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
@@ -75,9 +82,12 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
         return props;
     }, [ formComponent, defaultProps, onSubmit ]);
 
-    const FormComponent = useCallback(() => {
+    const FormComponent = useCallback(({ style }: {
+        style?: HTMLAttributes<HTMLElement>['style']; }
+    ) => {
         return (
             <DynamicComponent
+                style={ style }
                 TagName={ formComponent }
                 { ...formProps }
             >
@@ -100,7 +110,13 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
     }
 
     return (
-        <Suspense fallback={ <Loader cb={ afterLoad }><FormComponent /></Loader> }>
+        <Suspense fallback={ (
+            <FormLoader
+                cb={ afterLoad }
+                Element={ <FormComponent style={{ opacity: '0.7' }} /> }
+            />
+        ) }
+        >
             <AsyncReducer
                 removeAfterUnmount
                 options={ reducersOption as never }

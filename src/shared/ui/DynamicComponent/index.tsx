@@ -1,20 +1,20 @@
-import { createElement, type PropsWithChildren } from 'react';
+import {
+    createElement,
+    type JSX,
+    type PropsWithChildren,
+} from 'react';
 
 
-interface IDynamicComponentProps {
-    TagName: keyof HTMLElementTagNameMap;
-}
+type TDynamicComponentProps<T extends keyof JSX.IntrinsicElements> = JSX.IntrinsicElements[T] & {
+    TagName: T;
+};
 
-function DynamicComponent({
+function DynamicComponent<T extends keyof JSX.IntrinsicElements>({
     TagName,
     children,
     ...otherProps
-}: PropsWithChildren<IDynamicComponentProps>) {
-    return (
-        <TagName { ...otherProps }>
-            { children }
-        </TagName>
-    );
+}: PropsWithChildren<TDynamicComponentProps<T>>) {
+    return createElement(TagName, otherProps, children);
 }
 
 export default DynamicComponent;

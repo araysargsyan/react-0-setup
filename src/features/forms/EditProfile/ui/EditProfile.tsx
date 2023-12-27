@@ -69,6 +69,7 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
                 />
                 <AppInput
                     mask={ '##-##(##)' }
+                    // useMaskedValue={ true }
                     name="firsname"
                     className={ cls.input }
                     placeholder={ t('Ваше имя') }
@@ -82,8 +83,8 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
                     className={ cls.input }
                     placeholder={ t('Ваша фамилия') }
                     value={ getEditProfileField('lastname') }
-                    onChange={ !(readonly && isFormLoaded) ? getAsyncAction('setLastname') : undefined }
-                    readOnly={ (readonly && isFormLoaded) }
+                    onChange={ !readonly ? getAsyncAction('setLastname') : undefined }
+                    readOnly={ readonly }
                 />
 
                 <AppInput

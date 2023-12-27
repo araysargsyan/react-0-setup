@@ -18,6 +18,7 @@ type HTMLInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'>;
 interface IInputProps extends Omit<HTMLInputProps, 'value'> {
     name: string;
     value: HTMLInputProps['value'] | ((state: IStateSchema) => HTMLInputProps['value']);
+    useMaskedValue?: boolean;
     mask?: string;
     className?: string;
     onChange?: ((value: string) => void) | ((value: number) => void);
@@ -70,6 +71,7 @@ const AppInput: FC<IInputProps> = ({
     placeholder,
     autofocus,
     mask,
+    useMaskedValue = false,
     ...otherProps
 }) => {
     const ref = useRef<HTMLInputElement>(null);

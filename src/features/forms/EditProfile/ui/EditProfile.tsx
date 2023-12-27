@@ -57,6 +57,7 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
                 id={ 'edit-profile' }
                 onSubmit={ updateData }
                 afterLoad={ () => setIsFormLoaded(true) }
+                onLoadStyle={{ opacity: '0.7' }}
                 state={ !isReadonly ? { forms: { editProfile: data } } : undefined }
                 reducersOption={ !isReadonly ? asyncReducerOptions : undefined }
                 formComponent={ !isReadonly ? EFormComponent.FORM : EFormComponent.DIV }

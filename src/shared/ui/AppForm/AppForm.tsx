@@ -24,6 +24,7 @@ enum EFormComponent {
 }
 
 interface IAppFormDefaultProps extends HTMLAttributes<HTMLFormElement | HTMLDivElement> {}
+type TStyle = HTMLAttributes<HTMLElement>['style'];
 
 interface IAppFormProps extends Omit<IAppFormDefaultProps, 'onSubmit'> {
     formComponent?: EFormComponent;
@@ -34,6 +35,7 @@ interface IAppFormProps extends Omit<IAppFormDefaultProps, 'onSubmit'> {
     error?: string;
     errorSelector?: (state: IStateSchema) => string | undefined;
     afterLoad?: () => void;
+    onLoadStyle?: TStyle;
 }
 
 const FormLoader: FC<{
@@ -52,6 +54,7 @@ const FormLoader: FC<{
 const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
     children,
     afterLoad,
+    onLoadStyle,
     formComponent = EFormComponent.FORM,
     onSubmit,
     title,
@@ -82,9 +85,7 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
         return props;
     }, [ formComponent, defaultProps, onSubmit ]);
 
-    const FormComponent = useCallback(({ style }: {
-        style?: HTMLAttributes<HTMLElement>['style']; }
-    ) => {
+    const FormComponent = useCallback(({ style }: { style?: TStyle }) => {
         return (
             <DynamicComponent
                 style={ style }
@@ -113,7 +114,7 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
         <Suspense fallback={ (
             <FormLoader
                 cb={ afterLoad }
-                Element={ <FormComponent style={{ opacity: '0.7' }} /> }
+                Element={ <FormComponent style={ onLoadStyle } /> }
             />
         ) }
         >

@@ -1,8 +1,8 @@
 import {
-    type ChangeEvent,
+    type ChangeEvent, type DOMAttributes,
     type FC,
     type InputHTMLAttributes,
-    memo, type RefObject,
+    memo, type RefObject, type SyntheticEvent,
     useEffect,
     useRef,
 } from 'react';
@@ -15,18 +15,21 @@ import cls from './AppInput.module.scss';
 
 type HTMLInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'>;
 
+interface IMask {
+    pattern: string;
+    useMaskedValue?: boolean;
+}
 interface IInputProps extends Omit<HTMLInputProps, 'value'> {
     name: string;
     value: HTMLInputProps['value'] | ((state: IStateSchema) => HTMLInputProps['value']);
-    useMaskedValue?: boolean;
-    mask?: string;
+    mask?: string | IMask;
     className?: string;
     onChange?: ((value: string) => void) | ((value: number) => void);
     autofocus?: boolean;
 }
 
 const specialSymbolsRegexp = /[-_/\\^$*+.:,()|[\]{}]/g;
-function getMaskedValue(value: string, mask: string) {
+function getMaskedValue(value: string, mask: string, useMaskedValue: boolean) {
     let formattedValue = '';
     let valueIndex = 0;
     let indexShift = 0;
@@ -41,23 +44,23 @@ function getMaskedValue(value: string, mask: string) {
                 if (nextMaskChar && nextMaskChar !== '#') {
                     formattedValue += nextMaskChar;
                 }
-            } else {
+            } else if (!useMaskedValue) {
                 formattedValue += value[valueIndex];
                 indexShift++;
             }
             valueIndex++;
-        } else if (i === mask.length - 1 && i === valueIndex + indexShift) {
+        } else if (!useMaskedValue && i === mask.length - 1 && i === valueIndex + indexShift) {
             const nextMaskChar = mask[valueIndex + indexShift];
             if (nextMaskChar && nextMaskChar !== '#') {
                 formattedValue += nextMaskChar;
             }
+        } else if (i > formattedValue.length - 1) {
+            break;
         }
-
     }
 
     return formattedValue;
 }
-
 function getCleanValue(value: string) {
     return value.replace(specialSymbolsRegexp, '');
 }
@@ -71,17 +74,17 @@ const AppInput: FC<IInputProps> = ({
     placeholder,
     autofocus,
     mask,
-    useMaskedValue = false,
     ...otherProps
 }) => {
     const ref = useRef<HTMLInputElement>(null);
-    //const [ isFocused, setIsFocused ] = useState(false);
-    //const [ caretPosition, setCaretPosition ] = useState(0);
-    const cleanValue = typeof value === 'function'
+    const caretPosition = useRef({ start: 0, end: 0 });
+    const maskPattern = typeof mask === 'string' ? mask : mask?.pattern;
+    const useMaskedValue = typeof mask === 'string' ? false : Boolean(mask?.useMaskedValue);
+    const cleanValue = String(typeof value === 'function'
         // eslint-disable-next-line react-hooks/rules-of-hooks
         ? useSelector<IStateSchema, HTMLInputProps['value']>(value) || ''
-        : value;
-    const inputValue = mask ? getMaskedValue(String(cleanValue), mask) : cleanValue;
+        : value || '');
+    const inputValue = maskPattern ? getMaskedValue(String(cleanValue), maskPattern, useMaskedValue) : cleanValue;
     useEffect(() => {
         console.log('AppInput', {
             name, inputValue, cleanValue
@@ -90,34 +93,69 @@ const AppInput: FC<IInputProps> = ({
 
     useEffect(() => {
         if (autofocus) {
-            //setIsFocused(true);
             ref.current?.focus();
         }
     }, [ autofocus ]);
 
     const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
-        const inputValue = e.target.defaultValue.slice(0, -1) === e.target.value
-            ? e.target.value.slice(0, -1)
-            : e.target.value;
-        const value = mask ? getCleanValue(inputValue) : inputValue;
-        console.log('onChangeHandler', { value, inputValue });
-        if (mask ? inputValue.length < mask.length : true) {
+        const newValue = e.target.value;
+        const inputValue = e.target.defaultValue.slice(0, -1) === newValue && !newValue[newValue.length - 1]?.match(specialSymbolsRegexp)
+            ? newValue.slice(0, -1)
+            : newValue;
+        const value = maskPattern
+            ? useMaskedValue
+                ? getMaskedValue(getCleanValue(inputValue), maskPattern, false)
+                : getCleanValue(inputValue)
+            : inputValue;
+        console.log('onChangeHandler', {
+            newValue,
+            value,
+            inputValue,
+            defaultValue: e.target.defaultValue,
+            caretPosition: caretPosition.current
+        });
+        if (maskPattern ? inputValue.length < maskPattern.length : true) {
             (onChange as (value: string) => void)?.(value);
         }
-        //setCaretPosition(e.target.value.length);
     };
 
-    // const onBlur = () => {
-    //     setIsFocused(false);
-    // };
-    //
-    // const onFocus = () => {
-    //     setIsFocused(true);
-    // };
-
-    // const onSelect = (e: any) => {
-    //     setCaretPosition(e?.target?.selectionStart || 0);
-    // };
+    const onSelect = (e: SyntheticEvent<HTMLInputElement>) => {
+        const caretPositionStart = e.currentTarget.selectionStart || 0;
+        const caretPositionEnd = e.currentTarget.selectionEnd || 0;
+        const movementIndex = caretPosition.current.start !== caretPositionStart
+            ? caretPosition.current.start > caretPositionStart
+                ? caretPositionStart - 1
+                : caretPositionStart + 1
+            : null;
+        console.log('onSelect', e.currentTarget.selectionDirection, {
+            caretPositionStart,
+            caretPositionEnd,
+            movementIndex,
+            nextSymbol: inputValue[caretPositionStart - 1],
+            inputValue,
+            caretPosition: caretPosition.current
+        });
+        if (
+            e.currentTarget.selectionDirection === 'forward'
+            && movementIndex
+            && inputValue.length !== caretPositionStart - 1
+            && inputValue[caretPositionStart - 1]?.match(specialSymbolsRegexp)
+        ) {
+            // console.log(6666);
+            ref.current!.selectionStart = movementIndex;
+            ref.current!.selectionEnd = movementIndex;
+            caretPosition.current = {
+                start: movementIndex,
+                end: movementIndex,
+            };
+        } else {
+            // console.log(7777);
+            caretPosition.current = {
+                start: caretPositionStart,
+                end: caretPositionEnd,
+            };
+        }
+    };
 
     return (
         <div className={ _c(cls['app-input'], [ className ]) }>
@@ -137,7 +175,7 @@ const AppInput: FC<IInputProps> = ({
                     { ...otherProps }
                     // onFocus={ onFocus }
                     // onBlur={ onBlur }
-                    //onSelect={ onSelect }
+                    onSelect={ onSelect }
                 />
                 { /*{ isFocused && (
                     <span

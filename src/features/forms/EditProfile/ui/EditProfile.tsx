@@ -68,8 +68,10 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
                     srcSelector={ getEditProfileField('avatar') }
                 />
                 <AppInput
-                    mask={ '##-##(##)' }
-                    // useMaskedValue={ true }
+                    mask={{
+                        pattern: '##-##(##)',
+                        // useMaskedValue: true
+                    }}
                     name="firsname"
                     className={ cls.input }
                     placeholder={ t('Ваше имя') }

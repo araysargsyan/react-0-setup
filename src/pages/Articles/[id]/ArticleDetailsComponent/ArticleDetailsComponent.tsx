@@ -8,17 +8,20 @@ import { useSelector } from 'react-redux';
 import EyeIcon from 'shared/assets/icons/eye-20-20.svg';
 import CalendarIcon from 'shared/assets/icons/calendar-20-20.svg';
 import {
-    type IArticleBlock,
-    getArticleDetailsData,
-    getArticleDetailsError,
-    getArticleDetailsIsLoading,
-    ArticleBlockType
-} from 'store/Article';
+    articlesSelector,
+    ArticlesBlockType,
+    getArticlesIsLoading,
+    getArticlesError,
+    type IArticlesBlock
+} from 'store/Articles';
 import _c from 'shared/helpers/classNames';
 import AppText, { EAppTextAlign, EAppTextSize } from 'shared/ui/Text';
 import AppAvatar from 'shared/ui/AppAvatar';
 import Skeleton from 'shared/ui/Skeleton';
 import Icon from 'shared/ui/Icon';
+import { useAppSelector } from 'shared/hooks/redux';
+import { useParams } from 'react-router-dom';
+import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 
 import cls from './ArticleDetailsComponent.module.scss';
 import ArticleCodeBlock from './ArticleCodeBlock';
@@ -29,16 +32,16 @@ import ArticleTextBlock from './ArticleTextBlock';
 interface IArticleDetailsProps {
     className?: string;
 }
-
 const ArticleDetailsComponent: FC<IArticleDetailsProps> = ({ className }) => {
     const { t } = useTranslation();
-    const isLoading = useSelector(getArticleDetailsIsLoading);
-    const article = useSelector(getArticleDetailsData);
-    const error = useSelector(getArticleDetailsError);
+    const { id } = useParams<{id: string}>();
+    const isLoading = useSelector(getArticlesIsLoading);
+    const article = useAppSelector((state) => articlesSelector.selectById(state, id!));
+    const error = useSelector(getArticlesError);
 
-    const renderBlock = useCallback((block: IArticleBlock) => {
+    const renderBlock = useCallback((block: IArticlesBlock) => {
         switch (block.type) {
-            case ArticleBlockType.CODE:
+            case ArticlesBlockType.CODE:
                 return (
                     <ArticleCodeBlock
                         key={ block.id }
@@ -46,7 +49,7 @@ const ArticleDetailsComponent: FC<IArticleDetailsProps> = ({ className }) => {
                         className={ cls.block }
                     />
                 );
-            case ArticleBlockType.IMAGE:
+            case ArticlesBlockType.IMAGE:
                 return (
                     <ArticleImageBlock
                         key={ block.id }
@@ -54,7 +57,7 @@ const ArticleDetailsComponent: FC<IArticleDetailsProps> = ({ className }) => {
                         className={ cls.block }
                     />
                 );
-            case ArticleBlockType.TEXT:
+            case ArticlesBlockType.TEXT:
                 return (
                     <ArticleTextBlock
                         key={ block.id }
@@ -140,6 +143,7 @@ const ArticleDetailsComponent: FC<IArticleDetailsProps> = ({ className }) => {
         );
     }
 
+    useRenderWatcher(ArticleDetailsComponent.name, `id=${id}`);
     return (
         <div className={ _c(cls['article-details'],  [ className ]) }>
             { content }

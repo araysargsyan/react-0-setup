@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { type FC, memo } from 'react';
-import { type IArticleImageBlock } from 'store/Article';
+import { type IArticlesImageBlock } from 'store/Articles';
 import AppText, { EAppTextAlign } from 'shared/ui/Text';
 import _c from 'shared/helpers/classNames';
 
@@ -9,7 +9,7 @@ import cls from './ArticleImageBlock.module.scss';
 
 interface ArticleImageBlockProps {
     className?: string;
-    block: IArticleImageBlock;
+    block: IArticlesImageBlock;
 }
 
 export const ArticleImageBlock: FC<ArticleImageBlockProps> = ({ className, block }) => {

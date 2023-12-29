@@ -43,15 +43,10 @@ const AppRouter: FC = () => {
     }, []);
 
     useRenderWatcher(AppRouter.name);
-
     return (
-        <div className="page-wrapper">
-            <>
-                <Router>
-                    { (Object.keys(routesConfig) as TRoutes[]).map((path) => enrichmentRender(path)) }
-                </Router>
-            </>
-        </div>
+        <Router>
+            { (Object.keys(routesConfig) as TRoutes[]).map((path) => enrichmentRender(path)) }
+        </Router>
     );
 };
 

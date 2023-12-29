@@ -6,6 +6,7 @@ import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import { useEffect, useLayoutEffect } from 'react';
 import { USER_LOCALSTORAGE_KEY } from 'shared/const';
 import { useNavigate } from 'react-router-dom';
+import Flex from 'shared/ui/Stack';
 
 import { useTheme } from './providers/theme';
 
@@ -42,10 +43,10 @@ function App() {
 
         <div className={ _c('app', [ theme ]) }>
             <Navbar />
-            <div className="content-page">
+            <Flex className={ 'content-page' }>
                 <Sidebar />
                 <AppRouter />
-            </div>
+            </Flex>
         </div>
     );
 }

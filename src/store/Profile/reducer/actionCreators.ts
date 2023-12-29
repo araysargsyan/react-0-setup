@@ -4,7 +4,6 @@ import { type IThunkConfig } from 'config/store';
 import until from 'app/dubag/util/wait';
 
 
-
 const fetchData = createAsyncThunk<
     IProfile,
     undefined,

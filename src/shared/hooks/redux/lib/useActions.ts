@@ -12,9 +12,8 @@ import {
 
 const useActions = <
     T extends TModule<T>,
-    K extends keyof T = keyof T,
-    R = TReturnedActions<T, K>
->(module: T, actionsKeys?: Array<keyof T>): R => {
+    K extends keyof T,
+>(module: T, actionsKeys?: Array<K>): TReturnedActions<T, Array<K>[number]> => {
     const dispatch = useAppDispatch();
 
     const actions = useMemo(() => {
@@ -33,7 +32,7 @@ const useActions = <
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    return actions as R;
+    return actions as never;
 };
 
 export default useActions;

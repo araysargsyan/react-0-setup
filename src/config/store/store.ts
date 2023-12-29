@@ -32,7 +32,7 @@ function createStore(
     };
 
     const store = configureStore({
-        reducer: reducerManager.reducer,
+        reducer: reducerManager.reduce,
         devTools: __IS_DEV__,
         preloadedState: initialState,
         middleware: (getDefaultMiddleware) => getDefaultMiddleware(

@@ -29,7 +29,7 @@ export interface IRemoveReducersOptions<S = IState, N = INested> {
 
 export interface IReducerManager<S = IState, N = INested> {
     getReducerMap: () => ReducersMapObject<S>;
-    reducer: Reducer<S>;
+    reduce: Reducer<S>;
     add: (
         options: IAddReducersOptions<S, N> | IAddReducersOptions<S, N>[],
         state?: DeepPartial<S & N>

@@ -32,14 +32,20 @@ interface IThunkConfig<R = string> {
 
 type TCb = ((pageOptions: IBasePageOptions) => ActionCreator<any>);
 type TMode = 'APP' | 'PAGE';
+interface IAsyncCb<
+    T extends Record<string, ReturnType<TCb>> = Record<string, ReturnType<TCb>>,
+    P extends Params<string> = Params<string>
+> {
+    getAction: (
+        module: T,
+        pageOptions: IBasePageOptions<P>
+    ) => ReturnType<TCb>;
+    moduleKey: string;
+}
 interface IActionCreatorsOptions {
     //* callback is function returning action creator
     //* or for async reducers u can use object with getActions that returning action creator
-    cb?: TCb | {
-        getAction: (module: Record<string, ReturnType<TCb>>, pageOptions: IBasePageOptions) => ReturnType<TCb>;
-        //*
-        key: string;
-    };
+    cb?: TCb | IAsyncCb;
     actionCreator?: ActionCreator<any>; //| ThunkAction<any, any, any, AnyAction>;
     //* cb are sync if not defined
     async?: true;
@@ -95,11 +101,11 @@ interface IPageOptions<
     readonly asyncReducerOptions?: ARO;
     readonly onNavigate?: INavigationOptions;
 }
-interface IBasePageOptions extends IPageOptions {
+interface IBasePageOptions<P extends Params<string> = Params<string>> extends IPageOptions {
     isPageLoaded: boolean;
     isActionsCalling: boolean;
     pageNumber?: number;
-    params?: Params<string>;
+    params?: P;
 }
 
 type TAsyncReducersOptions<
@@ -191,6 +197,7 @@ export type {
 
     IPageOptions,
     IBasePageOptions,
+    IAsyncCb,
     TGetStateSetupConfig,
     TStateSetupFn,
 

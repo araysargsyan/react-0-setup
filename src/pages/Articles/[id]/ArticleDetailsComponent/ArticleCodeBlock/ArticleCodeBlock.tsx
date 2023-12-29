@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { type FC, memo } from 'react';
-import { type IArticleCodeBlock } from 'store/Article';
+import { type IArticlesCodeBlock } from 'store/Articles';
 import _c from 'shared/helpers/classNames';
 import Code from 'shared/ui/Code';
 
@@ -9,7 +9,7 @@ import cls from './ArticleCodeBlock.module.scss';
 
 interface IArticleCodeBlockProps {
     className?: string;
-    block: IArticleCodeBlock;
+    block: IArticlesCodeBlock;
 }
 
 const ArticleCodeBlock: FC<IArticleCodeBlockProps> = ({ className, block }) => {

@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { type FC, memo } from 'react';
 import AppText from 'shared/ui/Text/Text';
-import { type IArticleTextBlock } from 'store/Article';
+import { type IArticlesTextBlock } from 'store/Articles';
 import _c from 'shared/helpers/classNames';
 
 import cls from './ArticleTextBlock.module.scss';
@@ -9,7 +9,7 @@ import cls from './ArticleTextBlock.module.scss';
 
 interface IArticleTextBlockComponentProps {
     className?: string;
-    block: IArticleTextBlock;
+    block: IArticlesTextBlock;
 }
 
 const ArticleTextBlock: FC<IArticleTextBlockComponentProps> = ({ className, block }) => {

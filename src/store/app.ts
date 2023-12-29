@@ -25,7 +25,6 @@ const {
 const {
     ProtectedElement,
     StateSetupProvider,
-    createRedirectionModal
 } = stateSetupConfig;
 const getIsAuthenticated = ({ app }: IStateSchema) => app.isAuthenticated;
 const getIsAppReady = createSelector(
@@ -41,7 +40,6 @@ export default {
 export {
     ProtectedElement,
     StateSetupProvider,
-    createRedirectionModal,
     appActionCreators,
     getIsAuthenticated,
     getIsAppReady,

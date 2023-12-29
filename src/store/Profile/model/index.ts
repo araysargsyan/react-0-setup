@@ -2,7 +2,7 @@ import { type TCurrency } from 'features/Currency';
 import { type ECountry } from 'features/Country';
 
 
-export interface IProfile {
+interface IProfile {
     firstname: string;
     lastname: string;
     age: number;
@@ -12,3 +12,12 @@ export interface IProfile {
     username: string;
     avatar: string;
 }
+
+interface IProfileSchema {
+    data?: IProfile;
+    isLoading: boolean;
+    error?: string;
+    readonly: boolean;
+}
+
+export type { IProfile, IProfileSchema };

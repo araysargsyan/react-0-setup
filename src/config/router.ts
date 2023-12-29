@@ -32,18 +32,19 @@ const routesConfig: TRoutesConfig = {
     [Routes.TEST]: { Element: memo(lazyImport(() => import('pages/Main'))) },
     [Routes.ABOUT]: { Element: memo(lazyImport(() => import('pages/About'))) },
     [Routes.PROFILE]: { Element: memo(lazyImport(() => import('pages/Profile'))), },
-    //     // asyncReducers: async () => {
-    //     //     const profileReducer = (await import('store/Profile')).default;
-    //     //
-    //     //     return [ {
-    //     //         key: profileReducer.name,
-    //     //         reducer: profileReducer.reducer,
-    //     //     } ];
-    //     // },
-    // },
-    //! must be last
-    [Routes.ARTICLES]: { Element: memo(lazyImport(() => import('pages/Articles'))), },
+    [Routes.ARTICLES]: {
+        Element: memo(lazyImport(() => import('pages/Articles'))),
+        asyncReducers: async () => {
+            const profileReducer = (await import('store/Articles')).default;
+
+            return [ {
+                key: profileReducer.name,
+                reducer: profileReducer.reducer,
+            } ];
+        },
+    },
     [Routes.ARTICLE_DETAILS]: { Element: memo(lazyImport(() => import('pages/Articles/[id]'))), },
+    //! must be last
     [Routes.NOT_FOUND]: { Element: memo(lazyImport(() => import('pages/NotFound'))) },
 };
 

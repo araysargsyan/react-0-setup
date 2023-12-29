@@ -3,7 +3,10 @@ import { shallowEqual, useSelector } from 'react-redux';
 import { getProfileData, getProfileReadonly } from 'store/Profile/selectors';
 import _c from 'shared/helpers/classNames';
 import {
-    type FC, memo, Suspense, useCallback, useState,
+    memo,
+    useCallback,
+    useState,
+    type FC,
 } from 'react';
 import AppInput from 'shared/ui/AppInput';
 import AppForm, { EFormComponent } from 'shared/ui/AppForm';
@@ -146,11 +149,7 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
     }, [ data, isReadonly, isFormLoaded ]);
 
     useRenderWatcher(EditProfile.name, JSON.stringify({ ...data, isReadonly }));
-    return (
-        // <Suspense fallback={ <EditProfileForm /> }>
-        <EditProfileForm />
-        // </Suspense>
-    );
+    return <EditProfileForm />;
 };
 
 export default memo(EditProfile);

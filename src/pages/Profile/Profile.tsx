@@ -1,6 +1,7 @@
 import { type FC } from 'react';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import { useTranslation } from 'react-i18next';
+import Page from 'shared/ui/Page';
 
 import ProfileCard from './ProfileCard';
 
@@ -14,9 +15,9 @@ const Profile: FC<IProfileProps> = ({ className }) => {
 
     useRenderWatcher(Profile.name);
     return (
-        <div className={ className }>
-            <ProfileCard />
-        </div>
+        <Page>
+            <ProfileCard className={ className } />
+        </Page>
     );
 };
 

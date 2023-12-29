@@ -6,6 +6,10 @@ body {
     color: var(--primary-color);
 }
 
+* {
+    box-sizing: border-box;
+}
+
 .app {
     background: var(--bg-color);
     min-height: 100vh;
@@ -13,11 +17,4 @@ body {
 
 .content-page {
     height: calc(100vh - $navbar-height);
-    display: flex;
-}
-
-.page-wrapper {
-    flex-grow: 1;
-    padding: 20px 20px 20px 45px;
-    overflow-y: auto;
 }

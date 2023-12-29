@@ -1,8 +1,6 @@
 import { useSelector } from 'react-redux';
 import _c from 'shared/helpers/classNames';
-import React, {
-    type FC, memo, Suspense
-} from 'react';
+import React, { type FC, memo } from 'react';
 import ProfilePageHeader from 'pages/Profile/ProfilePageHeader';
 import EditProfile from 'features/forms/EditProfile';
 import { getProfileError, getProfileIsLoading, } from 'store/Profile';

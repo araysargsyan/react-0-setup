@@ -10,10 +10,6 @@ function Main() {
     const { t } = useTranslation('main');
     const testData = useAppSelector(({ counter }) => counter.testData, shallowEqual) || { some: 0 };
     const test = useAppSelector(({ counter }) => counter.value);
-    console.log({
-        test,
-        testData
-    }, 222);
 
     useRenderWatcher(Main.name);
     return (

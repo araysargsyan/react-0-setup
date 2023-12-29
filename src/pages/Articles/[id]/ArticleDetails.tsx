@@ -1,6 +1,7 @@
 import _c from 'shared/helpers/classNames';
 import { useTranslation } from 'react-i18next';
 import { type FC } from 'react';
+import Page from 'shared/ui/Page';
 
 import cls from './ArticleDetails.module.scss';
 import ArticleDetailsComponent from './ArticleDetailsComponent';
@@ -14,9 +15,12 @@ const ArticleDetails: FC<IArticleDetailsPageProps> = ({ className }) => {
     useTranslation();
 
     return (
-        <div className={ _c(cls['article-details-page'],  [ className ]) }>
+        <Page
+            className={ _c(cls['article-details-page'],  [ className ]) }
+            onScrollEnd={ () => console.log(666) }
+        >
             <ArticleDetailsComponent />
-        </div>
+        </Page>
     );
 };
 

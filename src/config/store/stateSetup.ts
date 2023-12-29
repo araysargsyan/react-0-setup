@@ -4,13 +4,13 @@ import { counterActionCreators } from 'store/Counter';
 import { userActionCreators } from 'store/User';
 import until from 'app/dubag/util/wait';
 import { type TProfileActions } from 'store/Profile';
-import { type TArticleDetailsActionCreators } from 'store/Article';
+import { type TArticlesActionCreators } from 'store/Articles';
 
 import {
     type TAsyncReducerOptions,
     type TStateSetupFn,
     type TCheckAuthorizationFn,
-    type IStateSchema,
+    type IStateSchema, createAsyncCb,
 } from '.';
 
 
@@ -19,29 +19,29 @@ const getStateSetupConfig: TStateSetupFn<TRoutes, TAsyncReducerOptions<true>> = 
         [Routes.ARTICLE_DETAILS]: {
             authRequirement: null,
             asyncReducerOptions: async (_) => {
-                const articleModule = await import('store/Article');
+                const articlesModule = await import('store/Articles');
 
                 return [
                     [
                         [ //! asyncReducerOptions can be multiple
                             {
-                                key: articleModule.default.name,
-                                reducer: articleModule.default.reducer,
+                                key: articlesModule.default.name,
+                                reducer: articlesModule.default.reducer,
                             },
                         ],
                     ],
                     //! asyncActionCreators, key of this object needed to be in cb.key
-                    { article: articleModule.articleDetailsActionCreators }
+                    { articles: articlesModule.articlesActionCreators }
                 ];
             },
             actions: [ //! async actions must be first
                 {
-                    cb: {
-                        key: 'article',
-                        getAction: (articleActionCreators, { params }) => {
-                            return (articleActionCreators as TArticleDetailsActionCreators).fetchById.bind(null, (params as {id: string}).id);
+                    cb: createAsyncCb<TArticlesActionCreators, {id: string}>(
+                        'articles',
+                        (articleActionCreators, { params }) => {
+                            return articleActionCreators.fetchById.bind(null, params!.id);
                         }
-                    },
+                    ),
                     async: true,
                     canRefetch: true
                 },
@@ -98,7 +98,7 @@ const getStateSetupConfig: TStateSetupFn<TRoutes, TAsyncReducerOptions<true>> = 
             actions: [ //! async actions must be first
                 {
                     cb: {
-                        key: 'profile',
+                        moduleKey: 'profile',
                         getAction: (profileActionCreators) => (profileActionCreators as TProfileActions).fetchData
                     },
                     async: true,

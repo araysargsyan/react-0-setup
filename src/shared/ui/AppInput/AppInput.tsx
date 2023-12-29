@@ -1,10 +1,10 @@
 import {
-    type ChangeEvent, type DOMAttributes,
-    type FC,
-    type InputHTMLAttributes,
-    memo, type RefObject, type SyntheticEvent,
+    memo,
     useEffect,
     useRef,
+    type ChangeEvent,
+    type InputHTMLAttributes,
+    type SyntheticEvent,
 } from 'react';
 import _c from 'shared/helpers/classNames';
 import { type IStateSchema } from 'config/store';
@@ -19,12 +19,13 @@ interface IMask {
     pattern: string;
     useMaskedValue?: boolean;
 }
-interface IInputProps extends Omit<HTMLInputProps, 'value'> {
+interface IInputProps<V extends HTMLInputProps['value']> extends Omit<HTMLInputProps, 'value'> {
     name: string;
-    value: HTMLInputProps['value'] | ((state: IStateSchema) => HTMLInputProps['value']);
+    value: V | ((state: IStateSchema) => V);
     mask?: string | IMask;
     className?: string;
-    onChange?: ((value: string) => void) | ((value: number) => void);
+    // onChange?: ((value: string) => void) | ((value: number) => void);
+    onChange?: (value: V extends string ? string : V) => void;
     autofocus?: boolean;
 }
 
@@ -65,7 +66,7 @@ function getCleanValue(value: string) {
     return value.replace(specialSymbolsRegexp, '');
 }
 
-const AppInput: FC<IInputProps> = ({
+function AppInput<V extends HTMLInputProps['value'] = HTMLInputProps['value']>({
     name,
     className,
     value,
@@ -75,7 +76,7 @@ const AppInput: FC<IInputProps> = ({
     autofocus,
     mask,
     ...otherProps
-}) => {
+}: IInputProps<V>) {
     const ref = useRef<HTMLInputElement>(null);
     const caretPosition = useRef({ start: 0, end: 0 });
     const maskPattern = typeof mask === 'string' ? mask : mask?.pattern;
@@ -187,5 +188,4 @@ const AppInput: FC<IInputProps> = ({
         </div>
     );
 };
-
-export default memo(AppInput);
+export default memo(AppInput) as typeof AppInput;

@@ -12,7 +12,6 @@ import { type Params } from 'react-router-dom';
 
 interface IAppSchema {
     isAppReady: boolean;
-    // loadingCount: number;
     loading: boolean;
     isPageReady: boolean | null;
     isAuthenticated: boolean;
@@ -37,11 +36,32 @@ interface IAsyncCb<
     P extends Params<string> = Params<string>
 > {
     getAction: (
-        module: T,
+        module: T, //* is a one of moduleKeys from asyncReducerOptions returns second items
         pageOptions: IBasePageOptions<P>
     ) => ReturnType<TCb>;
     moduleKey: string;
 }
+
+// interface IBaseActionCreatorsOptions {
+//     //* cb are sync if not defined
+//     async?: true;
+//     //* Boolean or function with state param and returned boolean
+//     //* cb calling once if not defined
+//     canRefetch?: boolean | ((state: IStateSchema) => boolean);
+//     _fetched: boolean;
+// }
+// interface A extends IBaseActionCreatorsOptions {
+//     //* callback is function returning action creator
+//     //* or if using async reducers u can use object with getActions that returning action creator
+//     cb?: TCb | IAsyncCb;
+// }
+// interface B extends IBaseActionCreatorsOptions {
+//     //* define actionCreator if u not need pageOptions
+//     actionCreator?: ActionCreator<any>; //| ThunkAction<any, any, any, AnyAction>;
+// }
+//
+// type IActionCreatorsOptions = A | B;
+
 interface IActionCreatorsOptions {
     //* callback is function returning action creator
     //* or if using async reducers u can use object with getActions that returning action creator
@@ -55,11 +75,6 @@ interface IActionCreatorsOptions {
     canRefetch?: boolean | ((state: IStateSchema) => boolean);
     _fetched: boolean;
 }
-// interface IActionCreatorsOptionsWithKey<T = string> extends IActionCreatorsOptions<true> {
-//     key?: string;
-//     cb: (<T = Record<string, TCb>>(module: T) => T[keyof T]);
-// }
-// type TActionCreatorsOptions = IActionCreatorsOptions | IActionCreatorsOptionsWithKey;
 
 interface IAuthProtection {
     //* will redirect unauthorized user to this path.
@@ -100,6 +115,8 @@ interface IPageOptions<
     //* If false it's mean that page will be enabled only for unauthenticated users.
     //* If true you know.
     readonly authRequirement: null | boolean;
+    //* returning cottage where first item is reducerOptions
+    //* and second item is object with key as moduleKey and value as actionCreators oobj
     readonly asyncReducerOptions?: ARO;
     readonly onNavigate?: INavigationOptions;
 }
@@ -204,6 +221,7 @@ export type {
     TGetStateSetupConfig,
     TStateSetupFn,
 
+    TAsyncReducersOptionsReturn,
     TAsyncReducersOptions,
     TAsyncReducer,
     TStateSetUpArgs,

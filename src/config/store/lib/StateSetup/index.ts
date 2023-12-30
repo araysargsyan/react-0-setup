@@ -3,11 +3,11 @@ export {
     createRedirectionModal,
     createAsyncCb,
     createCb,
-    createCanRefetch
+    createCanRefetch,
+    createStateSetupConfig,
 } from './util';
 export { RedirectionTypes } from './core/const';
 export type {
-    TStateSetupFn,
     TCheckAuthorizationFn,
     IAppSchema,
 } from './types';

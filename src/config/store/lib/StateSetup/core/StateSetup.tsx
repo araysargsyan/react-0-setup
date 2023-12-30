@@ -179,7 +179,7 @@ class StateSetup {
     private setRedirectionModal!: ActionCreatorWithPayload<boolean>;
 
     constructor(
-        getStateSetupConfig: TStateSetupFn,
+        StateSetupConfig: TStateSetupFn,
         checkAuthorization: TCheckAuthorizationFn,
         {
             appReducerName,
@@ -190,8 +190,8 @@ class StateSetup {
             PageLoader
         }: IOptionsParameter
     ) {
-        console.log('StateSetup::__constructor__', { getStateSetupConfig, options: { appReducerName, authProtectionConfig } });
-        this.getStateSetupConfig = getStateSetupConfig as TGetStateSetupConfig;
+        console.log('StateSetup::__constructor__', { StateSetupConfig, options: { appReducerName, authProtectionConfig } });
+        this.getStateSetupConfig = StateSetupConfig as TGetStateSetupConfig;
         this.stateSetupConfigDynamicPaths = Object.keys(this.getStateSetupConfig(new URLSearchParams()))
             .filter((path) => /:[^\/]+/.test(path));
         StateSetup.$authProtectionConfig = {

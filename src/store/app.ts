@@ -1,5 +1,5 @@
 import { type IStateSchema, StateSetup } from 'config/store';
-import getStateSetupConfig, { checkAuthorization } from 'config/store/stateSetup';
+import StateSetupConfig, { checkAuthorization } from 'config/store/stateSetup';
 import { appReducerName } from 'shared/const';
 import { Routes } from 'config/router';
 import { createSelector } from '@reduxjs/toolkit';
@@ -7,7 +7,7 @@ import { createSelector } from '@reduxjs/toolkit';
 
 
 const stateSetupConfig = new StateSetup(
-    getStateSetupConfig,
+    StateSetupConfig,
     checkAuthorization,
     {
         appReducerName,

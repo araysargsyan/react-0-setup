@@ -8,16 +8,16 @@ import { type TArticlesActionCreators } from 'store/Articles';
 
 import {
     type TAsyncReducerOptions,
-    type TStateSetupFn,
     type TCheckAuthorizationFn,
     type IStateSchema,
     createAsyncCb,
     createCb,
     createCanRefetch,
+    createStateSetupConfig,
 } from '.';
 
 
-const getStateSetupConfig: TStateSetupFn<TRoutes, TAsyncReducerOptions<'cb'>> = (_) =>  {
+const StateSetupConfig = createStateSetupConfig<TRoutes, TAsyncReducerOptions<'cb'>>((_) =>  {
     return {
         [Routes.ARTICLE_DETAILS]: {
             authRequirement: null,
@@ -33,11 +33,11 @@ const getStateSetupConfig: TStateSetupFn<TRoutes, TAsyncReducerOptions<'cb'>> = 
                             },
                         ],
                     },
-                    //! asyncActionCreators, key of this object needed to be in cb.key
+                    //! asyncActionCreators, moduleKey of this object needed to be in cb.moduleKey
                     { articles: articlesModule.articlesActionCreators }
                 ];
             },
-            actions: [ //! async actions must be first
+            actions: [
                 {
                     cb: createAsyncCb<TArticlesActionCreators, {id: string}>(
                         'articles',
@@ -45,7 +45,6 @@ const getStateSetupConfig: TStateSetupFn<TRoutes, TAsyncReducerOptions<'cb'>> = 
                             return articleActionCreators.fetchById.bind(null, params.id);
                         }
                     ),
-                    //actionCreator: counterActionCreators.fetchTest,
                     async: true,
                     canRefetch: true
                 },
@@ -104,7 +103,7 @@ const getStateSetupConfig: TStateSetupFn<TRoutes, TAsyncReducerOptions<'cb'>> = 
                 {
                     cb: {
                         moduleKey: 'profile',
-                        getAction: (profileActionCreators) => (profileActionCreators as TProfileActions).fetchData
+                        getAction: (profileActionCreators: any) => (profileActionCreators as TProfileActions).fetchData
                     },
                     async: true,
                     canRefetch: true
@@ -129,7 +128,7 @@ const getStateSetupConfig: TStateSetupFn<TRoutes, TAsyncReducerOptions<'cb'>> = 
             onNavigate: { waitUntil: 'CHECK_AUTH', }
         },
     };
-};
+});
 
 export const checkAuthorization: TCheckAuthorizationFn = async (
     { isAuth },
@@ -166,4 +165,4 @@ export const checkAuthorization: TCheckAuthorizationFn = async (
     return false;
 };
 
-export default getStateSetupConfig;
+export default StateSetupConfig;

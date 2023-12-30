@@ -15,8 +15,8 @@ export {
     createCb,
     createCanRefetch,
     createRedirectionModal,
+    createStateSetupConfig,
     RedirectionTypes,
-    type TStateSetupFn,
     type TCheckAuthorizationFn,
     type IAppSchema
 } from './lib/StateSetup';

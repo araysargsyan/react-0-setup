@@ -17,21 +17,24 @@ import AppSelect from 'shared/ui/AppSelect';
 import AppAvatar from 'shared/ui/AppAvatar';
 import { CountrySelectOptions, type ECountry } from 'features/Country';
 import { CurrencySelectOptions } from 'features/Currency';
-import { type TAddAsyncReducerOp } from 'config/store/types';
+import { type IStateSchema, type TAsyncReducerOptions } from 'config/store/types';
 import { profileActionCreators } from 'store/Profile';
 
 import cls from './EditProfile.module.scss';
 import { type TEditProfileActions } from '../model';
 
 
-const asyncReducerOptions: TAddAsyncReducerOp = async () => {
+const getAsyncReducerOptions = (state: Partial<IStateSchema>): TAsyncReducerOptions => async () => {
     const editProfileReducer = (await import('../model')).default;
 
-    return [ {
-        key: editProfileReducer.name,
-        reducer: editProfileReducer.reducer,
-        parentKey: 'forms'
-    } ];
+    return {
+        reducerOptions: [ {
+            key: editProfileReducer.name,
+            reducer: editProfileReducer.reducer,
+            parentKey: 'forms'
+        } ],
+        state
+    };
 };
 interface IEditProfileProps {
     className?: string;
@@ -61,8 +64,7 @@ const EditProfile: FC<IEditProfileProps> = ({ className }) => {
                 onSubmit={ updateData }
                 afterLoad={ () => setIsFormLoaded(true) }
                 onLoadStyle={{ opacity: '0.7' }}
-                state={ !isReadonly ? { forms: { editProfile: data } } : undefined }
-                reducersOption={ !isReadonly ? asyncReducerOptions : undefined }
+                reducerOptions={ !isReadonly ? getAsyncReducerOptions({ forms: { editProfile: data } }) : undefined }
                 formComponent={ !isReadonly ? EFormComponent.FORM : EFormComponent.DIV }
                 className={ _c(cls['edit-profile-form'],  [ className ]) }
             >

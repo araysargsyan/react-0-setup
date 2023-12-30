@@ -30,7 +30,7 @@ interface IThunkConfig<R = string> {
     dispatch: TDispatch;
 }
 
-type TCb = ((pageOptions: IBasePageOptions) => ActionCreator<any>);
+type TCb<P extends Params<string> = Params<string>> = ((pageOptions: IBasePageOptions<P>) => ActionCreator<any>);
 type TMode = 'APP' | 'PAGE';
 interface IAsyncCb<
     T extends Record<string, ReturnType<TCb>> = Record<string, ReturnType<TCb>>,
@@ -44,12 +44,14 @@ interface IAsyncCb<
 }
 interface IActionCreatorsOptions {
     //* callback is function returning action creator
-    //* or for async reducers u can use object with getActions that returning action creator
+    //* or if using async reducers u can use object with getActions that returning action creator
     cb?: TCb | IAsyncCb;
+    //* define actionCreator if u not need pageOptions
     actionCreator?: ActionCreator<any>; //| ThunkAction<any, any, any, AnyAction>;
     //* cb are sync if not defined
     async?: true;
-    //* cb calling once if not defined, not working with API action creators(they are calling once by default)
+    //* Boolean or function with state param and returned boolean
+    //* cb calling once if not defined
     canRefetch?: boolean | ((state: IStateSchema) => boolean);
     _fetched: boolean;
 }
@@ -87,7 +89,7 @@ type TUseRedirectionContext<T extends string> = () => {
     context: IRedirectionContext<T> | null;
 };
 // type TAsyncReducersOptions = unknown[] | ((state?: IStateSchema) => Promise<unknown[]>);
-type TAsyncReducersOptionsReturn = (state?: IStateSchema) => Promise<unknown[]>;
+type TAsyncReducersOptionsReturn = (state: IStateSchema) => Promise<any>;
 interface IPageOptions<
     O extends string | false = false,
     AR extends TAsyncReducersOptionsReturn = TAsyncReducersOptionsReturn,
@@ -101,11 +103,12 @@ interface IPageOptions<
     readonly asyncReducerOptions?: ARO;
     readonly onNavigate?: INavigationOptions;
 }
+
 interface IBasePageOptions<P extends Params<string> = Params<string>> extends IPageOptions {
     isPageLoaded: boolean;
     isActionsCalling: boolean;
     pageNumber?: number;
-    params?: P;
+    params: P;
 }
 
 type TAsyncReducersOptions<
@@ -128,8 +131,8 @@ type TStateSetupFn<
 > = TGetStateSetupConfig<T, '_fetched', AR>;
 
 type TAsyncReducer = {
-    add: (dispatch: TDispatch, options: unknown[]) => Promise<void>;
-    remove: (dispatch: TDispatch, options: unknown[]) => Promise<void>;
+    add: (dispatch: TDispatch, options: any) => Promise<void>;
+    remove: (dispatch: TDispatch, options: any) => Promise<void>;
 };
 type TStateSetUpArgs = {
     pathname: string;

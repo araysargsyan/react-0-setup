@@ -7,8 +7,7 @@ import { type ReducersMapObject } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
 import createStore, {
     type IStateSchema,
-    type TAddAsyncReducerParameters,
-    type TRemoveAsyncReducerParameters,
+    type TAsyncReducerOptions,
     RMActionCreators,
     useEnhancedStoreProvider,
     withEnhancedStoreProvider,
@@ -54,12 +53,12 @@ const StoreProvider:FC<IStoreProviderProps> = ({
             <StateSetupProvider
                 RedirectionModal={ RedirectionModal }
                 asyncReducer={{
-                    async add(dispatch, options) {
-                        store.reducerManager.add(...options as TAddAsyncReducerParameters);
+                    async add(dispatch, { reducerOptions, state }: TAsyncReducerOptions<'obj'>) {
+                        store.reducerManager.add(reducerOptions, state);
                         dispatch(RMActionCreators.initReducers());
                     },
-                    async remove(dispatch, options) {
-                        store.reducerManager.remove(...options as TRemoveAsyncReducerParameters);
+                    async remove(dispatch, { reducerOptions }: TAsyncReducerOptions<'obj'>) {
+                        store.reducerManager.remove(reducerOptions);
                         dispatch(RMActionCreators.destroyReducers());
                     },
                 }}

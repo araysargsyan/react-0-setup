@@ -2,7 +2,7 @@ import lazyImport from 'shared/helpers/lazyImport';
 
 
 export { RMActionCreators } from './lib/ReducerManager';
-export const AsyncReducer = lazyImport(() => import('./lib/ReducerManager/AsyncReducer'));
+export const AsyncReducerProvider = lazyImport(() => import('app/providers/AsyncReducerProvider'));
 
 export {
     default as withEnhancedStoreProvider,
@@ -12,6 +12,8 @@ export {
 export {
     default as StateSetup,
     createAsyncCb,
+    createCb,
+    createCanRefetch,
     createRedirectionModal,
     RedirectionTypes,
     type TStateSetupFn,
@@ -27,7 +29,5 @@ export type {
     TStore,
     IThunkConfig,
     IReduxStoreWithManager,
-    TAddAsyncReducerParameters,
-    TRemoveAsyncReducerParameters,
     TAsyncReducerOptions
 } from './types';

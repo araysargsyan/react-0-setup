@@ -5,9 +5,9 @@ import {
     type TRoutes
 } from 'config/router';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
-import { AsyncReducer } from 'config/store';
 import { ProtectedElement } from 'store/app';
 import PageLoader from 'components/PageLoader';
+import { AsyncReducerProvider } from 'config/store';
 
 
 const AppRouter: FC = () => {
@@ -15,7 +15,7 @@ const AppRouter: FC = () => {
         const {
             Element, asyncReducers, state
         } = routesConfig[path];
-
+        console.log('AppRouter', asyncReducers);
         return (
             <Route
                 key={ path }
@@ -27,13 +27,12 @@ const AppRouter: FC = () => {
                             PageLoader={ PageLoader }
                         >
                             { asyncReducers ? (
-                                <AsyncReducer
-                                    options={ asyncReducers as never }
-                                    state={ state }
+                                <AsyncReducerProvider
+                                    options={ asyncReducers }
                                     removeAfterUnmount
                                 >
                                     <Element />
-                                </AsyncReducer>
+                                </AsyncReducerProvider>
                             ) : <Element /> }
                         </ProtectedElement>
                     </>

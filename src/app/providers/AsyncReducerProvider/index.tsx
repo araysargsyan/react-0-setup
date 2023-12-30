@@ -1,60 +1,69 @@
 import {
+    type IReduxStoreWithManager,
+    type IStateSchema,
+    type TAsyncReducerOptions,
+    RMActionCreators,
+} from 'config/store';
+import {
     type FC,
     type PropsWithChildren,
     useCallback,
-    useEffect,
+    useLayoutEffect,
     useRef
 } from 'react';
 import { useDispatch, useStore } from 'react-redux';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 
-import { type IState, type IStore } from './types';
-import { RMActionCreators } from '.';
 
 
-type TAddAsyncReducerParameters = Parameters<IStore['reducerManager']['add']>;
-type TAsyncReducerOptions = TAddAsyncReducerParameters[0] | ((state?: IState) => Promise<TAddAsyncReducerParameters[0]>);
 
 interface IAsyncReducerProps {
     options: TAsyncReducerOptions;
-    state?: TAddAsyncReducerParameters[1];
     removeAfterUnmount?: boolean;
 }
 
-const AsyncReducer: FC<PropsWithChildren<IAsyncReducerProps>> = ({
+const AsyncReducerProvider: FC<PropsWithChildren<IAsyncReducerProps>> = ({
     children,
     options,
-    state,
     removeAfterUnmount,
 }) => {
-    const store = useStore() as IStore;
+    const store = useStore() as IReduxStoreWithManager;
     const dispatch = useDispatch();
     const isInitiated = useRef(false);
 
-    const getRemoveOptions = useCallback((o: TAddAsyncReducerParameters[0]) => {
+    const getRemoveOptions = useCallback((o: TAsyncReducerOptions<'obj'>['reducerOptions']) => {
         return Array.isArray(o)
             ? o.map(({ key, parentKey }) => ({ key, parentKey }))
             : { key: o.key, parentKey: o.parentKey };
     }, []);
+    const updateState = useCallback((state?: DeepPartial<IStateSchema>) => {
+        if (isInitiated.current) {
+            dispatch(RMActionCreators.updateState(state));
+        } else {
+            isInitiated.current = true;
+        }
+    }, [ dispatch ]);
 
     const removeOptions = useRef(typeof options !== 'function'
-        ? getRemoveOptions(options)
+        ? getRemoveOptions(options.reducerOptions)
         : null
     );
 
-    useRenderWatcher(AsyncReducer.name, JSON.stringify(removeOptions));
-    useEffect(() => {
+
+    useLayoutEffect(() => {
         if (typeof options === 'function') {
-            options().then((o) => {
+            options(store.getState()).then(({ reducerOptions, state }) => {
                 if (removeOptions.current === null) {
-                    removeOptions.current = getRemoveOptions(o);
+                    removeOptions.current = getRemoveOptions(reducerOptions);
                 }
-                store.reducerManager.add(o, state);
+                store.reducerManager.add(reducerOptions, state);
                 dispatch(RMActionCreators.initReducers());
+                updateState(state);
             });
         } else {
-            store.reducerManager.add(options, state);
+            store.reducerManager.add(options.reducerOptions, options.state);
             dispatch(RMActionCreators.initReducers());
+            updateState(options.state);
         }
 
         return () => {
@@ -66,14 +75,7 @@ const AsyncReducer: FC<PropsWithChildren<IAsyncReducerProps>> = ({
         // eslint-disable-next-line
     }, []);
 
-    useEffect(() => {
-        if (isInitiated.current) {
-            dispatch(RMActionCreators.updateState(state));
-        } else {
-            isInitiated.current = true;
-        }
-    }, [ state, dispatch ]);
-
+    useRenderWatcher(AsyncReducerProvider.name, JSON.stringify(removeOptions));
 
     return (
         //? must be suspended before the reducers are initialized
@@ -81,5 +83,4 @@ const AsyncReducer: FC<PropsWithChildren<IAsyncReducerProps>> = ({
     );
 };
 
-
-export default AsyncReducer;
+export default AsyncReducerProvider;

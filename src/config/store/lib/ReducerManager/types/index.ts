@@ -8,26 +8,26 @@ import {
 
 type TSchema = Record<string, any>;
 
-export type INested<M = false> = Partial<Record<string, M extends true ? ReducersMapObject<TSchema> : TSchema>> | TSchema;
-export interface IState extends TSchema {}
+type INested<M = false> = Partial<Record<string, M extends true ? ReducersMapObject<TSchema> : TSchema>> | TSchema;
+interface IState extends TSchema {}
 
-export type TParentStateKeys<N = INested> = keyof N;
-export type TAsyncStateKeys<S = IState> = keyof S;
-export type TNestedStateKeys<T = INested> = {
+type TParentStateKeys<N = INested> = keyof N;
+type TAsyncStateKeys<S = IState> = keyof S;
+type TNestedStateKeys<T = INested> = {
     [K in keyof T]: keyof T[K]
 }[Exclude<keyof T, undefined>];
 
-export interface IAddReducersOptions<S = IState, N = INested> {
+interface IAddReducersOptions<S = IState, N = INested> {
     key: Exclude<TAsyncStateKeys<S> | TNestedStateKeys<N>, symbol>;
     parentKey?: TParentStateKeys<N>;
     reducer: Reducer;
 }
-export interface IRemoveReducersOptions<S = IState, N = INested> {
+interface IRemoveReducersOptions<S = IState, N = INested> {
     key: Exclude<TAsyncStateKeys<S> | TNestedStateKeys<N>, symbol>;
     parentKey?: TParentStateKeys<N>;
 }
 
-export interface IReducerManager<S = IState, N = INested> {
+interface IReducerManager<S = IState, N = INested> {
     getReducerMap: () => ReducersMapObject<S>;
     reduce: Reducer<S>;
     add: (
@@ -37,6 +37,41 @@ export interface IReducerManager<S = IState, N = INested> {
     remove: (options: IRemoveReducersOptions<S, N> | IRemoveReducersOptions<S, N>[]) => void;
 }
 
-export interface IStore extends EnhancedStore<IState> {
+interface IStore extends EnhancedStore<IState> {
     reducerManager: IReducerManager;
 }
+
+type TAddAsyncReducerParameters = Parameters<IReducerManager['add']>;
+interface IBaseAsyncReducerOptions<
+    RO = TAddAsyncReducerParameters[0],
+    S = TAddAsyncReducerParameters[1],
+> {
+    reducerOptions: RO;
+    state?: S;
+};
+type TAsyncReducerOptions<
+    TYPE extends 'cb' | 'obj' | null = null,
+    RO = TAddAsyncReducerParameters[0],
+    S = TAddAsyncReducerParameters[1],
+> = TYPE extends 'cb'
+    ? (state: IState) => Promise<IBaseAsyncReducerOptions<RO, S>>
+    : TYPE extends 'obj'
+        ? IBaseAsyncReducerOptions<RO, S>
+        : IBaseAsyncReducerOptions<RO, S> | ((state: IState) => Promise<IBaseAsyncReducerOptions<RO, S>>);
+
+type TAsyncReducerType<
+    TYPE extends 'cb' | 'obj' | null = null,
+    RO = TAddAsyncReducerParameters[0],
+    S = TAddAsyncReducerParameters[1],
+> = TAsyncReducerOptions<TYPE, RO, S>;
+
+export type {
+    INested,
+    IState,
+    IAddReducersOptions,
+    IRemoveReducersOptions,
+    IReducerManager,
+    IStore,
+    TAsyncReducerType,
+    TAddAsyncReducerParameters
+};

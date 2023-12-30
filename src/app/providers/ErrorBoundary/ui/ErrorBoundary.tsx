@@ -1,5 +1,5 @@
 import {
-    type ErrorInfo, type ReactNode, Suspense, Component 
+    type ErrorInfo, type ReactNode, Suspense, Component
 } from 'react';
 import PageError from 'components/PageError';
 
@@ -23,7 +23,6 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
         } catch (e) {
             console.log(error, 555);
-
         }
         // Update state so the next render will show the fallback UI.
         return { hasError: true };

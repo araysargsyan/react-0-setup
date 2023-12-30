@@ -10,11 +10,14 @@ import {
     type TAsyncReducerOptions,
     type TStateSetupFn,
     type TCheckAuthorizationFn,
-    type IStateSchema, createAsyncCb,
+    type IStateSchema,
+    createAsyncCb,
+    createCb,
+    createCanRefetch,
 } from '.';
 
 
-const getStateSetupConfig: TStateSetupFn<TRoutes, TAsyncReducerOptions<true>> = (_) =>  {
+const getStateSetupConfig: TStateSetupFn<TRoutes, TAsyncReducerOptions<'cb'>> = (_) =>  {
     return {
         [Routes.ARTICLE_DETAILS]: {
             authRequirement: null,
@@ -22,14 +25,14 @@ const getStateSetupConfig: TStateSetupFn<TRoutes, TAsyncReducerOptions<true>> = 
                 const articlesModule = await import('store/Articles');
 
                 return [
-                    [
-                        [ //! asyncReducerOptions can be multiple
+                    {
+                        reducerOptions: [ //! asyncReducerOptions can be multiple
                             {
                                 key: articlesModule.default.name,
                                 reducer: articlesModule.default.reducer,
                             },
                         ],
-                    ],
+                    },
                     //! asyncActionCreators, key of this object needed to be in cb.key
                     { articles: articlesModule.articlesActionCreators }
                 ];
@@ -39,9 +42,10 @@ const getStateSetupConfig: TStateSetupFn<TRoutes, TAsyncReducerOptions<true>> = 
                     cb: createAsyncCb<TArticlesActionCreators, {id: string}>(
                         'articles',
                         (articleActionCreators, { params }) => {
-                            return articleActionCreators.fetchById.bind(null, params!.id);
+                            return articleActionCreators.fetchById.bind(null, params.id);
                         }
                     ),
+                    //actionCreator: counterActionCreators.fetchTest,
                     async: true,
                     canRefetch: true
                 },
@@ -49,17 +53,19 @@ const getStateSetupConfig: TStateSetupFn<TRoutes, TAsyncReducerOptions<true>> = 
         },
         [Routes.MAIN]: {
             authRequirement: null,
-            actions: [ //! if async is true this action call will wait in initial setup, by default false
+            actions: [
                 {
                     actionCreator: counterActionCreators.fetchTest,
                     canRefetch: true,
                     async: true,
                 },
                 {
-                    cb: ({ pageNumber }) => counterActionCreators.increment.bind(null, pageNumber),
-                    canRefetch: (state) => { //! Boolean or cb with state param and returned boolean
-                        return (state as IStateSchema).counter.value < 18;
-                    },
+                    cb: createCb(({ pageNumber }) => {
+                        return counterActionCreators.increment.bind(null, pageNumber);
+                    }),
+                    canRefetch: createCanRefetch<IStateSchema>((state) => {
+                        return state.counter.value < 18;
+                    }),
                 },
             ],
             // onNavigate: { waitUntil: 'CHECK_AUTH', }
@@ -69,7 +75,7 @@ const getStateSetupConfig: TStateSetupFn<TRoutes, TAsyncReducerOptions<true>> = 
             actions: [ //! if async is true this action call will wait in initial setup, by default false
                 {
                     actionCreator: counterActionCreators.increment,
-                    canRefetch: (state) => { //! Boolean or cb with state param and returned boolean
+                    canRefetch: (state) => {
                         return (state as IStateSchema).counter.value < 18;
                     },
                 },
@@ -81,16 +87,15 @@ const getStateSetupConfig: TStateSetupFn<TRoutes, TAsyncReducerOptions<true>> = 
                 const profileModule = await import('store/Profile');
 
                 return [
-                    [
-                        [ //! asyncReducerOptions can be multiple
+                    {
+                        reducerOptions: [ //! asyncReducerOptions can be multiple
                             {
                                 key: profileModule.default.name,
                                 reducer: profileModule.default.reducer,
                             },
                         ],
-                        //* ...state
-                        { counter: { value: 4, testData: 'REPLACED TEST DATA' } }
-                    ],
+                        state: { counter: { value: 4, testData: 'REPLACED TEST DATA' } }
+                    },
                     //! asyncActionCreators, key of this object needed to be in cb.key
                     { profile: profileModule.profileActionCreators }
                 ];

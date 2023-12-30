@@ -1,7 +1,7 @@
 import {
     type DetailedHTMLProps,
     type FC,
-    type HTMLAttributes,
+    type HTMLAttributes, type PropsWithChildren,
     type ReactNode
 } from 'react';
 import _c, { type TMods } from 'shared/helpers/classNames';
@@ -43,7 +43,6 @@ type TDivProps = DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElemen
 
 interface IFlexProps extends TDivProps {
     className?: string;
-    children: ReactNode;
     justify?: TFlexJustify;
     align?: TFlexAlign;
     direction?: TFlexDirection;
@@ -51,7 +50,7 @@ interface IFlexProps extends TDivProps {
     max?: boolean;
 }
 
-const Flex: FC<IFlexProps> = ({
+const Flex: FC<PropsWithChildren<IFlexProps>> = ({
     className,
     children,
     justify,

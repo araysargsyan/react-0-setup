@@ -9,13 +9,13 @@ import {
     useEffect,
     useMemo
 } from 'react';
-import { AsyncReducer, type IStateSchema } from 'config/store';
+import { AsyncReducerProvider, type IStateSchema } from 'config/store';
 import AppText, { EAppTextTheme } from 'shared/ui/Text';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import DynamicComponent from 'shared/ui/DynamicComponent';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
-import { type TAddAsyncReducerOp } from 'config/store/types';
+import { type TAsyncReducerOptions } from 'config/store/types';
 
 
 enum EFormComponent {
@@ -28,9 +28,9 @@ type TStyle = HTMLAttributes<HTMLElement>['style'];
 
 interface IAppFormProps extends Omit<IAppFormDefaultProps, 'onSubmit'> {
     formComponent?: EFormComponent;
-    reducersOption?: TAddAsyncReducerOp;
+    reducerOptions?: TAsyncReducerOptions;
     title?: string;
-    state?: DeepPartial<IStateSchema>;
+    // state?: DeepPartial<IStateSchema>;
     onSubmit?: (e: FormEvent<HTMLFormElement>) => void;
     error?: string;
     errorSelector?: (state: IStateSchema) => string | undefined;
@@ -60,8 +60,7 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
     title,
     error,
     errorSelector,
-    reducersOption,
-    state,
+    reducerOptions,
     ...defaultProps
 }) => {
     const { t } = useTranslation();
@@ -106,7 +105,7 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
         );
     }, [ children, err, formComponent, formProps, t, title ]);
     useRenderWatcher(AppForm.name);
-    if (!reducersOption) {
+    if (!reducerOptions) {
         return <FormComponent />;
     }
 
@@ -118,13 +117,12 @@ const AppForm: FC<PropsWithChildren<IAppFormProps>> = ({
             />
         ) }
         >
-            <AsyncReducer
+            <AsyncReducerProvider
                 removeAfterUnmount
-                options={ reducersOption as never }
-                state={ state }
+                options={ reducerOptions }
             >
                 <FormComponent />
-            </AsyncReducer>
+            </AsyncReducerProvider>
         </Suspense>
     );
 };

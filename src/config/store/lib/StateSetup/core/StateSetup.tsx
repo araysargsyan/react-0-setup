@@ -85,7 +85,8 @@ class StateSetup {
         actions: [],
         authRequirement: null,
         isPageLoaded: false,
-        isActionsCalling: false
+        isActionsCalling: false,
+        params: {}
     };
     private readonly initiatedStateDefault: IinitiatedState  = {
         stopActionsRecall: false,
@@ -485,7 +486,7 @@ class StateSetup {
     ) {
         console.log('************callReducerManager', { state, method });
         let asyncActionCreatorsOption: Awaited<ReturnType<TAsyncReducersOptions>>[1] = null;
-        const call = async (options: unknown[])=> {
+        const call = async (options: any)=> {
             if (method === 'add') {
                 await this.asyncReducer!.add(dispatch, options);
             } else {

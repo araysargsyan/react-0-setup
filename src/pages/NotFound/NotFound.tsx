@@ -1,6 +1,7 @@
 import { type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
+import Page from 'shared/ui/Page';
 
 import cls from './NotFound.module.scss';
 
@@ -10,9 +11,9 @@ const NotFound: FC = () => {
 
     useRenderWatcher(NotFound.name);
     return (
-        <div className={ cls['not-found'] }>
+        <Page className={ cls['not-found'] }>
             { t('Page not found') }
-        </div>
+        </Page>
     );
 };
 

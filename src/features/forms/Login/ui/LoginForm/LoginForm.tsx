@@ -10,7 +10,7 @@ import {
 } from 'react';
 import AppForm from 'shared/ui/AppForm';
 import { useActions } from 'shared/hooks/redux';
-import { type TAddAsyncReducerOp } from 'config/store/types';
+import { type TAsyncReducerOptions } from 'config/store/types';
 
 import loginReducer, {
     getLoginError,
@@ -27,11 +27,13 @@ interface ILoginFormProps {
     onSuccess: () => void;
 }
 
-const asyncReducerOptions: TAddAsyncReducerOp = [ {
-    key: loginReducer.name,
-    reducer: loginReducer.reducer,
-    parentKey: 'forms'
-} ];
+const asyncReducerOptions: TAsyncReducerOptions = {
+    reducerOptions: [ {
+        key: loginReducer.name,
+        reducer: loginReducer.reducer,
+        parentKey: 'forms'
+    } ]
+};
 
 const LoginForm: FC<ILoginFormProps> = ({ className, onSuccess }) => {
     const { t } = useTranslation();
@@ -58,7 +60,7 @@ const LoginForm: FC<ILoginFormProps> = ({ className, onSuccess }) => {
         <AppForm
             title={ t('Форма авторизации') }
             errorSelector={ getLoginError }
-            reducersOption={ asyncReducerOptions }
+            reducerOptions={ asyncReducerOptions }
             className={ _c(cls['login-form'], [ className ]) }
             onSubmit={ onSubmit }
         >

@@ -187,5 +187,5 @@ function AppInput<V extends HTMLInputProps['value'] = HTMLInputProps['value']>({
             </div>
         </div>
     );
-};
+}
 export default memo(AppInput) as typeof AppInput;

@@ -1,8 +1,7 @@
 import { type ComponentType, memo } from 'react';
 import  { type PathRouteProps } from 'react-router-dom';
 import { lazyImport } from 'app/router';
-import { type TAddAsyncReducerParameters, } from 'config/store';
-import { type TAddAsyncReducerOp } from 'config/store/types';
+import { type TAsyncReducerOptions } from 'config/store/types';
 
 
 const enum Routes {
@@ -20,8 +19,8 @@ type TRoutes = ValueOf<typeof Routes>;
 
 interface IRouterConfig extends PathRouteProps {
     Element: ComponentType;
-    asyncReducers?: TAddAsyncReducerOp;
-    state?: TAddAsyncReducerParameters[1];
+    asyncReducers?: TAsyncReducerOptions;
+    state?: TAsyncReducerOptions<'obj'>['state'];
 }
 type TRoutesConfig = {
     [KEY in TRoutes]: IRouterConfig
@@ -37,10 +36,12 @@ const routesConfig: TRoutesConfig = {
         asyncReducers: async () => {
             const profileReducer = (await import('store/Articles')).default;
 
-            return [ {
-                key: profileReducer.name,
-                reducer: profileReducer.reducer,
-            } ];
+            return {
+                reducerOptions: [ {
+                    key: profileReducer.name,
+                    reducer: profileReducer.reducer,
+                } ]
+            };
         },
     },
     [Routes.ARTICLE_DETAILS]: { Element: memo(lazyImport(() => import('pages/Articles/[id]'))), },

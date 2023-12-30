@@ -1,10 +1,10 @@
-import { type DeepPartial, type EnhancedStore } from '@reduxjs/toolkit';
+import { type EnhancedStore } from '@reduxjs/toolkit';
 import { type IInitialStateSchema } from 'store';
 import { type IFormStateSchema } from 'features/forms';
 import { type AxiosInstance } from 'axios';
 import { type TAppNavigateFunction } from 'shared/hooks/redux';
 
-import { type IReducerManager } from '../lib/ReducerManager';
+import { type TAsyncReducerType, type IReducerManager } from '../lib/ReducerManager';
 import { type TCreateStore } from '../store';
 
 
@@ -19,14 +19,14 @@ export type TAppDispatch = TStore['dispatch'];
 export interface IReduxStoreWithManager extends EnhancedStore<IStateSchema> {
     reducerManager: IReducerManager<TStateWithoutNestedSchema, INestedStateSchema>;
 }
-export type TAddAsyncReducerParameters = Parameters<IReduxStoreWithManager['reducerManager']['add']>;
-export type TRemoveAsyncReducerParameters = Parameters<IReduxStoreWithManager['reducerManager']['remove']>;
-export type TAddAsyncReducerOp = TAddAsyncReducerParameters[0] | ((state?: IStateSchema) => Promise<TAddAsyncReducerParameters[0]>);
-// export type TAsyncReducerOptions = TAddAsyncReducerParameters
-//     | ((state?: DeepPartial<IStateSchema>) => Promise<TAddAsyncReducerParameters>);
-export type TAsyncReducerOptions<T extends boolean = false> = T extends false
-    ? TAddAsyncReducerParameters | ((state?: DeepPartial<IStateSchema>) => Promise<TAddAsyncReducerParameters>)
-    : (state?: DeepPartial<IStateSchema>) => Promise<TAddAsyncReducerParameters>;
+export type TAsyncReducerOptions<
+    TYPE extends 'cb' | 'obj' | null = null
+> = TAsyncReducerType<
+    TYPE,
+    Parameters<IReduxStoreWithManager['reducerManager']['add']>[0],
+    Parameters<IReduxStoreWithManager['reducerManager']['add']>[1]
+>;
+
 export interface IThunkExtraArg {
     api: AxiosInstance;
     getNavigate?: () => TAppNavigateFunction;

@@ -1,2 +1,2 @@
 export { default, RMActionCreators } from './core/ReducerManager';
-export type { IReducerManager } from './types';
+export type { IReducerManager, TAsyncReducerType } from './types';

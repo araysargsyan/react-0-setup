@@ -26,8 +26,8 @@ export { default } from './store';
 export type {
     IStateSchema,
     TAppDispatch,
-    TStore,
+    // TStore,
     IThunkConfig,
-    IReduxStoreWithManager,
+    TReduxStoreWithManager,
     TAsyncReducerOptions
 } from './types';

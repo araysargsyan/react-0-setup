@@ -1,5 +1,5 @@
 import {
-    type IReduxStoreWithManager,
+    type TReduxStoreWithManager,
     type IStateSchema,
     type TAsyncReducerOptions,
     RMActionCreators,
@@ -27,7 +27,7 @@ const AsyncReducerProvider: FC<PropsWithChildren<IAsyncReducerProps>> = ({
     options,
     removeAfterUnmount,
 }) => {
-    const store = useStore() as IReduxStoreWithManager;
+    const store = useStore() as TReduxStoreWithManager;
     const dispatch = useDispatch();
     const isInitiated = useRef(false);
 

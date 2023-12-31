@@ -1,0 +1,79 @@
+.article-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    margin-top: 20px;
+
+    .card {
+        // display: inline-flex;
+        height: 300px;
+    }
+
+    .row {
+        display: flex;
+        gap: 30px;
+    }
+
+    &-item {
+        width: 230px;
+        transition: 0.2s;
+        cursor: pointer;
+
+        .date {
+            position: absolute;
+            right: 0;
+            top: 0;
+            display: none;
+        }
+
+        &:hover {
+            opacity: 0.8;
+            transform: scale(1.01);
+
+            .date {
+                display: block;
+            }
+        }
+
+        .image-wrapper {
+            width: 200px;
+            height: 200px;
+            position: relative;
+        }
+
+        .img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .info-wrapper {
+            display: flex;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .types p {
+            width: 115px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .views {
+            margin-left: auto;
+            margin-right: 8px;
+        }
+
+        .title {
+            margin-top: 8px;
+        }
+
+        .title p {
+            width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+}

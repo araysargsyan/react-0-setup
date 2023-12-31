@@ -1,7 +1,7 @@
 import { type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
-import Page from 'shared/ui/Page';
+import Page from 'components/Page';
 
 import cls from './NotFound.module.scss';
 

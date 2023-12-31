@@ -17,8 +17,35 @@ import {
 } from '.';
 
 
-const StateSetupConfig = createStateSetupConfig<TRoutes, TAsyncReducerOptions<'cb'>>((_) =>  {
+const StateSetupConfig = createStateSetupConfig<TRoutes, TAsyncReducerOptions<'cb'>>((searchParams) =>  {
     return {
+        [Routes.ARTICLES]: {
+            asyncReducerOptions: async () => {
+
+                const articlesModule = await import('store/Articles');
+
+                return [
+                    {
+                        reducerOptions: [ {
+                            key: articlesModule.default.name,
+                            reducer: articlesModule.default.reducer,
+                        } ]
+                    },
+                    { articles: articlesModule.articlesActionCreators }
+                ];
+            },
+            actions: [
+                {
+                    cb: createAsyncCb<TArticlesActionCreators>(
+                        'articles',
+                        (articleActionCreators) => {
+                            return articleActionCreators.init.bind(null, searchParams);
+                        }
+                    ),
+                    canRefetch: true
+                }
+            ]
+        },
         [Routes.ARTICLE_DETAILS]: {
             authRequirement: null,
             asyncReducerOptions: async (_) => {

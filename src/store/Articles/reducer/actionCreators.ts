@@ -3,15 +3,21 @@ import { type IThunkConfig } from 'config/store';
 import until from 'app/dubag/util/wait';
 
 import {
+    articlesActionCreators,
     ArticlesType,
+    getArticlesHasMore,
+    getArticlesInited,
+    getArticlesIsLoading,
     getArticlesLimit,
     getArticlesNum,
     getArticlesOrder,
     getArticlesSearch,
     getArticlesSort,
     getArticlesType,
-    type IArticles
-} from '../index';
+    type IArticles, type TArticlesSortField, type TArticlesType, type TSortOrder
+} from '../';
+
+
 
 
 interface IFetchArticlesListProps {
@@ -87,4 +93,60 @@ const fetchById = createAsyncThunk<
     },
 );
 
-export { fetchById, fetchAll };
+const init = createAsyncThunk<
+    void,
+    URLSearchParams,
+    IThunkConfig<string>
+>(
+    'articles/init',
+    async (searchParams, thunkApi) => {
+        const { getState, dispatch } = thunkApi;
+        const inited = getArticlesInited(getState());
+
+        if (!inited) {
+            const orderFromUrl = searchParams.get('order') as TSortOrder;
+            const sortFromUrl = searchParams.get('sort') as TArticlesSortField;
+            const searchFromUrl = searchParams.get('search');
+            const typeFromUrl = searchParams.get('type') as TArticlesType;
+
+            if (orderFromUrl) {
+                dispatch(articlesActionCreators.setOrder(orderFromUrl));
+            }
+            if (sortFromUrl) {
+                dispatch(articlesActionCreators.setSort(sortFromUrl));
+            }
+            if (searchFromUrl) {
+                dispatch(articlesActionCreators.setSearch(searchFromUrl));
+            }
+            if (typeFromUrl) {
+                dispatch(articlesActionCreators.setType(typeFromUrl));
+            }
+
+            dispatch(articlesActionCreators.initState());
+            dispatch(articlesActionCreators.fetchAll());
+        }
+    },
+);
+
+const fetchNext = createAsyncThunk<
+    void,
+    void,
+    IThunkConfig<string>
+>(
+    'articles/fetchNext',
+    async (_, thunkApi) => {
+        const { getState, dispatch } = thunkApi;
+        const hasMore = getArticlesHasMore(getState());
+        const page = getArticlesNum(getState());
+        const isLoading = getArticlesIsLoading(getState());
+
+        if (hasMore && !isLoading) {
+            dispatch(articlesActionCreators.setPage(page + 1));
+            dispatch(articlesActionCreators.fetchAll());
+        }
+    },
+);
+
+export {
+    fetchById, fetchAll, init, fetchNext
+};

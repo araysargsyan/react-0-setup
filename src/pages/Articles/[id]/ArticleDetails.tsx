@@ -1,7 +1,7 @@
 import _c from 'shared/helpers/classNames';
 import { useTranslation } from 'react-i18next';
 import { type FC } from 'react';
-import Page from 'shared/ui/Page';
+import Page from 'components/Page';
 
 import cls from './ArticleDetails.module.scss';
 import ArticleDetailsComponent from './ArticleDetailsComponent';

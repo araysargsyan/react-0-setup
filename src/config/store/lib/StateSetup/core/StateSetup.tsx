@@ -442,9 +442,9 @@ class StateSetup {
                     ...this.basePageOptions,
                     ...this.getStateSetupConfig(searchParams)[pathname]
                 };
-                if (params) {
-                    this.pageOptionsMap[pathname].params = params;
-                }
+            }
+            if (params) {
+                this.pageOptionsMap[pathname].params = params;
             }
         } else {
             if (!this.pageOptionsMap[pathname]) {

@@ -12,7 +12,9 @@ import {
     type TSortOrder,
     type TArticlesType
 } from '../index';
-import { fetchAll, fetchById } from './actionCreators';
+import {
+    fetchAll, fetchById, fetchNext, init
+} from './actionCreators';
 
 
 const articlesAdapter = createEntityAdapter<IArticles>({ selectId: (article) => article.id });
@@ -111,9 +113,11 @@ const articlesDetailsSlice = createSlice({
 const articlesActionCreators = {
     ...articlesDetailsSlice.actions,
     fetchById,
-    fetchAll
+    fetchAll,
+    init,
+    fetchNext
 };
-type TArticlesActionCreators =  typeof articlesActionCreators;
+type TArticlesActionCreators = typeof articlesActionCreators;
 
 export {
     articlesActionCreators,

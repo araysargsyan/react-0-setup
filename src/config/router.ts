@@ -33,16 +33,16 @@ const routesConfig: TRoutesConfig = {
     [Routes.PROFILE]: { Element: memo(lazyImport(() => import('pages/Profile'))), },
     [Routes.ARTICLES]: {
         Element: memo(lazyImport(() => import('pages/Articles'))),
-        asyncReducers: async () => {
-            const profileReducer = (await import('store/Articles')).default;
-
-            return {
-                reducerOptions: [ {
-                    key: profileReducer.name,
-                    reducer: profileReducer.reducer,
-                } ]
-            };
-        },
+        // asyncReducers: async () => {
+        //     const articlesReducer = (await import('store/Articles')).default;
+        //
+        //     return {
+        //         reducerOptions: [ {
+        //             key: articlesReducer.name,
+        //             reducer: articlesReducer.reducer,
+        //         } ]
+        //     };
+        // },
     },
     [Routes.ARTICLE_DETAILS]: { Element: memo(lazyImport(() => import('pages/Articles/[id]'))), },
     //! must be last

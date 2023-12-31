@@ -1,11 +1,17 @@
 import _c from 'shared/helpers/classNames';
 import { useTranslation } from 'react-i18next';
 import { type FC } from 'react';
-import { useAppDispatch } from 'shared/hooks/redux';
-import Page from 'shared/ui/Page';
+import { useActions, useAppDispatch } from 'shared/hooks/redux';
+import Page from 'components/Page';
+import {
+    articlesActionCreators,
+    articlesSelector, getArticlesError, getArticlesIsLoading
+} from 'store/Articles';
+import { useSelector } from 'react-redux';
 
 import cls from './Articles.module.scss';
 import ArticlesFilters from './ArticlesFilters';
+import ArticleList from './ArticleList';
 
 
 interface IArticlesPageProps {
@@ -16,10 +22,10 @@ interface IArticlesPageProps {
 const Articles: FC<IArticlesPageProps> = ({ className }) => {
     const { t } = useTranslation();
     const dispatch = useAppDispatch();
-    // const articles = useSelector(getArticles.selectAll);
-    // const isLoading = useSelector(getArticlesPageIsLoading);
-    // const view = useSelector(getArticlesPageView);
-    // const error = useSelector(getArticlesPageError);
+    const articles = useSelector(articlesSelector.selectAll);
+    const isLoading = useSelector(getArticlesIsLoading);
+    const error = useSelector(getArticlesError);
+    const { fetchNext } = useActions(articlesActionCreators, [ 'fetchNext' ]);
     // const [ searchParams ] = useSearchParams();
     //
     // const onLoadNextPart = useCallback(() => {
@@ -27,18 +33,19 @@ const Articles: FC<IArticlesPageProps> = ({ className }) => {
     // }, [ dispatch ]);
     //
     //
+
+
     return (
         <Page
-            // onScrollEnd={ onLoadNextPart }
+            onScrollEnd={ fetchNext }
             className={ _c(cls['articles-page'], [ className ]) }
         >
             <ArticlesFilters />
-            { /*<ArticleList*/ }
-            { /*    isLoading={ isLoading }*/ }
-            { /*    view={ view }*/ }
-            { /*    articles={ articles }*/ }
-            { /*    className={ cls.list }*/ }
-            { /*/>*/ }
+            <ArticleList
+                isLoading={ isLoading }
+                articles={ articles }
+                className={ cls.list }
+            />
         </Page>
     );
 };

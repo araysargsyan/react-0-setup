@@ -10,7 +10,7 @@ import {
     type INestedStateSchema,
     type TStateWithoutNestedSchema,
     type IThunkExtraArg,
-    type IReduxStoreWithManager
+    type TReduxStoreWithManager
 } from './types';
 import ReducerManager from './lib/ReducerManager';
 
@@ -38,10 +38,12 @@ function createStore(
         middleware: (getDefaultMiddleware) => getDefaultMiddleware(
             { thunk: { extraArgument: extraArg }, }
         ),
-    }) as IReduxStoreWithManager;
-    store.reducerManager = reducerManager;
+    });
 
-    return store;
+    return {
+        ...store,
+        reducerManager
+    } as TReduxStoreWithManager<typeof store>;
 }
 
 export type TCreateStore = typeof createStore;

@@ -14,17 +14,16 @@ export interface INestedStateSchema {
 export interface IStateSchema extends IInitialStateSchema, Partial<INestedStateSchema> {}
 export type TStateWithoutNestedSchema = Omit<IStateSchema, keyof INestedStateSchema>;
 
-export type TStore = ReturnType<TCreateStore>;
-export type TAppDispatch = TStore['dispatch'];
-export interface IReduxStoreWithManager extends EnhancedStore<IStateSchema> {
+export type TAppDispatch = ReturnType<TCreateStore>['dispatch'];
+export type TReduxStoreWithManager<STORE extends EnhancedStore<IStateSchema> = EnhancedStore<IStateSchema>> = STORE & {
     reducerManager: IReducerManager<TStateWithoutNestedSchema, INestedStateSchema>;
-}
+};
 export type TAsyncReducerOptions<
     TYPE extends 'cb' | 'obj' | null = null
 > = TAsyncReducerType<
     TYPE,
-    Parameters<IReduxStoreWithManager['reducerManager']['add']>[0],
-    Parameters<IReduxStoreWithManager['reducerManager']['add']>[1]
+    Parameters<TReduxStoreWithManager['reducerManager']['add']>[0],
+    Parameters<TReduxStoreWithManager['reducerManager']['add']>[1]
 >;
 
 export interface IThunkExtraArg {

@@ -48,22 +48,25 @@ interface IBaseAsyncReducerOptions<
 > {
     reducerOptions: RO;
     state?: S;
-};
+}
+
 type TAsyncReducerOptions<
     TYPE extends 'cb' | 'obj' | null = null,
     RO = TAddAsyncReducerParameters[0],
     S = TAddAsyncReducerParameters[1],
+    STATE = IState
 > = TYPE extends 'cb'
-    ? (state: IState) => Promise<IBaseAsyncReducerOptions<RO, S>>
+    ? (getState: () => STATE) => Promise<IBaseAsyncReducerOptions<RO, S>>
     : TYPE extends 'obj'
         ? IBaseAsyncReducerOptions<RO, S>
-        : IBaseAsyncReducerOptions<RO, S> | ((state: IState) => Promise<IBaseAsyncReducerOptions<RO, S>>);
+        : IBaseAsyncReducerOptions<RO, S> | ((getState: () => STATE) => Promise<IBaseAsyncReducerOptions<RO, S>>);
 
 type TAsyncReducerType<
     TYPE extends 'cb' | 'obj' | null = null,
     RO = TAddAsyncReducerParameters[0],
     S = TAddAsyncReducerParameters[1],
-> = TAsyncReducerOptions<TYPE, RO, S>;
+    STATE = IState
+> = TAsyncReducerOptions<TYPE, RO, S, STATE>;
 
 export type {
     INested,

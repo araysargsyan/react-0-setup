@@ -13,9 +13,9 @@ import { AsyncReducerProvider } from 'config/store';
 const AppRouter: FC = () => {
     const enrichmentRender = useCallback((path: TRoutes) => {
         const {
-            Element, asyncReducers, state
+            Element, asyncReducers, state: _
         } = routesConfig[path];
-        console.log('AppRouter', asyncReducers);
+
         return (
             <Route
                 key={ path }

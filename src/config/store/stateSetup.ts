@@ -21,18 +21,19 @@ const StateSetupConfig = createStateSetupConfig<TRoutes, TAsyncReducerOptions<'c
     return {
         [Routes.ARTICLES]: {
             asyncReducerOptions: async () => {
-
                 const articlesModule = await import('store/Articles');
+                const articlesModuleName = articlesModule.default.name;
 
-                return [
-                    {
+                return {
+                    moduleNames: [ articlesModuleName ],
+                    options: {
                         reducerOptions: [ {
-                            key: articlesModule.default.name,
+                            key: articlesModuleName,
                             reducer: articlesModule.default.reducer,
                         } ]
                     },
-                    { articles: articlesModule.articlesActionCreators }
-                ];
+                    actionCreators: { [articlesModuleName]: articlesModule.articlesActionCreators }
+                };
             },
             actions: [
                 {
@@ -47,22 +48,20 @@ const StateSetupConfig = createStateSetupConfig<TRoutes, TAsyncReducerOptions<'c
             ]
         },
         [Routes.ARTICLE_DETAILS]: {
-            authRequirement: null,
             asyncReducerOptions: async (_) => {
                 const articlesModule = await import('store/Articles');
+                const articlesModuleName = articlesModule.default.name;
 
-                return [
-                    {
-                        reducerOptions: [ //! asyncReducerOptions can be multiple
-                            {
-                                key: articlesModule.default.name,
-                                reducer: articlesModule.default.reducer,
-                            },
-                        ],
+                return {
+                    moduleNames: [ articlesModuleName ],
+                    options: {
+                        reducerOptions: [ {
+                            key: articlesModuleName,
+                            reducer: articlesModule.default.reducer,
+                        } ]
                     },
-                    //! asyncActionCreators, moduleKey of this object needed to be in cb.moduleKey
-                    { articles: articlesModule.articlesActionCreators }
-                ];
+                    actionCreators: { [articlesModuleName]: articlesModule.articlesActionCreators }
+                };
             },
             actions: [
                 {
@@ -111,20 +110,19 @@ const StateSetupConfig = createStateSetupConfig<TRoutes, TAsyncReducerOptions<'c
             authRequirement: true,
             asyncReducerOptions: async (_) => {
                 const profileModule = await import('store/Profile');
+                const profileModuleName = profileModule.default.name;
 
-                return [
-                    {
-                        reducerOptions: [ //! asyncReducerOptions can be multiple
-                            {
-                                key: profileModule.default.name,
-                                reducer: profileModule.default.reducer,
-                            },
-                        ],
+                return {
+                    moduleNames: [ profileModuleName ],
+                    options: {
+                        reducerOptions: [ {
+                            key: profileModuleName,
+                            reducer: profileModule.default.reducer,
+                        } ],
                         state: { counter: { value: 4, testData: 'REPLACED TEST DATA' } }
                     },
-                    //! asyncActionCreators, key of this object needed to be in cb.key
-                    { profile: profileModule.profileActionCreators }
-                ];
+                    actionCreators: { [profileModuleName]: profileModule.profileActionCreators }
+                };
             },
             actions: [ //! async actions must be first
                 {

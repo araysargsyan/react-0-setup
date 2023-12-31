@@ -57,9 +57,20 @@ const StoreProvider:FC<IStoreProviderProps> = ({
                         store.reducerManager.add(reducerOptions, state);
                         dispatch(RMActionCreators.initReducers());
                     },
-                    async remove(dispatch, { reducerOptions }: TAsyncReducerOptions<'obj'>) {
-                        store.reducerManager.remove(reducerOptions);
-                        dispatch(RMActionCreators.destroyReducers());
+                    async remove(dispatch, { reducerOptions }: TAsyncReducerOptions<'obj'>, prevModuleNames) {
+                        let filteredReducerOptions;
+                        if (Array.isArray(reducerOptions)) {
+                            filteredReducerOptions = reducerOptions.filter((opt) => !prevModuleNames?.includes(opt.key));
+                            if (!filteredReducerOptions.length) {
+                                filteredReducerOptions = null;
+                            }
+                        } else {
+                            filteredReducerOptions = prevModuleNames?.includes(reducerOptions?.key) ? null : reducerOptions;
+                        }
+                        if (filteredReducerOptions) {
+                            store.reducerManager.remove(filteredReducerOptions);
+                            dispatch(RMActionCreators.destroyReducers());
+                        }
                     },
                 }}
             >

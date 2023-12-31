@@ -11,6 +11,7 @@ module.exports = {
     ],
     parser: '@typescript-eslint/parser',
     parserOptions: {
+        tsconfigRootDir: __dirname,
         project: './tsconfig.json',
         ecmaFeatures: { jsx: true, },
         ecmaVersion: 'latest',
@@ -132,7 +133,7 @@ module.exports = {
             args: 'after-used',
             ignoreRestSiblings: false,
             argsIgnorePattern: '^_$',
-            //varsIgnorePattern: '^_$'
+            varsIgnorePattern: '^_$'
         } ],
         '@typescript-eslint/prefer-as-const': 'off',
         '@typescript-eslint/ban-types': 'error',

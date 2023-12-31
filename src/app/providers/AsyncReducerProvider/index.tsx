@@ -52,7 +52,7 @@ const AsyncReducerProvider: FC<PropsWithChildren<IAsyncReducerProps>> = ({
 
     useLayoutEffect(() => {
         if (typeof options === 'function') {
-            options(store.getState()).then(({ reducerOptions, state }) => {
+            options(store.getState).then(({ reducerOptions, state }) => {
                 if (removeOptions.current === null) {
                     removeOptions.current = getRemoveOptions(reducerOptions);
                 }

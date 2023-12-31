@@ -23,7 +23,8 @@ export type TAsyncReducerOptions<
 > = TAsyncReducerType<
     TYPE,
     Parameters<TReduxStoreWithManager['reducerManager']['add']>[0],
-    Parameters<TReduxStoreWithManager['reducerManager']['add']>[1]
+    Parameters<TReduxStoreWithManager['reducerManager']['add']>[1],
+    IStateSchema
 >;
 
 export interface IThunkExtraArg {

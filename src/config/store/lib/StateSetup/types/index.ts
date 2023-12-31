@@ -103,11 +103,11 @@ type TUseRedirectionContext<T extends string> = () => {
     show: boolean;
     context: IRedirectionContext<T> | null;
 };
-// type TAsyncReducersOptions = unknown[] | ((state?: IStateSchema) => Promise<unknown[]>);
-type TAsyncReducersOptionsReturn = (state: IStateSchema) => Promise<any>;
+
+type TAsyncReducersOptionsReturn<STATE = any> = (getState: () => STATE) => Promise<any>;
 interface IPageOptions<
     O extends string | false = false,
-    AR extends TAsyncReducersOptionsReturn = TAsyncReducersOptionsReturn,
+    AR extends TAsyncReducersOptionsReturn<IStateSchema> = TAsyncReducersOptionsReturn<IStateSchema>,
     ARO extends TAsyncReducersOptions<AR> = TAsyncReducersOptions<AR>
 > {
     readonly actions: O extends string ? Array<Omit<IActionCreatorsOptions, O>> : Array<IActionCreatorsOptions>;
@@ -129,13 +129,17 @@ interface IBasePageOptions<P extends Params<string> = Params<string>> extends IP
 }
 
 type TAsyncReducersOptions<
-    AR extends TAsyncReducersOptionsReturn = TAsyncReducersOptionsReturn,
+    AR extends TAsyncReducersOptionsReturn<IStateSchema> = TAsyncReducersOptionsReturn<IStateSchema>,
     ARR extends Promise<any> = ReturnType<AR>,
-> = (...args: Parameters<AR>) => Promise<[Awaited<ARR>, Record<string, Record<string, ReturnType<TCb>>> | null]> /*| PromiseReturnType<ARR>*/;
+> = (...args: Parameters<AR>) => Promise<{
+    moduleNames: string[];
+    options: Awaited<ARR>;
+    actionCreators?: Record<string, Record<string, ReturnType<TCb>>> | null;
+}>;
 type TGetStateSetupConfig<
     T extends string = string,
     O extends string | false = false,
-    AR extends TAsyncReducersOptionsReturn = TAsyncReducersOptionsReturn
+    AR extends TAsyncReducersOptionsReturn<IStateSchema> = TAsyncReducersOptionsReturn<IStateSchema>
 > = (searchParams: URLSearchParams) => Partial<
     Record<
         T,
@@ -144,12 +148,12 @@ type TGetStateSetupConfig<
 >;
 type TStateSetupFn<
     T extends string = string,
-    AR extends TAsyncReducersOptionsReturn = TAsyncReducersOptionsReturn
+    AR extends TAsyncReducersOptionsReturn<IStateSchema> = TAsyncReducersOptionsReturn<IStateSchema>
 > = TGetStateSetupConfig<T, '_fetched', AR>;
 
 type TAsyncReducer = {
     add: (dispatch: TDispatch, options: any) => Promise<void>;
-    remove: (dispatch: TDispatch, options: any) => Promise<void>;
+    remove: (dispatch: TDispatch, options: any, prevModuleNames?: string[]) => Promise<void>;
 };
 type TStateSetUpArgs = {
     pathname: string;

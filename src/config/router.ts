@@ -20,7 +20,6 @@ type TRoutes = ValueOf<typeof Routes>;
 interface IRouterConfig extends PathRouteProps {
     Element: ComponentType;
     asyncReducers?: TAsyncReducerOptions;
-    state?: TAsyncReducerOptions<'obj'>['state'];
 }
 type TRoutesConfig = {
     [KEY in TRoutes]: IRouterConfig
@@ -40,7 +39,8 @@ const routesConfig: TRoutesConfig = {
         //         reducerOptions: [ {
         //             key: articlesReducer.name,
         //             reducer: articlesReducer.reducer,
-        //         } ]
+        //         } ],
+        //         state: {}
         //     };
         // },
     },

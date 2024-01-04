@@ -36,7 +36,7 @@ function withEnhancedStoreProvider<T extends Record<string, any>>(StoreProvider:
             <StoreProvider { ...props } />
         </EnhancedStoreProvider>
     );
-};
+}
 
 const useEnhancedStoreProvider = () => useContext(EnhancedStoreProviderContext);
 

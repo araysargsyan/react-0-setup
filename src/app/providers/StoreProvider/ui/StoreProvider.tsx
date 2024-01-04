@@ -1,7 +1,7 @@
 import {
     type FC,
     type ReactNode,
-    useEffect,
+    useEffect, useRef,
 } from 'react';
 import { type ReducersMapObject } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
@@ -14,6 +14,7 @@ import createStore, {
 } from 'config/store';
 import { StateSetupProvider } from 'store/app';
 import RedirectionModal from 'components/RediretionModal';
+import { type IScroll } from 'store/UI';
 
 
 interface IStoreProviderProps {
@@ -26,7 +27,7 @@ interface IStoreProviderProps {
 
 const StoreProvider:FC<IStoreProviderProps> = ({
     children,
-    initialState,
+    initialState = {},
     asyncReducers,
     withStateSetup = true
 }) => {
@@ -37,8 +38,11 @@ const StoreProvider:FC<IStoreProviderProps> = ({
             withStateSetup
         });
     });
-    const { getNavigate } = useEnhancedStoreProvider();
-    const store = createStore(initialState as IStateSchema, asyncReducers, getNavigate);
+    const store = createStore(
+        initialState as IStateSchema,
+        asyncReducers,
+        useEnhancedStoreProvider()
+    );
 
     if (!withStateSetup) {
         return (

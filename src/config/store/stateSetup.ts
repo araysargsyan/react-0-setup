@@ -72,7 +72,7 @@ const StateSetupConfig = createStateSetupConfig<TRoutes, TAsyncReducerOptions<'c
                         }
                     ),
                     async: true,
-                    canRefetch: true
+                    // canRefetch: true
                 },
             ],
         },

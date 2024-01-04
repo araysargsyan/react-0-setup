@@ -4,6 +4,7 @@ import BugButton from 'app/dubag/ui/BugButton';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import { useAppSelector } from 'shared/hooks/redux';
 import { shallowEqual } from 'react-redux';
+import Page from 'components/Page';
 
 
 function Main() {
@@ -13,7 +14,7 @@ function Main() {
 
     useRenderWatcher(Main.name);
     return (
-        <div>
+        <Page>
             { t('Main page') }
             <BugButton />
             <BugButton />
@@ -37,7 +38,7 @@ function Main() {
                 <p>{ test }</p>
                 <a>{ test }</a>
             </div>
-        </div>
+        </Page>
     );
 }
 

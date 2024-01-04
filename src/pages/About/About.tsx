@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
+import Page from 'components/Page';
 
 
 function About() {
@@ -7,7 +8,7 @@ function About() {
 
     useRenderWatcher(About.name);
     return (
-        <div>
+        <Page>
             { t('About us') }
             <h2>{ t('About us') }</h2>
             <span>{ t('About us') }</span>
@@ -37,7 +38,7 @@ function About() {
                 <p>{ t('About us') }</p>
                 <b>{ t('About us') }</b>
             </div>
-        </div>
+        </Page>
     );
 }
 

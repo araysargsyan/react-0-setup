@@ -6,7 +6,7 @@ export const AsyncReducerProvider = lazyImport(() => import('app/providers/Async
 
 export {
     default as withEnhancedStoreProvider,
-    useEnhancedStoreProvider
+    useEnhancedStoreProvider,
 } from './lib/EnhancedStore';
 
 export {
@@ -26,7 +26,6 @@ export { default } from './store';
 export type {
     IStateSchema,
     TAppDispatch,
-    // TStore,
     IThunkConfig,
     TReduxStoreWithManager,
     TAsyncReducerOptions

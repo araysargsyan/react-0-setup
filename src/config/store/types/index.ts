@@ -2,8 +2,8 @@ import { type EnhancedStore } from '@reduxjs/toolkit';
 import { type IInitialStateSchema } from 'store';
 import { type IFormStateSchema } from 'features/forms';
 import { type AxiosInstance } from 'axios';
-import { type TAppNavigateFunction } from 'shared/hooks/redux';
 
+import { type IEnhancedStoreProviderValue } from '../lib/EnhancedStore';
 import { type TAsyncReducerType, type IReducerManager } from '../lib/ReducerManager';
 import { type TCreateStore } from '../store';
 
@@ -27,9 +27,8 @@ export type TAsyncReducerOptions<
     IStateSchema
 >;
 
-export interface IThunkExtraArg {
+export interface IThunkExtraArg extends Partial<IEnhancedStoreProviderValue> {
     api: AxiosInstance;
-    getNavigate?: () => TAppNavigateFunction;
 }
 
 export interface IThunkConfig<R> {

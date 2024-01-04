@@ -4,7 +4,9 @@ import {
 } from '@reduxjs/toolkit';
 import { initialReducers } from 'store';
 import { $api } from 'shared/api';
+import { getScrollPositionActionType } from 'store/UI';
 
+import { type IEnhancedStoreProviderValue } from './lib/EnhancedStore';
 import {
     type IStateSchema,
     type INestedStateSchema,
@@ -18,7 +20,7 @@ import ReducerManager from './lib/ReducerManager';
 function createStore(
     initialState?: IStateSchema,
     asyncReducers?: ReducersMapObject<IStateSchema>,
-    getNavigate?: IThunkExtraArg['getNavigate'],
+    extra?: IEnhancedStoreProviderValue,
 ) {
     const rootReducers: ReducersMapObject<IStateSchema> = {
         ...asyncReducers,
@@ -28,7 +30,7 @@ function createStore(
     const reducerManager = ReducerManager.create<TStateWithoutNestedSchema, INestedStateSchema>(rootReducers);
     const extraArg: IThunkExtraArg = {
         api: $api,
-        getNavigate,
+        ...extra,
     };
 
     const store = configureStore({
@@ -37,7 +39,14 @@ function createStore(
         preloadedState: initialState,
         middleware: (getDefaultMiddleware) => getDefaultMiddleware(
             { thunk: { extraArgument: extraArg }, }
-        ),
+        ).concat((_) => (next) => (action) => {
+            if (action.type === `${getScrollPositionActionType}/pending`) {
+                return;
+            } else if (action.type === `${getScrollPositionActionType}/fulfilled`) {
+                action.type = getScrollPositionActionType;
+            }
+            return next(action);
+        }),
     });
 
     return {

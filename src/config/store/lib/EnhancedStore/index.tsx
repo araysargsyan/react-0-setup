@@ -1,18 +1,26 @@
 import {
     type Context, createContext, type FC, type PropsWithChildren, useCallback, useContext, useMemo, useRef
 } from 'react';
-import { type NavigateFunction, useNavigate } from 'react-router-dom';
+import {
+    type Location, type NavigateFunction, useLocation, useNavigate
+} from 'react-router-dom';
 
 
-const EnhancedStoreProviderContext = createContext(null) as never as Context<{
+interface IEnhancedStoreProviderValue {
     getNavigate: () => NavigateFunction;
-}>;
+    getLocation: () => Location;
+}
+const EnhancedStoreProviderContext = createContext(null) as never as Context<IEnhancedStoreProviderValue>;
 const EnhancedStoreProvider:FC<PropsWithChildren> = ({ children }) => {
     const navigate = useNavigate();
+    const location = useLocation();
     const cashedNavigate = useRef(navigate);
+    const cashedLocation = useRef(location);
     cashedNavigate.current = navigate;
+    cashedLocation.current = location;
     const getNavigate = useCallback(() => cashedNavigate.current, []);
-    const value = useMemo(() => ({ getNavigate }), [ getNavigate ]);
+    const getLocation = useCallback(() => cashedLocation.current, []);
+    const value = useMemo(() => ({ getNavigate, getLocation }), [ getNavigate, getLocation ]);
 
     return (
         <EnhancedStoreProviderContext.Provider value={ value }>
@@ -32,5 +40,5 @@ function withEnhancedStoreProvider<T extends Record<string, any>>(StoreProvider:
 
 const useEnhancedStoreProvider = () => useContext(EnhancedStoreProviderContext);
 
-export { useEnhancedStoreProvider };
+export { useEnhancedStoreProvider, type IEnhancedStoreProviderValue };
 export default withEnhancedStoreProvider;

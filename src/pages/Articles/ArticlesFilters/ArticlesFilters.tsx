@@ -14,6 +14,7 @@ import {
     getArticlesType,
     articlesActionCreators,
 } from 'store/Articles';
+import useDebounce from 'shared/hooks/useDebounce';
 
 import cls from './ArticlesFilters.module.scss';
 
@@ -40,13 +41,14 @@ const ArticlesFilters: FC<IArticlesFiltersProps> = ({ className }) => {
         articlesActionCreators,
         [ ...filterActionsKeys, 'fetchAll' ]
     );
+    const debouncedFetchAll = useDebounce(actions.fetchAll, 500);
     const onChange = useCallback(<
         KEY extends typeof filterActionsKeys[number],
         ARGS extends Parameters<(typeof actions)[KEY]>
     >(key: KEY) => (...args: ARGS) => {
             (actions[key] as ((...args: ARGS) => void))(...args);
-            actions.fetchAll();
-        }, [ actions ]);
+            debouncedFetchAll();
+        }, [ actions, debouncedFetchAll ]);
 
     return (
         <div className={ _c('',  [ className ]) }>

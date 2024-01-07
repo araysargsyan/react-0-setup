@@ -1,6 +1,6 @@
 import {
     type FC,
-    type ReactNode,
+    type ReactNode, useCallback,
     useEffect,
 } from 'react';
 import { type ReducersMapObject } from '@reduxjs/toolkit';
@@ -43,6 +43,37 @@ const StoreProvider:FC<IStoreProviderProps> = ({
         useEnhancedStoreProvider()
     );
 
+    const filterReducers = useCallback((
+        method: 'add' | 'remove',
+        moduleNames: {
+            prev?: string[];
+            current?: string[];
+        },
+        reducerOptions: TAsyncReducerOptions<'obj'>['reducerOptions']
+    ) => {
+        let filteredReducerOptions;
+        const MN = method === 'add' ? moduleNames.prev : moduleNames.current;
+
+        if (MN?.length) {
+            if (Array.isArray(reducerOptions)) {
+                filteredReducerOptions = MN
+                    ? reducerOptions.filter((opt) => !MN?.includes(opt.key))
+                    : reducerOptions;
+                if (!filteredReducerOptions.length) {
+                    filteredReducerOptions = null;
+                }
+            } else {
+                filteredReducerOptions = MN?.includes(reducerOptions?.key)
+                    ? null
+                    : reducerOptions;
+            }
+        } else {
+            filteredReducerOptions = reducerOptions;
+        }
+
+        return filteredReducerOptions;
+    }, []);
+
     if (!withStateSetup) {
         return (
             <Provider store={ store }>
@@ -56,20 +87,33 @@ const StoreProvider:FC<IStoreProviderProps> = ({
             <StateSetupProvider
                 RedirectionModal={ RedirectionModal }
                 asyncReducer={{
-                    async add(dispatch, { reducerOptions, state }: TAsyncReducerOptions<'obj'>) {
-                        store.reducerManager.add(reducerOptions, state);
-                        dispatch(RMActionCreators.initReducers());
-                    },
-                    async remove(dispatch, { reducerOptions }: TAsyncReducerOptions<'obj'>, prevModuleNames) {
-                        let filteredReducerOptions;
-                        if (Array.isArray(reducerOptions)) {
-                            filteredReducerOptions = reducerOptions.filter((opt) => !prevModuleNames?.includes(opt.key));
-                            if (!filteredReducerOptions.length) {
-                                filteredReducerOptions = null;
-                            }
-                        } else {
-                            filteredReducerOptions = prevModuleNames?.includes(reducerOptions?.key) ? null : reducerOptions;
+                    async add(
+                        { dispatch },
+                        { reducerOptions, state }: TAsyncReducerOptions<'obj'>,
+                        moduleNames
+                    ) {
+                        const filteredReducerOptions = filterReducers(
+                            'add',
+                            moduleNames,
+                            reducerOptions
+                        );
+
+                        if (filteredReducerOptions) {
+                            store.reducerManager.add(filteredReducerOptions, state);
+                            dispatch(RMActionCreators.initReducers());
                         }
+                    },
+                    async remove(
+                        { dispatch },
+                        { reducerOptions }: TAsyncReducerOptions<'obj'>,
+                        moduleNames
+                    ) {
+                        const filteredReducerOptions = filterReducers(
+                            'remove',
+                            moduleNames,
+                            reducerOptions
+                        );
+
                         if (filteredReducerOptions) {
                             store.reducerManager.remove(filteredReducerOptions);
                             dispatch(RMActionCreators.destroyReducers());

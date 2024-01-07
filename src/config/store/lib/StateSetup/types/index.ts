@@ -152,8 +152,26 @@ type TStateSetupFn<
 > = TGetStateSetupConfig<T, '_fetched', AR>;
 
 type TAsyncReducer = {
-    add: (dispatch: TDispatch, options: any) => Promise<void>;
-    remove: (dispatch: TDispatch, options: any, prevModuleNames?: string[]) => Promise<void>;
+    add: (extra: {
+            dispatch: TDispatch;
+            getState: () => IStateSchema;
+        },
+        options: any,
+        moduleNames: {
+            current?: string[];
+            prev?: string[];
+        }
+    ) => Promise<void>;
+    remove: (extra: {
+            dispatch: TDispatch;
+            getState: () => IStateSchema;
+        },
+        options: any,
+        moduleNames: {
+            current?: string[];
+            prev?: string[];
+        }
+    ) => Promise<void>;
 };
 type TStateSetUpArgs = {
     pathname: string;

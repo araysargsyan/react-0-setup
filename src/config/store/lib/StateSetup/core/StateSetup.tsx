@@ -27,6 +27,7 @@ import {
     type Params
 } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { type ActionCreator } from 'redux';
 
 import {
     type TStateSetupFn,
@@ -104,7 +105,6 @@ class StateSetup {
         pathname: string;
         mustDestroy?: boolean;
         ready?: boolean;
-        moduleNames?: string[];
     };
     private _initiatedState = {
         context: { ...JSON.parse(JSON.stringify(this.initiatedStateDefault)) } as IinitiatedState,
@@ -138,10 +138,7 @@ class StateSetup {
     }
     private set prevRoute(value: Exclude<typeof this._prevRoute, undefined>) {
         if (value.pathname) {
-            this._prevRoute = {
-                moduleNames: this.prevRoute?.moduleNames,
-                ...value,
-            };
+            this._prevRoute = { ...value };
         } else {
             this._prevRoute = {
                 ...this.prevRoute,
@@ -482,8 +479,11 @@ class StateSetup {
         return redirectTo !== pathname ? redirectTo : null;
     };
 
-    private async callReducerManager(
-        method: 'add' | 'remove',
+    private isPageLoaded = (pathname: string) => Boolean(this.pageOptionsMap[pathname]?.isPageLoaded);
+
+    private isActionsCalling = (pathname: string) => Boolean(this.pageOptionsMap[pathname]?.isActionsCalling);
+    private async callReducerManager<T extends 'add' | 'remove'>(
+        method: T,
         asyncReducerOptions: IPageOptions['asyncReducerOptions'],
         getState: () => IStateSchema,
         dispatch: TDispatch
@@ -492,33 +492,36 @@ class StateSetup {
             getState, method, asyncReducerOptions
         });
         let asyncActionCreatorsOption: Awaited<ReturnType<TAsyncReducersOptions>>['actionCreators'] = null;
-        const call = async (options: any)=> {
+        let callback: ReturnType<typeof call> | undefined;
+        let moduleNames: string[] | undefined;
+        const call = (options: any): ((moduleNames: Parameters<TAsyncReducer['remove']>[2]) => Promise<void>) => {
             if (method === 'add') {
-                await this.asyncReducer!.add(dispatch, options);
+                return ((moduleNames: Parameters<TAsyncReducer['remove']>[2]) => this.asyncReducer!
+                    .add({ dispatch, getState }, options, moduleNames));
             } else {
-                await this.asyncReducer!.remove(dispatch, options, this.prevRoute!.moduleNames);
+                return ((moduleNames: Parameters<TAsyncReducer['remove']>[2]) => this.asyncReducer!
+                    .remove({ dispatch, getState }, options, moduleNames));
             }
         };
 
         if (asyncReducerOptions) {
             const {
-                moduleNames, options, actionCreators
+                moduleNames: MN, options, actionCreators
             } = await asyncReducerOptions(getState);
+            moduleNames = MN;
 
             if (method === 'add') {
                 asyncActionCreatorsOption = actionCreators;
-                this.prevRoute = { ...this.prevRoute!, moduleNames };
-                await call(options);
+                callback = call(options);
             } else {
-                await call(options);
+                callback = call(options);
             }
         }
 
-        return asyncActionCreatorsOption;
+        return {
+            asyncActionCreatorsOption, callback, moduleNames
+        };
     }
-
-    private isPageLoaded = (pathname: string) => Boolean(this.pageOptionsMap[pathname]?.isPageLoaded);
-    private isActionsCalling = (pathname: string) => Boolean(this.pageOptionsMap[pathname]?.isActionsCalling);
 
     private isElementLazyLoaded(Element: any) {
         let element = Element;
@@ -658,12 +661,23 @@ class StateSetup {
                     const asyncReducerOptions = this.getPageOption(pathname, 'asyncReducerOptions');
 
                     if (this.prevRoute?.pathname !== pathname) {
+                        let removeOptions;
+
                         if (this.prevRoute?.mustDestroy) {
                             const prevAsyncReducerOptions = this.getPageOption(this.prevRoute.pathname, 'asyncReducerOptions');
-                            await this.callReducerManager('remove', prevAsyncReducerOptions, getState, dispatch);
+                            removeOptions = await this.callReducerManager('remove', prevAsyncReducerOptions, getState, dispatch);
                         }
 
-                        asyncActionCreatorsOption = await this.callReducerManager('add', asyncReducerOptions, getState, dispatch);
+                        const addOptions = await this.callReducerManager('add', asyncReducerOptions, getState, dispatch);
+                        asyncActionCreatorsOption = addOptions.asyncActionCreatorsOption;
+                        await removeOptions?.callback?.({
+                            prev: removeOptions.moduleNames,
+                            current: addOptions.moduleNames
+                        });
+                        await addOptions?.callback?.({
+                            prev: removeOptions?.moduleNames,
+                            current: addOptions.moduleNames
+                        });
                     }
 
                     if (asyncReducerOptions && !asyncActionCreatorsOption) {

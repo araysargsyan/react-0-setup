@@ -27,7 +27,6 @@ import {
     type Params
 } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { type ActionCreator } from 'redux';
 
 import {
     type TStateSetupFn,

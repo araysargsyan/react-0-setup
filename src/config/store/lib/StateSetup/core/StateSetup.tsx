@@ -574,23 +574,24 @@ class StateSetup {
                     && typeof action.cb === 'object'
                     && asyncActionCreatorsOption[action.cb.moduleKey]
                 ) {
-                    const cb = action.cb.getAction(asyncActionCreatorsOption[action.cb.moduleKey], pageOptions);
+                    const actionCreator = action.cb.getAction(asyncActionCreatorsOption[action.cb.moduleKey], pageOptions);
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
-                    console.log(`*************************ACTION: {${cb?.typePrefix || cb?.type}}`, pathname);
+                    console.log(`*************************ACTION: {${action.cb.getAction?.typePrefix || action.cb.getAction?.type}}`, pathname);
                     if (isAsync) {
-                        await dispatch(cb());
+                        await dispatch(actionCreator());
                     } else {
-                        dispatch(cb());
+                        dispatch(actionCreator());
                     }
                 } else if (typeof action.cb === 'function') {
+                    const actionCreator = action.cb(pageOptions);
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
                     console.log(`*************************ACTION: {${action.cb?.typePrefix || action.cb?.type}}`, pathname);
                     if (isAsync) {
-                        await dispatch(action.cb(pageOptions)());
+                        await dispatch(actionCreator());
                     } else {
-                        dispatch(action.cb(pageOptions)());
+                        dispatch(actionCreator());
                     }
                 } else if (action.actionCreator) {
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

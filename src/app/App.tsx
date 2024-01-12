@@ -14,21 +14,21 @@ import { useTheme } from './providers/theme';
 function App() {
     const { theme } = useTheme();
     const navigate = useNavigate();
-    useLayoutEffect(() => {
-        // setTimeout(() => {
-        //     navigate('/');
-        //     setTimeout(() => {
-        //         navigate('/');
-        //         setTimeout(() => {
-        //             navigate('/about');
-        //             setTimeout(() => {
-        //                 navigate('/profile');
-        //             }, 100);
-        //         }, 0);
-        //     }, 600);
-        // }, 100);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    // useLayoutEffect(() => {
+    //     setTimeout(() => {
+    //         navigate('/');
+            // setTimeout(() => {
+            //     navigate('/');
+            //     setTimeout(() => {
+            //         navigate('/about');
+            //         setTimeout(() => {
+            //             navigate('/profile');
+            //         }, 100);
+            //     }, 0);
+            // }, 600);
+    //     }, 2200);
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, []);
 
     // useEffect(() => {
     //     setTimeout(() => {

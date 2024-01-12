@@ -10,6 +10,9 @@ export function createAsyncCb<
     moduleKey: string,
     getAction: IAsyncCb<T, P>['getAction']
 ): IAsyncCb {
+    const regex =/return.*?\.(\w+)\.bind\s*\(/;
+    // @ts-ignore
+    getAction.type = regex.exec(getAction.toString())?.[1];
     return {
         moduleKey: moduleKey,
         getAction: getAction as IAsyncCb['getAction']

@@ -12,6 +12,7 @@ export interface ISidebarItem {
     Icon?: FC<SVGProps<SVGSVGElement>>;
 }
 
+
 export const sidebarItemsList: ISidebarItem[] = [
     {
         path: Routes.MAIN,

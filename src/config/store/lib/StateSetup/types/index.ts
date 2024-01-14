@@ -140,12 +140,9 @@ type TGetStateSetupConfig<
     T extends string = string,
     O extends string | false = false,
     AR extends TAsyncReducersOptionsReturn<IStateSchema> = TAsyncReducersOptionsReturn<IStateSchema>
-> = (searchParams: URLSearchParams) => Partial<
-    Record<
-        T,
-        Partial<IPageOptions<O, AR>>
-    >
->;
+> = (searchParams: URLSearchParams) => {
+    [K in T]: Partial<IPageOptions<O, AR>>
+};
 type TStateSetupFn<
     T extends string = string,
     AR extends TAsyncReducersOptionsReturn<IStateSchema> = TAsyncReducersOptionsReturn<IStateSchema>

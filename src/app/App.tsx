@@ -1,10 +1,8 @@
 import _c from 'shared/helpers/classNames';
-import AppRouter from 'app/router';
+import AppRouter from 'app/providers/AppRouter';
 import Sidebar from 'components/SideBar';
 import Navbar from 'components/Navbar';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
-import { useEffect, useLayoutEffect } from 'react';
-import { USER_LOCALSTORAGE_KEY } from 'shared/const';
 import { useNavigate } from 'react-router-dom';
 import Flex from 'shared/ui/Stack';
 

@@ -31,4 +31,10 @@ type AnyFunction = (...args: any[]) => any;
 interface EmptyObject {}
 
 type ValueOf<T extends object> = T[keyof T];
+type PartialSpecifics<
+    K extends PropertyKey,
+    T extends Record<K, any> = Record<K, any>
+> = Partial<Pick<T, Extract<keyof T, K>>> & Omit<T, K> extends infer O
+    ? { [P in keyof O]: O[P] }
+    : never;
 // type PromiseReturnType<T extends Promise<any>> = T extends Promise<infer U> ? U : never;

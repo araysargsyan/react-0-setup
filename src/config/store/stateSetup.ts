@@ -17,7 +17,10 @@ import {
 } from '.';
 
 
-const StateSetupConfig = createStateSetupConfig<TRoutes, TAsyncReducerOptions<'cb'>>((searchParams) =>  {
+const StateSetupConfig = createStateSetupConfig<
+    Exclude<TRoutes, '*'>,
+    TAsyncReducerOptions<'cb'>
+>((searchParams) => {
     return {
         [Routes.ARTICLES]: {
             asyncReducerOptions: async () => {

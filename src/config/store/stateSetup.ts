@@ -1,5 +1,5 @@
-import { Routes, type TRoutes } from 'config/router';
-import { USER_LOCALSTORAGE_KEY } from 'shared/const';
+import { type TRoutes } from 'config/router';
+import { Routes, USER_LOCALSTORAGE_KEY } from 'shared/const';
 import { counterActionCreators } from 'store/Counter';
 import { userActionCreators } from 'store/User';
 import until from 'app/dubag/util/wait';

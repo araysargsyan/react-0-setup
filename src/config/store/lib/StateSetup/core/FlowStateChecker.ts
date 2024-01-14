@@ -1,6 +1,6 @@
 import { type useNavigate } from 'react-router-dom';
 import until from 'app/dubag/util/wait';
-import { Routes } from 'config/router';
+import { Routes } from 'shared/const';
 
 import {
     auth, authExpired, login, logout, noAuth

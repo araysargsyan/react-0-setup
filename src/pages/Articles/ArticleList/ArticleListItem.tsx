@@ -9,7 +9,7 @@ import Icon from 'shared/ui/Icon';
 import _c from 'shared/helpers/classNames';
 import Card from 'shared/ui/Card';
 import AppLink from 'shared/ui/AppLink';
-import { Routes } from 'config/router';
+import { Routes } from 'shared/const';
 
 import cls from './ArticleList.module.scss';
 

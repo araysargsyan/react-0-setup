@@ -1,9 +1,9 @@
 import { MemoryRouter } from 'react-router-dom';
 import { render } from '@testing-library/react';
 import { type ReactNode } from 'react';
-import { Routes } from 'config/router';
 import StoreProvider from 'app/providers/StoreProvider';
 import { type IStateSchema } from 'config/store';
+import { Routes } from 'shared/const';
 
 
 export interface IComponentRenderOptions {

@@ -1,19 +1,10 @@
 import { memo } from 'react';
 import { lazyImport } from 'app/providers/AppRouter';
+import { Routes } from 'shared/const';
 
 import createRoutesConfig from './lib/createRoutesConfig';
 
 
-const Routes = {
-    MAIN: '/',
-    TEST: '/test',
-    // LOGIN: '/login',
-    ABOUT: '/about',
-    PROFILE: '/profile',
-    ARTICLES: '/articles',
-    ARTICLE_DETAILS: '/articles/:id',
-    NOT_FOUND: '*'
-} as const;
 type TRoutes = ValueOf<typeof Routes>;
 
 const routesConfig = createRoutesConfig<TRoutes>({
@@ -41,7 +32,6 @@ const routesConfig = createRoutesConfig<TRoutes>({
 });
 
 export {
-    Routes,
     routesConfig,
     type TRoutes
 };

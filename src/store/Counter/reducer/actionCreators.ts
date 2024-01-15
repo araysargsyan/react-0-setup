@@ -11,7 +11,7 @@ export const fetchTest = createAsyncThunk<
     fulfillWithValue,
     extra: { api }
 }) => {
-    // await until(600);
+    // await until(1600);
     const { data } = await api.get('/test');
 
     return fulfillWithValue(data);

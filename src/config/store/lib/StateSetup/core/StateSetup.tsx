@@ -153,7 +153,6 @@ class StateSetup {
 
     private get $AppState() {
         return {
-            initiatedState: this.initiatedState,
             isAuth: this.isAuth,
             isAuthChecking: this.isAuthChecking,
             flowStatus: this.flowStatus,
@@ -163,6 +162,7 @@ class StateSetup {
             loadingCount: this.loadingCount,
             waitUntil: this.waitUntil,
             restart: this.restart,
+            initiatedState: JSON.parse(JSON.stringify(this.initiatedState)),
             prevRoute: JSON.parse(JSON.stringify(this.prevRoute || {})),
             pageOptionsMap: JSON.parse(JSON.stringify(this.pageOptionsMap)),
             redirectionContext: JSON.parse(JSON.stringify(this.redirectionContext)),
@@ -814,6 +814,10 @@ class StateSetup {
             pathname,
             pathnameWithPattern
         });
+
+        if (this.currentRoute !== pathnameWithPattern) {
+            this._initiatedState.reset();
+        }
 
         if (!this.initiatedState._initiated) {
             this._initiatedState.activate();

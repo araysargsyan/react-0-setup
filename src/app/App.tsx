@@ -5,6 +5,7 @@ import Navbar from 'components/Navbar';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import { useNavigate } from 'react-router-dom';
 import Flex from 'shared/ui/Stack';
+import { useLayoutEffect } from 'react';
 
 import { useTheme } from './providers/theme';
 
@@ -15,16 +16,16 @@ function App() {
     // useLayoutEffect(() => {
     //     setTimeout(() => {
     //         navigate('/');
-            // setTimeout(() => {
-            //     navigate('/');
-            //     setTimeout(() => {
-            //         navigate('/about');
-            //         setTimeout(() => {
-            //             navigate('/profile');
-            //         }, 100);
-            //     }, 0);
-            // }, 600);
-    //     }, 2200);
+    //         setTimeout(() => {
+    //             navigate('/');
+    //             setTimeout(() => {
+    //                 navigate('/about');
+    //                 setTimeout(() => {
+    //                     navigate('/profile');
+    //                 }, 100);
+    //             }, 0);
+    //         }, 200);
+    //     }, 200);
     //     // eslint-disable-next-line react-hooks/exhaustive-deps
     // }, []);
 

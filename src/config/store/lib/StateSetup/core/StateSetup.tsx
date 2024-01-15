@@ -815,7 +815,7 @@ class StateSetup {
             pathnameWithPattern
         });
 
-        if (this.currentRoute !== pathnameWithPattern) {
+        if (this.currentRoute !== pathnameWithPattern && this.flowStatus !== FlowStatuses.Start) {
             this._initiatedState.reset();
         }
 

@@ -802,7 +802,7 @@ class StateSetup {
                 && waitUntil
                 && !this.isPageLoaded(this.initiatedState.mustRedirectTo || pathnameWithPattern)
                 && (!state?.from || this.restart === RestartTypes.AuthExpired)
-                && this.prevRoute?.pathname !== redirectTo
+                && this.prevRoute?.pathname !== this.initiatedState.mustRedirectTo
             );
 
             if (

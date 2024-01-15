@@ -91,6 +91,7 @@ export default class FlowStateChecker {
             this['useEffect: Update'] = JSON.parse(JSON.stringify(this.initialFlowState['useEffect: Update']));
             return;
         }
+        //! +500 to authChecking time
         const waitingTime = 1200;
 
         if (window.location.pathname !== noAuth.paths.FRL['NO_WAIT']
@@ -273,7 +274,7 @@ export default class FlowStateChecker {
                     window.location.replace(auth.paths.FRL['NO_WAIT']);
                 } else if (localStorage.getItem('user') && this.checks.login === undefined) {
                     document.getElementById('SIGN_OUT')?.click();
-                    until(waitingTime + 1000).then(() => {
+                    until(waitingTime * 2).then(() => {
                         localStorage.setItem('flowStateMap', JSON.stringify('login'));
                         localStorage.setItem('$authProtectionConfig', JSON.stringify(login.config['RFRL']['NO_WAIT']));
                         window.location.replace(login.paths['RFRL']['NO_WAIT']);
@@ -292,13 +293,13 @@ export default class FlowStateChecker {
                 } else if (this.checks[type]['RFRL->WAIT_AUTH'] === undefined) {
                     if (window.location.pathname !== object.paths['RFRL']['WAIT_AUTH']) {
                         (document.getElementById(type === 'login' ? logoutBtnId : loginBtnId))?.click();
-                        until(waitingTime + 1000).then(() => {
+                        until(waitingTime * 2).then(() => {
                             localStorage.setItem('$authProtectionConfig', JSON.stringify(object.config['RFRL']['WAIT_AUTH']));
                             localStorage.setItem('flowStateMap', JSON.stringify(type));
                             window.location.replace(object.paths['RFRL']['WAIT_AUTH']);
                         });
                     } else {
-                        until(waitingTime + 1000).then(() => {
+                        until(waitingTime * 2).then(() => {
                             localStorage.setItem('flowStateMap', JSON.stringify([ type, 'RFRL', 'WAIT_AUTH' ]));
                             localStorage.setItem('flowState', JSON.stringify(object['RFRL']['WAIT_AUTH']));
                             (document.getElementById(type === 'login' ? loginBtnId : logoutBtnId))?.click();
@@ -347,11 +348,11 @@ export default class FlowStateChecker {
                     } else {
                         until(waitingTime).then(() => {
                             (document.getElementById(type === 'login' ? logoutBtnId : loginBtnId))?.click();
-                            until(waitingTime + 1000).then(() => {
+                            until(waitingTime * 2).then(() => {
                                 this.navigate(Routes.TEST);
-                                until(waitingTime + 1000).then(() => {
+                                until(waitingTime * 2).then(() => {
                                     this.navigate(object.paths['RNFRL']['WAIT_AUTH']);
-                                    until(waitingTime + 1000).then(() => {
+                                    until(waitingTime * 2).then(() => {
                                         localStorage.removeItem('rendered');
                                         localStorage.setItem('flowStateMap', JSON.stringify([ type, 'RNFRL', 'WAIT_AUTH' ]));
                                         localStorage.setItem('flowState', JSON.stringify(object['RNFRL']['WAIT_AUTH']));
@@ -360,27 +361,6 @@ export default class FlowStateChecker {
                                     });
                                 });
                             });
-                        //     until(waitingTime).then(() => {
-                        //         console.log(window.location.pathname, 'AAAAAA');
-                        //         if (window.location.pathname !== object.paths['RNFRL']['WAIT_AUTH']) {
-                        //             // if (type === 'login') {
-                        //             //     localStorage.removeItem('user');
-                        //             // } else {
-                        //             //     localStorage.setItem('user', JSON.stringify({
-                        //             //         id: '1',
-                        //             //         password: '123',
-                        //             //         username: 'admin',
-                        //             //     }));
-                        //             // }
-                        //             localStorage.setItem('flowStateMap', JSON.stringify(type));
-                        //             this.navigate(object.paths['RNFRL']['WAIT_AUTH']);
-                        //         } else {
-                        //             localStorage.removeItem('rendered');
-                        //             localStorage.setItem('flowStateMap', JSON.stringify([ type, 'RNFRL', 'WAIT_AUTH' ]));
-                        //             localStorage.setItem('flowState', JSON.stringify(object['RNFRL']['WAIT_AUTH']));
-                        //             (document.getElementById(type === 'login' ? loginBtnId : logoutBtnId))?.click();
-                        //         }
-                        //     });
                         });
                     }
                 } else if (this.checks[type]['NR'] === undefined) {
@@ -607,7 +587,7 @@ export default class FlowStateChecker {
                         if (!isRendered) {
                             until(waitingTime).then(() => {
                                 this.navigate(object.paths['RPFRL']['REDIRECTED_PAGE_NOT_FIRST_RENDER']);
-                                until(waitingTime + 1000).then(() => {
+                                until(waitingTime * 2).then(() => {
                                     localStorage.setItem('rendered', JSON.stringify('true'));
                                     localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
                                     this.navigate(Routes.TEST);
@@ -636,7 +616,7 @@ export default class FlowStateChecker {
                         if (!isRendered) {
                             until(waitingTime).then(() => {
                                 this.navigate('/');
-                                until(waitingTime + 1000).then(() => {
+                                until(waitingTime * 2).then(() => {
                                     localStorage.setItem('rendered', JSON.stringify('true'));
                                     localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
                                     this.navigate(Routes.TEST);
@@ -665,9 +645,9 @@ export default class FlowStateChecker {
                         if (!isRendered) {
                             until(waitingTime).then(() => {
                                 this.navigate('/');
-                                until(waitingTime + 1000).then(() => {
+                                until(waitingTime * 2).then(() => {
                                     this.navigate(object.paths['RPNFRL']['REDIRECTED_PAGE_NOT_FIRST_RENDER']);
-                                    until(waitingTime + 1000).then(() => {
+                                    until(waitingTime * 2).then(() => {
                                         localStorage.setItem('rendered', JSON.stringify('true'));
                                         localStorage.setItem('flowStateMap', JSON.stringify('authExpired'));
                                         this.navigate(Routes.TEST);

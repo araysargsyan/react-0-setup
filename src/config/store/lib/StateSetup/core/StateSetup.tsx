@@ -50,7 +50,7 @@ import {
     type TMode,
     type TStateSetup,
     type TUseRedirectionContext,
-    type IinitiatedState,
+    type IinitiatedState, type TPageOptionsArgument,
 } from '../types';
 import {
     LoadingTypes,
@@ -81,12 +81,12 @@ class StateSetup {
         }
     }
 
-    private readonly basePageOptions: IBasePageOptions = {
+    private readonly basePageOptions: IBasePageOptions & {_lazy?: true} = {
         actions: [],
         authRequirement: null,
         isPageLoaded: false,
         isActionsCalling: false,
-        params: {}
+        params: {},
     };
     private readonly initiatedStateDefault: IinitiatedState  = {
         stopActionsRecall: false,
@@ -124,6 +124,7 @@ class StateSetup {
     private flowStatus: TFlowStatuses | null = null;
     private currentRoute: string | null = null;
     private pageOptionsMap: Record<string, IBasePageOptions & {
+        _lazy?: true;
         _break?: Record<number, boolean>;
         _notFound?: true;
     }> = {};
@@ -477,6 +478,14 @@ class StateSetup {
 
         return redirectTo !== pathname ? redirectTo : null;
     };
+    private getPublicPageOptions(pageOptions: (typeof this.pageOptionsMap)[number]): Required<TPageOptionsArgument> {
+        return {
+            isActionsCalling: pageOptions.isActionsCalling,
+            isPageLoaded: pageOptions._lazy ? pageOptions.isPageLoaded : true,
+            pageNumber: this.pageNumber,
+            params: pageOptions.params
+        };
+    }
 
     private isPageLoaded = (pathname: string) => Boolean(this.pageOptionsMap[pathname]?.isPageLoaded);
 
@@ -574,7 +583,10 @@ class StateSetup {
                     && typeof action.cb === 'object'
                     && asyncActionCreatorsOption[action.cb.moduleKey]
                 ) {
-                    const actionCreator = action.cb.getAction(asyncActionCreatorsOption[action.cb.moduleKey], pageOptions);
+                    const actionCreator = action.cb.getAction(
+                        asyncActionCreatorsOption[action.cb.moduleKey],
+                        this.getPublicPageOptions(pageOptions)
+                    );
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
                     console.log(`*************************ACTION: {${action.cb.getAction?.typePrefix || action.cb.getAction?.type}}`, pathname);
@@ -584,7 +596,7 @@ class StateSetup {
                         dispatch(actionCreator());
                     }
                 } else if (typeof action.cb === 'function') {
-                    const actionCreator = action.cb(pageOptions);
+                    const actionCreator = action.cb(this.getPublicPageOptions(pageOptions));
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
                     console.log(`*************************ACTION: {${action.cb?.typePrefix || action.cb?.type}}`, pathname);
@@ -873,6 +885,8 @@ class StateSetup {
                     this.initiatedState.mustActivateLoading = false;
                 }
                 this.loading = LoadingTypes.Loading;
+                const onLoading = this.getPageOption(pathnameWithPattern, 'onLoading');
+                onLoading?.(dispatch, this.getPublicPageOptions(this.pageOptionsMap[pathnameWithPattern]));
             }
 
             console.log('%c____usePageStateSetUp____', 'color: #ae54bf', 'INIT: END', {
@@ -1158,6 +1172,8 @@ class StateSetup {
             if (type === LoadingTypes.Suspense && loading && this.loading === null) {
                 console.log(`%c____LOADER_____{${pathname}}`, 'color: #dbd518', 'useLayoutEffect');
                 this.loading = LoadingTypes.Suspense;
+                const onLoading = this.getPageOption(pathname, 'onLoading');
+                onLoading?.(dispatch, this.getPublicPageOptions(this.pageOptionsMap[pathname]));
                 dispatch(this.setLoading(true));
             }
 
@@ -1232,79 +1248,111 @@ class StateSetup {
         }
     );
 
-    public ProtectedElement: FC<PropsWithChildren<{ pathname: string; PageLoader?: ComponentType }>> = ({
-        children,
-        pathname,
-        PageLoader
-    }) => {
-        const isPageReady = useSelector(this.getIsPageReady(pathname));
-        const lazy = this.isElementLazyLoaded(children);
-        const dispatch = useDispatch<TDispatch>();
-        const [ searchParams ] = useSearchParams();
-        if (pathname === '*') {
-            this.updateBasePageOptions({
-                pathname,
-                searchParams
-            }, this.currentRoute!);
-        }
-
-        console.log('%c____ProtectedElement_____', 'color: #22af2c', '::START', {
-            lazy,
+    public ProtectedElement: FC<PropsWithChildren<{
+        pathname: string;
+        PageLoader?: ComponentType;
+        lazy?: true;
+    }>> = ({
+            children,
             pathname,
-            isPageReady,
-            'this.$AppState': this.$AppState,
-        });
+            PageLoader,
+            lazy: isLazy =  false
+        }) => {
+            const isPageReady = useSelector(this.getIsPageReady(pathname));
+            const lazy = this.isElementLazyLoaded(children) || isLazy;
+            const dispatch = useDispatch<TDispatch>();
+            const [ searchParams ] = useSearchParams();
+            if (pathname === '*') {
+                this.updateBasePageOptions({
+                    pathname,
+                    searchParams
+                }, this.currentRoute!);
+            }
+            if (lazy) {
+                this.pageOptionsMap[pathname]._lazy = true;
+            }
 
-        const redirectTo = this.getRedirectTo(pathname);
-        const { waitUntil } = this.getPageOption(this.redirectTo || pathname, 'onNavigate') || {};
-
-        if (!lazy && this.loading === LoadingTypes.Loading) {
-            this.waitUntil = true;
-        }
-
-        useEffect(() => {
-            flowState['useEffect: Update'].____ProtectedElement_____ = flowState['useEffect: Update'].____ProtectedElement_____ + 1;
-            console.log('%c____ProtectedElement_____: UPDATE', 'color: #22af2c', {
+            console.log('%c____ProtectedElement_____', 'color: #22af2c', '::START', {
+                lazy,
                 pathname,
                 isPageReady,
                 'this.$AppState': this.$AppState,
             });
-        });
 
-        useLayoutEffect(() => {
-            if (
-                this.loading === LoadingTypes.Loading
+            const redirectTo = this.getRedirectTo(pathname);
+            const { waitUntil } = this.getPageOption(this.redirectTo || pathname, 'onNavigate') || {};
+
+            if (!lazy && this.loading === LoadingTypes.Loading) {
+                this.waitUntil = true;
+            }
+
+            useEffect(() => {
+                flowState['useEffect: Update'].____ProtectedElement_____ = flowState['useEffect: Update'].____ProtectedElement_____ + 1;
+                console.log('%c____ProtectedElement_____: UPDATE', 'color: #22af2c', {
+                    pathname,
+                    isPageReady,
+                    'this.$AppState': this.$AppState,
+                });
+            });
+
+            useLayoutEffect(() => {
+                if (
+                    this.loading === LoadingTypes.Loading
                 && this.restart === RestartTypes.OnAuth
                 && redirectTo
                 && !this.isPageLoaded(redirectTo)
-            ) {
-                console.log('%c____ProtectedElement_____', 'color: #22af2c', 'useLayoutEffect', 'SET-LOADING', { $AppState: this.$AppState, pathname });
-                dispatch(this.setLoading(true));
-            }
-            if (this.hasRedirectionModal && this.restart && this.redirectionContext?.type === RedirectionTypes.OnAuth) {
-                dispatch(this.setRedirectionModal(true));
-            }
-        }, [ isPageReady, dispatch, pathname, redirectTo ]);
+                ) {
+                    console.log('%c____ProtectedElement_____', 'color: #22af2c', 'useLayoutEffect', 'SET-LOADING', { $AppState: this.$AppState, pathname });
+                    dispatch(this.setLoading(true));
+                }
+                if (this.hasRedirectionModal && this.restart && this.redirectionContext?.type === RedirectionTypes.OnAuth) {
+                    dispatch(this.setRedirectionModal(true));
+                }
+            }, [ isPageReady, dispatch, pathname, redirectTo ]);
 
-        if (redirectTo && this.restart === RestartTypes.OnAuth) {
-            console.log('%c____ProtectedElement_____', 'color: #22af2c', 'redirecting', { $AppState: this.$AppState });
-            this.updateBasePageOptions({
-                pathname: redirectTo,
-                searchParams
-            });
+            if (redirectTo && this.restart === RestartTypes.OnAuth) {
+                console.log('%c____ProtectedElement_____', 'color: #22af2c', 'redirecting', { $AppState: this.$AppState });
+                this.updateBasePageOptions({
+                    pathname: redirectTo,
+                    searchParams
+                });
 
-            const { waitUntil } = this.getPageOption(redirectTo, 'onNavigate') || {};
-            if (!this.loading && waitUntil && !this.isPageLoaded(redirectTo)) {
-                console.log('%c____ProtectedElement_____', 'color: #22af2c', 'PRE_SET-LOADING');
-                this.loading = LoadingTypes.Loading;
+                const { waitUntil } = this.getPageOption(redirectTo, 'onNavigate') || {};
+                if (!this.loading && waitUntil && !this.isPageLoaded(redirectTo)) {
+                    console.log('%c____ProtectedElement_____', 'color: #22af2c', 'PRE_SET-LOADING');
+                    this.loading = LoadingTypes.Loading;
+                }
+
+                this.redirectionContext = {
+                    redirectTo,
+                    from: pathname,
+                    type: RedirectionTypes.OnAuth,
+                    isPageLoaded: this.isPageLoaded(redirectTo)
+                };
+
+                console.log('%c____ProtectedElement_____', 'color: #22af2c', '::END', {
+                    lazy,
+                    pathname,
+                    isPageReady,
+                    waitUntil,
+                    redirectTo,
+                    'this.$AppState': this.$AppState,
+                });
+                return (
+                    <>
+                        { this.loading === LoadingTypes.Loading ? (
+                            <this.Loader
+                                pathname={ pathname }
+                                PageLoader={ PageLoader }
+                            />
+                        ) : children }
+                        <Navigate
+                            to={ redirectTo }
+                            state={{ from: pathname }}
+                        />
+                    </>
+                );
             }
-
-            this.redirectionContext = {
-                redirectTo,
-                from: pathname,
-                type: RedirectionTypes.OnAuth,
-                isPageLoaded: this.isPageLoaded(redirectTo)
-            };
 
             console.log('%c____ProtectedElement_____', 'color: #22af2c', '::END', {
                 lazy,
@@ -1321,53 +1369,29 @@ class StateSetup {
                             pathname={ pathname }
                             PageLoader={ PageLoader }
                         />
-                    ) : children }
-                    <Navigate
-                        to={ redirectTo }
-                        state={{ from: pathname }}
-                    />
+                    ) : null }
+                    {
+                        isPageReady && !redirectTo
+                            ? (
+                                    !lazy && !waitUntil ?
+                                        children : (
+                                            <Suspense fallback={ (
+                                                <this.Loader
+                                                    type={ LoadingTypes.Suspense }
+                                                    pathname={ pathname }
+                                                    PageLoader={ PageLoader }
+                                                />
+                                            ) }
+                                            >
+                                                { children }
+                                            </Suspense>
+                                        )
+                                )
+                            : null
+                    }
                 </>
             );
-        }
-
-        console.log('%c____ProtectedElement_____', 'color: #22af2c', '::END', {
-            lazy,
-            pathname,
-            isPageReady,
-            waitUntil,
-            redirectTo,
-            'this.$AppState': this.$AppState,
-        });
-        return (
-            <>
-                { this.loading === LoadingTypes.Loading ? (
-                    <this.Loader
-                        pathname={ pathname }
-                        PageLoader={ PageLoader }
-                    />
-                ) : null }
-                {
-                    isPageReady && !redirectTo
-                        ? (
-                                !lazy && !waitUntil ?
-                                    children : (
-                                        <Suspense fallback={ (
-                                            <this.Loader
-                                                type={ LoadingTypes.Suspense }
-                                                pathname={ pathname }
-                                                PageLoader={ PageLoader }
-                                            />
-                                        ) }
-                                        >
-                                            { children }
-                                        </Suspense>
-                                    )
-                            )
-                        : null
-                }
-            </>
-        );
-    };
+        };
 
     public getStore() {
         return {

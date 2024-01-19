@@ -12,7 +12,9 @@ import { AsyncReducerProvider } from 'config/store';
 
 const AppRouter: FC = () => {
     const enrichmentRender = useCallback((path: TRoutes) => {
-        const { Element, asyncReducers } = routesConfig[path];
+        const {
+            Element, asyncReducers, isLazy
+        } = routesConfig[path];
 
         return (
             <Route
@@ -23,6 +25,7 @@ const AppRouter: FC = () => {
                         <ProtectedElement
                             pathname={ path }
                             PageLoader={ PageLoader }
+                            lazy={ isLazy }
                         >
                             { asyncReducers ? (
                                 <AsyncReducerProvider

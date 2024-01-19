@@ -29,7 +29,7 @@ interface IThunkConfig<R = string> {
     dispatch: TDispatch;
 }
 
-type TCb<P extends Params<string> = Params<string>> = ((pageOptions: IBasePageOptions<P>) => ActionCreator<any>);
+type TCb<P extends Params<string> = Params<string>> = ((pageOptions: Required<TPageOptionsArgument<P>>) => ActionCreator<any>);
 type TMode = 'APP' | 'PAGE';
 interface IAsyncCb<
     T extends Record<string, ReturnType<TCb>> = Record<string, ReturnType<TCb>>,
@@ -37,30 +37,10 @@ interface IAsyncCb<
 > {
     getAction: (
         module: T, //* is a one of moduleKeys from asyncReducerOptions returns second items
-        pageOptions: IBasePageOptions<P>
+        pageOptions: Required<TPageOptionsArgument<P>>
     ) => ReturnType<TCb>;
     moduleKey: string;
 }
-
-// interface IBaseActionCreatorsOptions {
-//     //* cb are sync if not defined
-//     async?: true;
-//     //* Boolean or function with state param and returned boolean
-//     //* cb calling once if not defined
-//     canRefetch?: boolean | ((state: IStateSchema) => boolean);
-//     _fetched: boolean;
-// }
-// interface A extends IBaseActionCreatorsOptions {
-//     //* callback is function returning action creator
-//     //* or if using async reducers u can use object with getActions that returning action creator
-//     cb?: TCb | IAsyncCb;
-// }
-// interface B extends IBaseActionCreatorsOptions {
-//     //* define actionCreator if u not need pageOptions
-//     actionCreator?: ActionCreator<any>; //| ThunkAction<any, any, any, AnyAction>;
-// }
-//
-// type IActionCreatorsOptions = A | B;
 
 interface IActionCreatorsOptions {
     //* callback is function returning action creator
@@ -118,6 +98,7 @@ interface IPageOptions<
     //* returning cottage where first item is reducerOptions
     //* and second item is object with key as moduleKey and value as actionCreators oobj
     readonly asyncReducerOptions?: ARO;
+    readonly onLoading?: (dispatch: TDispatch, pageOptions: Required<TPageOptionsArgument>) => void;
     readonly onNavigate?: INavigationOptions;
 }
 
@@ -127,6 +108,10 @@ interface IBasePageOptions<P extends Params<string> = Params<string>> extends IP
     pageNumber?: number;
     params: P;
 }
+type TPageOptionsArgument<P extends Params<string> = Params<string>> = Pick<
+    IBasePageOptions<P>,
+    'isPageLoaded' | 'isActionsCalling' | 'pageNumber' | 'params'
+>;
 
 type TAsyncReducersOptions<
     AR extends TAsyncReducersOptionsReturn<IStateSchema> = TAsyncReducersOptionsReturn<IStateSchema>,
@@ -236,6 +221,7 @@ export type {
 
     IPageOptions,
     IBasePageOptions,
+    TPageOptionsArgument,
     IAsyncCb,
     TGetStateSetupConfig,
     TStateSetupFn,

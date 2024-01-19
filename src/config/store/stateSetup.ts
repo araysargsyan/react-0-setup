@@ -70,7 +70,7 @@ const StateSetupConfig = createStateSetupConfig<
                 {
                     cb: createAsyncCb<TArticlesActionCreators, {id: string}>(
                         'articles',
-                        (articleActionCreators, { params }) => {
+                        (articleActionCreators, { params, ...ot }) => {
                             return articleActionCreators.fetchById.bind(null, params.id);
                         }
                     ),
@@ -81,6 +81,9 @@ const StateSetupConfig = createStateSetupConfig<
             ],
         },
         [Routes.MAIN]: {
+            onLoading: (dispatch, pageOptions) => {
+                dispatch(counterActionCreators.increment(10));
+            },
             authRequirement: null,
             actions: [
                 {
@@ -178,7 +181,7 @@ export const checkAuthorization: TCheckAuthorizationFn = async (
     //     }
     // }
 
-    // await until(1000);
+    // await until(3000);
 
     if (
         localStorage.getItem(USER_LOCALSTORAGE_KEY)

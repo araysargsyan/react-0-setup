@@ -6,6 +6,7 @@ import { type TAsyncReducerOptions } from 'config/store';
 interface IRouterConfig extends PathRouteProps {
     Element: ComponentType;
     asyncReducers?: TAsyncReducerOptions;
+    isLazy?: true;
 }
 type TRoutesConfig<T extends string> = {
     [KEY in T]: IRouterConfig

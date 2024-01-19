@@ -21,6 +21,7 @@ const {
     reducer: appReducer,
     actionCreators: appActionCreators,
 } = stateSetupConfig.getStore();
+
 const {
     ProtectedElement,
     StateSetupProvider,

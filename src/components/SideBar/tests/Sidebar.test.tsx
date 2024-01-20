@@ -1,20 +1,11 @@
 import { fireEvent, screen } from '@testing-library/react';
 import { componentRender } from '@config/jest/ui/componentRender';
-import * as themeModules from 'app/providers/theme';
-import { ETheme } from 'app/providers/theme';
+import { ETheme } from 'store/UI';
 
 import Sidebar from '../ui/Sidebar';
 
 
 describe('Sidebar', () => {
-    beforeAll(() => {
-        jest.spyOn(themeModules, 'useTheme').mockImplementation(jest.fn().mockReturnValue({
-            theme: ETheme.LIGHT,
-            toggleTheme: jest.fn(),
-        }));
-    });
-
-
     test('Render', () => {
         componentRender(<Sidebar />);
         expect(screen.getByTestId('sidebar')).toBeInTheDocument();

@@ -1,6 +1,5 @@
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import ThemeProvider from 'app/providers/theme';
 import ErrorBoundary from 'app/providers/ErrorBoundary';
 import StoreProvider from 'app/providers/StoreProvider';
 import TranslationProvider from 'app/providers/TranslationProvider';
@@ -13,14 +12,12 @@ const root = createRoot(document.getElementById('root') as HTMLElement);
 
 root.render(
     <BrowserRouter>
-        <ThemeProvider>
-            <TranslationProvider>
-                <StoreProvider>
-                    <ErrorBoundary>
-                        <App />
-                    </ErrorBoundary>
-                </StoreProvider>
-            </TranslationProvider>
-        </ThemeProvider>
+        <TranslationProvider>
+            <StoreProvider>
+                <ErrorBoundary>
+                    <App />
+                </ErrorBoundary>
+            </StoreProvider>
+        </TranslationProvider>
     </BrowserRouter>
 );

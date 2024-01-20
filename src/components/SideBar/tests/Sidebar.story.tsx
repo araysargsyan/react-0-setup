@@ -1,7 +1,7 @@
 import  {
-    type Meta, type StoryFn, type StoryObj 
+    type Meta, type StoryFn, type StoryObj
 } from '@storybook/react';
-import { ETheme } from 'app/providers/theme';
+import { ETheme } from 'store/UI';
 
 import Sidebar from '../ui/Sidebar';
 

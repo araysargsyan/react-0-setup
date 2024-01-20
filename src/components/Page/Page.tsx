@@ -47,7 +47,6 @@ const Page: FC<PropsWithChildren<IPageProps>> = ({
     }, []);
 
     const onScroll = useDebounce<UIEventHandler<HTMLDivElement>>((e) => {
-        console.log((e.target as typeof e.currentTarget)?.scrollTop, e.currentTarget?.scrollTop, 666);
         setScrollPosition({
             position: (e.target as typeof e.currentTarget).scrollTop,
             path: pathname,

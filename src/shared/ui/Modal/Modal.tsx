@@ -9,7 +9,7 @@ import {
 } from 'react';
 import _c, { type TMods } from 'shared/helpers/classNames';
 import Portal from 'shared/ui/Portal';
-import { useTheme } from 'app/providers/theme';
+import { useAppSelector } from 'shared/hooks/redux';
 
 import cls from './Modal.module.scss';
 
@@ -32,7 +32,7 @@ const Modal: FC<PropsWithChildren<IModalProps>> = ({
     const [ isClosing, setIsClosing ] = useState(false);
     const [ isMounted, setIsMounted ] = useState(false);
     const timerRef = useRef<ReturnType<typeof setTimeout>>();
-    const { theme } = useTheme();
+    const theme = useAppSelector(({ UI }) => UI.theme);
 
     useEffect(() => {
         console.log('RENDER:::MODAL');

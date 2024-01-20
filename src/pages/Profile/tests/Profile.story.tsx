@@ -2,13 +2,13 @@ import Profile from 'pages/Profile';
 import { type Meta, type StoryObj } from '@storybook/react';
 import PagesDecorator from '@config/storybook/lib/decorators/PagesDecorator';
 import StoreDecorator from '@config/storybook/lib/decorators/StoreDecorator';
-import { ETheme } from 'app/providers/theme';
+import { ETheme } from 'store/UI';
 
 
 const meta: Meta<typeof Profile> = {
     title: 'pages/Profile',
     component: Profile,
-    decorators: [ PagesDecorator, StoreDecorator({}) ]
+    decorators: [ PagesDecorator ]
 };
 
 export default meta;

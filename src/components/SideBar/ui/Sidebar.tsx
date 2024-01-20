@@ -1,11 +1,13 @@
 import {
-    type FC, memo, useMemo, useState 
+    type FC, memo, useMemo, useState
 } from 'react';
 import LangSwitcher from 'components/LangSwitcher';
 import ThemeSwitcher from 'components/ThemeSwitcher';
 import AppButton, { EAppButtonSize, EAppButtonTheme } from 'shared/ui/AppButton';
 import _c from 'shared/helpers/classNames';
 import useRenderWatcher from 'shared/hooks/useRenderWatcher';
+import { useActions, useAppSelector } from 'shared/hooks/redux';
+import { UIActionCreators } from 'store/UI';
 
 import { sidebarItemsList } from '../model/items';
 import cls from './Sidebar.module.scss';
@@ -17,11 +19,8 @@ interface ISidebarProps {
 }
 
 const Sidebar: FC<ISidebarProps> = ({ className }) => {
-    const [ collapsed, setCollapsed ] = useState(false);
-
-    const onToggle = () => {
-        setCollapsed((prev) => !prev);
-    };
+    const collapsed = useAppSelector(({ UI }) => UI.collapsed);
+    const { toggleCollapsed } = useActions(UIActionCreators, [ 'toggleCollapsed' ]);
 
     const itemsList = useMemo(() => sidebarItemsList.map((item) => (
         <SidebarItem
@@ -40,7 +39,7 @@ const Sidebar: FC<ISidebarProps> = ({ className }) => {
         >
             <AppButton
                 data-testid="sidebar-toggle"
-                onClick={ onToggle }
+                onClick={ () => toggleCollapsed() }
                 className={ cls['collapsed-btn'] }
                 theme={ EAppButtonTheme.BACKGROUND_INVERTED }
                 size={ EAppButtonSize.L }

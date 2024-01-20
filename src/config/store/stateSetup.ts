@@ -181,7 +181,7 @@ export const checkAuthorization: TCheckAuthorizationFn = async (
     //     }
     // }
 
-    // await until(3000);
+    await until(3000);
 
     if (
         localStorage.getItem(USER_LOCALSTORAGE_KEY)

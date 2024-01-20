@@ -6,28 +6,28 @@ import useRenderWatcher from 'shared/hooks/useRenderWatcher';
 import { useNavigate } from 'react-router-dom';
 import Flex from 'shared/ui/Stack';
 import { useLayoutEffect } from 'react';
+import { useAppSelector } from 'shared/hooks/redux';
 
-import { useTheme } from './providers/theme';
 
 
 function App() {
-    const { theme } = useTheme();
+    const theme = useAppSelector(({ UI }) => UI.theme);
     const navigate = useNavigate();
-    // useLayoutEffect(() => {
-    //     setTimeout(() => {
-    //         navigate('/');
-    //         setTimeout(() => {
-    //             navigate('/');
-    //             setTimeout(() => {
-    //                 navigate('/about');
-    //                 setTimeout(() => {
-    //                     navigate('/profile');
-    //                 }, 100);
-    //             }, 0);
-    //         }, 200);
-    //     }, 200);
-    //     // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, []);
+    useLayoutEffect(() => {
+        // setTimeout(() => {
+        //     navigate('/');
+        //     setTimeout(() => {
+        //         navigate('/');
+        //         setTimeout(() => {
+        //             navigate('/about');
+        //             setTimeout(() => {
+        //                 navigate('/profile');
+        //             }, 100);
+        //         }, 0);
+        //     }, 200);
+        // }, 1200);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // useEffect(() => {
     //     setTimeout(() => {

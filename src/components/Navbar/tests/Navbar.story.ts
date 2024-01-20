@@ -1,5 +1,5 @@
 import  { type Meta, type StoryObj } from '@storybook/react';
-import { ETheme } from 'app/providers/theme';
+import { ETheme } from 'store/UI';
 import StoreDecorator from '@config/storybook/lib/decorators/StoreDecorator';
 
 import Navbar from '../Navbar';
@@ -8,7 +8,6 @@ import Navbar from '../Navbar';
 const meta: Meta<typeof Navbar> = {
     title: 'components/Navbar',
     component: Navbar,
-    decorators: [ StoreDecorator({}) ]
 };
 
 export default meta;

@@ -26,7 +26,7 @@ const Navbar: FC<INavbarProps> = ({ className }) => {
     const dispatch = useAppDispatch();
     const isAuthenticated = useSelector(getIsAuthenticated);
     const isAppReady = useSelector(getIsAppReady);
-    const { logout } = useActions(userActionCreators, [ 'logout', 'setAuthData' ]);
+    const { logout } = useActions(userActionCreators, [ 'logout' ]);
 
 
     function fastLogin() {

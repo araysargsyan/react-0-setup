@@ -1,5 +1,5 @@
 import  { type Meta, type StoryObj } from '@storybook/react';
-import { ETheme } from 'app/providers/theme';
+import { ETheme } from 'store/UI';
 
 import AppText, { EAppTextTheme } from '..';
 

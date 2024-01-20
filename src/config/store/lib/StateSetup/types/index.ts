@@ -30,7 +30,6 @@ interface IThunkConfig<R = string> {
 }
 
 type TCb<P extends Params<string> = Params<string>> = ((pageOptions: Required<TPageOptionsArgument<P>>) => ActionCreator<any>);
-type TMode = 'APP' | 'PAGE';
 interface IAsyncCb<
     T extends Record<string, ReturnType<TCb>> = Record<string, ReturnType<TCb>>,
     P extends Params<string> = Params<string>
@@ -159,12 +158,11 @@ type TStateSetUpArgs = {
     pathname: string;
     pageNumber: number;
     type: 'SETUP' | 'SETUP_FIRST';
-    mode: TMode;
     asyncReducer?: TAsyncReducer;
 };
 
 type TStateSetup = AsyncThunk<
-    { isAppReady: boolean | null; mode: TMode },
+    void,
     TStateSetUpArgs,
     IThunkConfig
 >;
@@ -174,14 +172,12 @@ type TSetIsAuthenticated = ActionCreatorWithPreparedPayload<
     {isAuthenticated: boolean; restart: boolean}
 >;
 
-type TCheckAuthorizationReturn = { redirectTo: string | null; mode: TMode; waitUntil: INavigationOptions['waitUntil'] | null };
+type TCheckAuthorizationReturn = { redirectTo: string | null; waitUntil: INavigationOptions['waitUntil'] | null };
 type TCheckAuthorizationAsyncThunk = AsyncThunk<
     TCheckAuthorizationReturn,
     {
         pathname: string;
         searchParams: URLSearchParams;
-        mode: TMode;
-        // mustRedirectTo: string | null;
     },
     IThunkConfig
 >;
@@ -208,7 +204,6 @@ interface IinitiatedState {
 
 export type {
     TCb,
-    TMode,
     IAppSchema,
     IStateSchema,
     TUseRedirectionContext,

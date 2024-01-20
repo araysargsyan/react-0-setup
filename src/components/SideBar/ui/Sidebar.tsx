@@ -1,5 +1,5 @@
 import {
-    type FC, memo, useMemo, useState
+    memo, useMemo, type FC
 } from 'react';
 import LangSwitcher from 'components/LangSwitcher';
 import ThemeSwitcher from 'components/ThemeSwitcher';

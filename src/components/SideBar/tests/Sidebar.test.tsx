@@ -1,6 +1,5 @@
 import { fireEvent, screen } from '@testing-library/react';
 import { componentRender } from '@config/jest/ui/componentRender';
-import { ETheme } from 'store/UI';
 
 import Sidebar from '../ui/Sidebar';
 

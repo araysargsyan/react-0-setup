@@ -70,7 +70,7 @@ const StateSetupConfig = createStateSetupConfig<
                 {
                     cb: createAsyncCb<TArticlesActionCreators, {id: string}>(
                         'articles',
-                        (articleActionCreators, { params, ...ot }) => {
+                        (articleActionCreators, { params }) => {
                             return articleActionCreators.fetchById.bind(null, params.id);
                         }
                     ),
@@ -81,7 +81,7 @@ const StateSetupConfig = createStateSetupConfig<
             ],
         },
         [Routes.MAIN]: {
-            onLoading: (dispatch, pageOptions) => {
+            onLoading: (dispatch) => {
                 dispatch(counterActionCreators.increment(10));
             },
             authRequirement: null,

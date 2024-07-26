@@ -1,12 +1,11 @@
 import {
-    type TypedUseSelectorHook, useDispatch, useSelector 
+    type TypedUseSelectorHook, useDispatch, useSelector
 } from 'react-redux';
 import { type IStateSchema, type TAppDispatch } from 'config/store';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { type IHistoryState } from 'shared/types';
 import { type Location } from 'history';
 
-import { type TAppNavigateFunction } from '../types';
+import { type IHistoryState, type TAppNavigateFunction } from '../types';
 
 
 export const useAppDispatch = () => useDispatch<TAppDispatch>();
@@ -22,7 +21,7 @@ export function useAppNavigate() {
                 // ...initialState,
                 ...state,
                 //from: pathname
-            } 
+            }
         });
     };
 

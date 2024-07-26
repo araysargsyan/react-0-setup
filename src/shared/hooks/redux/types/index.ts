@@ -3,9 +3,11 @@ import { type AsyncThunkAction } from '@reduxjs/toolkit';
 import { type InferThunkActionCreatorType } from 'react-redux';
 import { type DependencyList } from 'react';
 import { type NavigateOptions, type To } from 'react-router-dom';
-import { type IHistoryState } from 'shared/types';
 
 
+interface IHistoryState {
+    from?: string;
+}
 type TAction = ActionCreator<any> | AsyncThunkAction<any, any, any>;
 type TModule<T> = { [K in keyof T]: TAction };
 type TAsyncModule<T extends TModule<T>> = () => Promise<
@@ -29,6 +31,7 @@ interface TNavigateOptions extends NavigateOptions {
 type TAppNavigateFunction = (to: To, options?: TNavigateOptions) => void;
 
 export type {
+    IHistoryState,
     TAction,
     TModule,
     TReturnedActions,

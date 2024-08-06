@@ -61,4 +61,4 @@ To get started with this React client-side app starter, follow these steps:
 This React client-side app starter provides a robust foundation for building modern frontend applications. With customizable configurations and a comprehensive set of tools and libraries, it aims to streamline your development process and ensure high-quality code.
 
 
-![Alt text](https://raw.githubusercontent.com/araysargsyan/react-0-setup/screenshots/screenshots/aaaa.jpg)
+![Alt text](https://raw.githubusercontent.com/araysargsyan/react-0-setup/screenshots/screenshots/aaa.jpg)
